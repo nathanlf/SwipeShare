@@ -1,4 +1,4 @@
-# << APP NAME >>
+# Swipe Sharer
 
 > Developed by [Boluwatife Adeshina](https://github.com/boluwatifeda), [Jahnavi Kumar](), [Nathan Flinchum](), and [Katun Li](https://github.com/katunli) for COMP 426: Modern Web Programming at UNC-Chapel Hill.
 
