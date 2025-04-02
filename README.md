@@ -1,6 +1,6 @@
 # << APP NAME >>
 
-> Developed by [Boluwatife Adeshina](https://github.com/boluwatifeda), [Jahnavi Kumar](), [Nathan Flinchum](), [Katun Li]() for COMP 426: Modern Web Programming at UNC-Chapel Hill.
+> Developed by [Boluwatife Adeshina](https://github.com/boluwatifeda), [Jahnavi Kumar](), [Nathan Flinchum](), and [Katun Li]() for COMP 426: Modern Web Programming at UNC-Chapel Hill.
 
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-05122A?style=flat&logo=typescript)
