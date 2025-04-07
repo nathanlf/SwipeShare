@@ -67,4 +67,4 @@
 
 ## High-Fidelity Prototype
 
-*Replace this with an embedded Figma project here.*
+![Figma Project](https://www.figma.com/design/HYX1xtb2fF3YgGF2LiZZSx/Swipe-Share?node-id=66-1137&t=MLH0GulhKrqBVdXz-1)
