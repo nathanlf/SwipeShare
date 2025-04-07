@@ -1,11 +1,8 @@
 # Design Document
 
-> Written by: Avi Kumar, Nathan Flinchum, Katun Li,  for COMP 426: Modern Web Programming at UNC-Chapel Hill.
+> Written by: Avi Kumar, Nathan Flinchum, Katun Li, and Boluwatife Adeshina for COMP 426: Modern Web Programming at UNC-Chapel Hill.
 
 ## Feature Plan
-
-*Replace this with your feature plan. Write a bit more detail under each heading from before (description, user, purpose). Also, add a fourth section to each with some technical notes on how you may implement each feature and any other backend or frontend notes you may need.*
-
 ### Feature 1: Chat
 
 **Description:** Chat for real-time conversations between giver and receiver
@@ -65,7 +62,8 @@
 
 ## Backend Database Schema
 
-*Replace this with a photo or PDF link of your backend database schema. Please add a short description for important design considerations.
+![01780B0B-2FCD-46E2-9043-0CD45EA639A7](https://github.com/user-attachments/assets/2254a7a3-b1ae-4135-9918-b2a4ffba1733)
+
 
 ## High-Fidelity Prototype
 
