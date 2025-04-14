@@ -40,7 +40,7 @@ export function AppSidebar() {
   return (
     <Sidebar className="border-r-0 max-w-[260px]">
       <SidebarContent className="pt-4">
-        <div className="px-4 py-2 mb-4">
+        <div className="px-4">
           <h1 className="font-semibold text-xl text-purple-700">SwipeShare</h1>
         </div>
         <SidebarGroup>
