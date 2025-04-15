@@ -1,115 +1,217 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
+import {
+    ColumnDef,
+    ColumnFiltersState,
+    SortingState,
+    VisibilityState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from "@tanstack/react-table"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export type Timeslot = {
+    starttime: string
+    endtime: string
+}
+
+export const timeslots: Timeslot[] = [
+    {
+        starttime: "10a",
+        endtime: "11a",
+    },
+    {
+        starttime: "12:30p",
+        endtime: "2p",
+    },
+    {
+        starttime: "4p",
+        endtime: "5p",
+    }
+]
+export const columns: ColumnDef<Timeslot>[] = [
+    {
+        accessorKey: "starttime",
+        cell: ({ row }) => {
+            const { starttime, endtime } = row.original;
+            return <div className="text-left font-bold !rounded-md text-sm">{starttime} - {endtime}</div>
+        },
+    },
+]
+interface DataTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[]
+    data: TData[]
+}
+export function DataTable<TData, TValue>({
+    columns,
+    data,
+}: DataTableProps<TData, TValue>) {
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    })
+    //const first = True;
+    return (
+        <div className="rounded-md ">
+            <Table className="gap-2 border-separate border-spacing-y-0.5"
+            >
+                <TableBody className="gap-2">
+                    {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row, index) => {
+                            const color = Number.isInteger(index / 2) ? "bg-[#3bbf904d] !rounded-md border-none mt-2 hover:bg-[#3bbf9040] gap-y-7" : "bg-[#3bbf9026] !rounded-md border-none mt-2 hover:bg-[#3bbf901a] gap-y-7";
+                            return (
+                                <TableRow className={color}
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell className="rounded-md py-0.5 leading-6 my-5" key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            )
+                        })
+                    ) : (
+                        <TableRow className="bg-green-200">
+                            <TableCell colSpan={columns.length} className="h-24 text-center">
+                                No results.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
+
+    )
+}
+
+
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              pages/index.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    return (
+        <div >
+            <Tabs defaultValue="account" className="w-1/2 mx-auto">
+                <TabsList className="grid w-full grid-cols-2 mb-12">
+                    <TabsTrigger value="account">Donations</TabsTrigger>
+                    <TabsTrigger value="password">Requests</TabsTrigger>
+                </TabsList>
+                <TabsContent value="account">
+                    <ScrollArea >
+                        <div className="flex flex-col gap-y-8">
+                            <PostCard username="user123" time_since_post="3m" dining_halls={["Chase", "Lenoir"]} times={timeslots} is_request={false} />
+                            <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />
+
+
+                        </div>
+
+                    </ScrollArea>
+                </TabsContent>
+                <TabsContent value="password">
+                    <ScrollArea>
+                        <div className="flex flex-col gap-y-8">
+                            <PostCard username="user456" time_since_post="3m" dining_halls={["Chase"]} times={timeslots} is_request={true} imgsrc={"/sampleimg.png"} caption={"feeling hungry and hopeful :p"} />
+                            <PostCard username="user456" time_since_post="3m" dining_halls={["Chase"]} times={timeslots} is_request={true} />
+                        </div>
+                    </ScrollArea>
+                </TabsContent>
+            </Tabs>
+
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
+
 }
+
+type props = {
+    username: string;
+    time_since_post: string;
+    dining_halls: string[];
+    times: Timeslot[];
+    is_request: boolean;
+    imgsrc: string | null;
+    caption: string | null;
+
+};
+function PostCard({ username, time_since_post, dining_halls, times, is_request, imgsrc, caption }: props) {
+
+    const listitems = dining_halls.map((hall) => {
+        return (
+            // eslint-disable-next-line react/jsx-key
+            <div className="flex flex-row gap-0.5">
+                <MapPin size={15} />
+                <p>{hall}</p>
+            </div>
+        );
+    })
+    return (
+        <Card className="rounded-sm px-4 gap-3" >
+            <CardHeader>
+                <CardTitle className="text-xl font-sans font-bold">{is_request ? "Swipe Requested" : "Swipe Available"}</CardTitle>
+
+            </CardHeader>
+            <CardContent className="flex flex-row gap-x-6">
+                <div className="space-y-4 flex-3">
+                    <div className="flex flex-col gap-y-2">
+                        <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+                            <CalendarDays size={16} />
+                            <p className="text-xs ">{time_since_post} ~ @{username}</p>
+                        </CardDescription>
+                        <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
+                            {listitems}
+
+                        </CardDescription>
+                    </div>
+                    {caption ? <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">{caption}</p> : null}
+                    <div className="flex flex-row">
+                        <div className="w-full">
+                            <DataTable columns={columns} data={times} />
+                        </div>
+                    </div>
+                    <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
+                        View all Time Slots
+                    </CardDescription>
+                </div>
+                <div className="flex-2 flex flex-col gap-y-6 mx-16">
+                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : (
+                        <div className="mb-8" /> // Reserve image height when missing
+                    )}
+                    <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
+                    <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
+                        Message @{username}</Button>
+
+                </div>
+
+            </CardContent>
+        </Card>
+
+    );
+}
+
+/* 
+ <div className="flex-2 flex flex-col gap-y-6 mx-16">
+                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : null}
+                    <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
+                    <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
+                        Message @{username}</Button>
+
+                </div>
+*/
