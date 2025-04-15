@@ -16,7 +16,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   return (
-    <div className="flex min-h-[calc(100svh-164px)] flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+    <div className="flex min-h-[calc(100svh)] flex-col items-center justify-center gap-6 bg-primary1 p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">

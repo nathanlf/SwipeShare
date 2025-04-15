@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
 import {
@@ -71,18 +72,19 @@ export function DataTable<TData, TValue>({
     //const first = True;
     return (
         <div className="rounded-md ">
-            <Table className="gap-2">
+            <Table className="gap-2 border-separate border-spacing-y-0.5"
+            >
                 <TableBody className="gap-2">
                     {table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row, index) => {
-                            const color = Number.isInteger(index / 2) ? "bg-[#3bbf904d] !rounded-md border-none mt-2 hover:bg-[#3bbf9040]" : "bg-[#3bbf9026] !rounded-md border-none mt-2 hover:bg-[#3bbf901a]";
+                            const color = Number.isInteger(index / 2) ? "bg-[#3bbf904d] !rounded-md border-none mt-2 hover:bg-[#3bbf9040] gap-y-7" : "bg-[#3bbf9026] !rounded-md border-none mt-2 hover:bg-[#3bbf901a] gap-y-7";
                             return (
                                 <TableRow className={color}
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell className="rounded-md py-0.5 leading-6" key={cell.id}>
+                                        <TableCell className="rounded-md py-0.5 leading-6 my-5" key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
@@ -116,8 +118,8 @@ export default function Home() {
                 <TabsContent value="account">
                     <ScrollArea >
                         <div className="flex flex-col gap-y-8">
-                            <PostCard />
-                            <PostCard />
+                            <PostCard username="user123" time_since_post="3m" dining_halls={["Chase", "Lenoir"]} times={timeslots} is_request={false} />
+                            <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />
 
 
                         </div>
@@ -125,27 +127,12 @@ export default function Home() {
                     </ScrollArea>
                 </TabsContent>
                 <TabsContent value="password">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Password</CardTitle>
-                            <CardDescription>
-                                Change your password here. After saving, you'll be logged out.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <div className="space-y-1">
-                                <Label htmlFor="current">Current password</Label>
-                                <Input id="current" type="password" />
-                            </div>
-                            <div className="space-y-1">
-                                <Label htmlFor="new">New password</Label>
-                                <Input id="new" type="password" />
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button>Save password</Button>
-                        </CardFooter>
-                    </Card>
+                    <ScrollArea>
+                        <div className="flex flex-col gap-y-8">
+                            <PostCard username="user456" time_since_post="3m" dining_halls={["Chase"]} times={timeslots} is_request={true} imgsrc={"/sampleimg.png"} caption={"feeling hungry and hopeful :p"} />
+                            <PostCard username="user456" time_since_post="3m" dining_halls={["Chase"]} times={timeslots} is_request={true} />
+                        </div>
+                    </ScrollArea>
                 </TabsContent>
             </Tabs>
 
@@ -154,32 +141,49 @@ export default function Home() {
 
 }
 
-function PostCard() {
+type props = {
+    username: string;
+    time_since_post: string;
+    dining_halls: string[];
+    times: Timeslot[];
+    is_request: boolean;
+    imgsrc: string | null;
+    caption: string | null;
+
+};
+function PostCard({ username, time_since_post, dining_halls, times, is_request, imgsrc, caption }: props) {
+
+    const listitems = dining_halls.map((hall) => {
+        return (
+            // eslint-disable-next-line react/jsx-key
+            <div className="flex flex-row gap-0.5">
+                <MapPin size={15} />
+                <p>{hall}</p>
+            </div>
+        );
+    })
     return (
-        <Card className="rounded-sm px-4" >
+        <Card className="rounded-sm px-4 gap-3" >
             <CardHeader>
-                <CardTitle className="text-xl font-sans font-normal">Swipe Available</CardTitle>
-                <CardDescription className="flex flex-row gap-x-1 pt-0.5">
-                    <CalendarDays size={16} />
-                    <p className="text-xs ">3m ~ @user123</p>
-                </CardDescription>
-                <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
-                    <div className="flex flex-row gap-0.5">
-                        <MapPin size={15} />
-                        <p>Chase</p>
-                    </div>
-                    <div className="flex flex-row gap-0.5">
-                        <MapPin size={15} />
-                        <p>Lenoir</p>                                    </div>
+                <CardTitle className="text-xl font-sans font-bold">{is_request ? "Swipe Requested" : "Swipe Available"}</CardTitle>
 
-
-                </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-row gap-x-6">
                 <div className="space-y-4 flex-3">
+                    <div className="flex flex-col gap-y-2">
+                        <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+                            <CalendarDays size={16} />
+                            <p className="text-xs ">{time_since_post} ~ @{username}</p>
+                        </CardDescription>
+                        <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
+                            {listitems}
+
+                        </CardDescription>
+                    </div>
+                    {caption ? <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">{caption}</p> : null}
                     <div className="flex flex-row">
                         <div className="w-full">
-                            <DataTable columns={columns} data={timeslots} />
+                            <DataTable columns={columns} data={times} />
                         </div>
                     </div>
                     <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
@@ -187,13 +191,27 @@ function PostCard() {
                     </CardDescription>
                 </div>
                 <div className="flex-2 flex flex-col gap-y-6 mx-16">
-                    <Button variant="secondary1" size="default" className=" rounded-sm " >Request Swipe</Button>
+                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : (
+                        <div className="mb-8" /> // Reserve image height when missing
+                    )}
+                    <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
                     <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
-                        Message @user123</Button>
+                        Message @{username}</Button>
 
                 </div>
+
             </CardContent>
         </Card>
 
     );
 }
+
+/* 
+ <div className="flex-2 flex flex-col gap-y-6 mx-16">
+                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : null}
+                    <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
+                    <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
+                        Message @{username}</Button>
+
+                </div>
+*/
