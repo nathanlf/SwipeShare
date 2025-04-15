@@ -1,29 +1,19 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
 import {
     ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
     flexRender,
     getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
 import {
     Table,
     TableBody,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -147,8 +137,8 @@ type props = {
     dining_halls: string[];
     times: Timeslot[];
     is_request: boolean;
-    imgsrc: string | null;
-    caption: string | null;
+    imgsrc?: string;
+    caption?: string;
 
 };
 function PostCard({ username, time_since_post, dining_halls, times, is_request, imgsrc, caption }: props) {
@@ -156,7 +146,7 @@ function PostCard({ username, time_since_post, dining_halls, times, is_request, 
     const listitems = dining_halls.map((hall) => {
         return (
             // eslint-disable-next-line react/jsx-key
-            <div className="flex flex-row gap-0.5">
+            <div className="flex flex-row gap-0.5" key={hall}>
                 <MapPin size={15} />
                 <p>{hall}</p>
             </div>
@@ -205,13 +195,3 @@ function PostCard({ username, time_since_post, dining_halls, times, is_request, 
 
     );
 }
-
-/* 
- <div className="flex-2 flex flex-col gap-y-6 mx-16">
-                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : null}
-                    <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
-                    <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
-                        Message @{username}</Button>
-
-                </div>
-*/
