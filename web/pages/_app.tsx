@@ -4,10 +4,29 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AppProps } from "next/app";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { useRouter } from "next/router";
+import { Toaster } from "@/components/ui/sonner"
+
 
 const queryClient = new QueryClient();
-
+//use ifexcludedroutes array
 export default function App({ Component, pageProps }: AppProps) {
+
+  const router = useRouter();
+  // The excludedRoutes array contains routes that should not be added into the global
+  // sidebar layout.
+  const excludedRoutes = ["/login", "/signup"];
+
+  if (excludedRoutes.includes(router.pathname)) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Component {...pageProps} />
+        <Toaster />
+      </QueryClientProvider>
+
+    );
+
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider>
@@ -17,6 +36,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <SidebarTrigger className="w-10 h-10 p-2" />
             <Component {...pageProps} />
           </main>
+          <Toaster />
         </div>
       </SidebarProvider>
     </QueryClientProvider>

@@ -1,4 +1,4 @@
-
+"use client"
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,43 +6,39 @@ import { Label } from "@/components/ui/label";
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
+import { createClient } from "@/utils/supabase/clients/component";
+import { createSupabaseServerClient } from "@/utils/supabase/clients/server-props";
+import { Profile } from "@/utils/supabase/models/post";
+import { User } from "@supabase/supabase-js";
+import { getProfileData } from "@/utils/supabase/queries/profile";
+import { z } from "zod";
+
 import {
     ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
 } from "@tanstack/react-table"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DataTable } from "@/components/ui/datatable";
+import { GetServerSidePropsContext } from "next";
 
 export type Timeslot = {
-    starttime: string
-    endtime: string
+    starttime: string,
+    endtime: string,
+    id: string
 }
-
 export const timeslots: Timeslot[] = [
     {
+        id: "728ed52f",
         starttime: "10a",
         endtime: "11a",
     },
     {
+        id: "489e1d42",
         starttime: "12:30p",
         endtime: "2p",
     },
     {
+        id: "996bc3d4",
         starttime: "4p",
         endtime: "5p",
     }
@@ -51,63 +47,20 @@ export const columns: ColumnDef<Timeslot>[] = [
     {
         accessorKey: "starttime",
         cell: ({ row }) => {
-            const { starttime, endtime } = row.original;
-            return <div className="text-left font-bold !rounded-md text-sm">{starttime} - {endtime}</div>
+            const { id, starttime, endtime } = row.original;
+            return
+            (<div className="text-left font-bold !rounded-md text-sm">{starttime} - {endtime}</div>);
         },
     },
 ]
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
-}
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-}: DataTableProps<TData, TValue>) {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    })
-    //const first = True;
-    return (
-        <div className="rounded-md ">
-            <Table className="gap-2 border-separate border-spacing-y-0.5"
-            >
-                <TableBody className="gap-2">
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row, index) => {
-                            const color = Number.isInteger(index / 2) ? "bg-[#3bbf904d] !rounded-md border-none mt-2 hover:bg-[#3bbf9040] gap-y-7" : "bg-[#3bbf9026] !rounded-md border-none mt-2 hover:bg-[#3bbf901a] gap-y-7";
-                            return (
-                                <TableRow className={color}
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell className="rounded-md py-0.5 leading-6 my-5" key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            )
-                        })
-                    ) : (
-                        <TableRow className="bg-green-200">
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
-
-    )
-}
 
 
+type HomePageProps = { user: User; profile: z.infer<typeof PostAuthor> };
 
-export default function Home() {
+
+export default function Home({ user, profile }: HomePageProps) {
+    const supabase = createClient();
+
     return (
         <div >
             <Tabs defaultValue="account" className="w-1/2 mx-auto">
@@ -116,15 +69,14 @@ export default function Home() {
                     <TabsTrigger value="password">Requests</TabsTrigger>
                 </TabsList>
                 <TabsContent value="account">
-                    <ScrollArea >
-                        <div className="flex flex-col gap-y-8">
-                            <PostCard username="user123" time_since_post="3m" dining_halls={["Chase", "Lenoir"]} times={timeslots} is_request={false} />
-                            <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />
+
+                    <div className="flex flex-col gap-y-8 overflow-y-auto">
+                        <PostCard username="user123" time_since_post="3m" dining_halls={["Chase", "Lenoir"]} times={timeslots} is_request={false} />
+                        <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />
+                        <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />
+                    </div>
 
 
-                        </div>
-
-                    </ScrollArea>
                 </TabsContent>
                 <TabsContent value="password">
                     <ScrollArea>
@@ -192,7 +144,7 @@ function PostCard({ username, time_since_post, dining_halls, times, is_request, 
                 </div>
                 <div className="flex-2 flex flex-col gap-y-6 mx-16">
                     {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : (
-                        <div className="mb-8" /> // Reserve image height when missing
+                        <div className="mb-8"></div> // Reserve image height when missing
                     )}
                     <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
                     <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
@@ -205,6 +157,45 @@ function PostCard({ username, time_since_post, dining_halls, times, is_request, 
 
     );
 }
+
+// The `getServerSideProps` function is used to fetch the user data and on
+// the server side before rendering the page to both pre-load the Supabase
+// user and profile data. If the user is not logged in, we can catch this
+// here and redirect the user to the login page.
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+    // Create the supabase context that works specifically on the server and
+    // pass in the context.
+    const supabase = createSupabaseServerClient(context);
+
+    // Attempt to load the user data
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    // If the user is not logged in, redirect them to the login page.
+    if (userError || !userData) {
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
+    }
+
+    // Load the profile data
+    const profile = await getProfileData(
+        supabase,
+        userData.user,
+        userData.user.id
+    );
+
+    // Return the user and profile as props.
+    return {
+        props: {
+            user: userData.user,
+            profile: profile,
+        },
+    };
+}
+
 
 /* 
  <div className="flex-2 flex flex-col gap-y-6 mx-16">
