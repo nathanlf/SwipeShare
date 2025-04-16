@@ -23,36 +23,33 @@ import { GetServerSidePropsContext } from "next";
 
 export type Timeslot = {
     starttime: string,
-    endtime: string,
-    id: string
+    endtime: string
 }
 export const timeslots: Timeslot[] = [
     {
-        id: "728ed52f",
         starttime: "10a",
         endtime: "11a",
     },
     {
-        id: "489e1d42",
         starttime: "12:30p",
         endtime: "2p",
     },
     {
-        id: "996bc3d4",
         starttime: "4p",
         endtime: "5p",
     }
 ]
+
 export const columns: ColumnDef<Timeslot>[] = [
     {
         accessorKey: "starttime",
         cell: ({ row }) => {
-            const { id, starttime, endtime } = row.original;
-            return
-            (<div className="text-left font-bold !rounded-md text-sm">{starttime} - {endtime}</div>);
+            const { starttime, endtime } = row.original;
+            return <div className="text-left font-bold !rounded-md text-sm">{starttime} - {endtime}</div>
         },
     },
 ]
+
 
 
 type HomePageProps = { user: User; profile: z.infer<typeof PostAuthor> };
