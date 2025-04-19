@@ -27,6 +27,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DataTable } from "@/components/ui/datatable";
 
 export type Timeslot = {
     starttime: string
@@ -56,54 +57,6 @@ export const columns: ColumnDef<Timeslot>[] = [
         },
     },
 ]
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
-}
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-}: DataTableProps<TData, TValue>) {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    })
-    //const first = True;
-    return (
-        <div className="rounded-md ">
-            <Table className="gap-2 border-separate border-spacing-y-0.5"
-            >
-                <TableBody className="gap-2">
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row, index) => {
-                            const color = Number.isInteger(index / 2) ? "bg-[#3bbf904d] !rounded-md border-none mt-2 hover:bg-[#3bbf9040] gap-y-7" : "bg-[#3bbf9026] !rounded-md border-none mt-2 hover:bg-[#3bbf901a] gap-y-7";
-                            return (
-                                <TableRow className={color}
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell className="rounded-md py-0.5 leading-6 my-5" key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            )
-                        })
-                    ) : (
-                        <TableRow className="bg-green-200">
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
-
-    )
-}
 
 
 
