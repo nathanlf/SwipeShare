@@ -61,7 +61,7 @@ export const getChatById = async (
 /**
  * Get or create a chat between two users
  */
-export const getChatByUsers = async (
+export const getOrCreateChatByUsers = async (
   supabase: SupabaseClient,
   user1Id: string,
   user2Id: string
@@ -151,6 +151,6 @@ export const getOrCreateChatForNavigation = async (
   currentUserId: string,
   otherUserId: string
 ): Promise<string> => {
-  const chat = await getChatByUsers(supabase, currentUserId, otherUserId);
+  const chat = await getOrCreateChatByUsers(supabase, currentUserId, otherUserId);
   return chat.id;
 };

@@ -71,7 +71,7 @@ export const addMessageToCacheFn =
         return {
           pageParams: oldData.pageParams,
           pages: oldData.pages.map((page, index) =>
-            index === 0 ? [...page, parsedMessage] : page
+            index === 0 ? [parsedMessage, ...page] : page
           ),
         };
       }

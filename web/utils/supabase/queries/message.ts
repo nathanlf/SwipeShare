@@ -19,12 +19,12 @@ export const getMessages = async (
       content,
       created_at,
       attachment_url,
-      author:profile!message_author_id_fkey ( id, name, handle, avatar_url ),
-      reactions:reaction!reaction_message_id_fkey ( id, reaction, author_id )
+      author:profile!author_id ( id, name, handle, avatar_url ),
+      reactions:reaction!message_id ( id, reaction, author_id )
     `
     )
     .eq("chat_id", chatId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .range(cursor, cursor + 49);
 
   if (textSearch) {
