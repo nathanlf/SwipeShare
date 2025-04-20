@@ -1,8 +1,11 @@
-import ConversationCard from "@/components/conversation-card";
-import { DiningHall } from "@/components/conversation-card";
+import ConversationCard from "@/components/chat-pages/conversation-card";
+import { DiningHall } from "@/components/chat-pages/conversation-card";
 import SearchBar from "@/components/search-bar";
 import { Card } from "@/components/ui/card";
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";
+import { GetServerSidePropsContext } from "next/dist/types";
 export default function ConversationsPage(){
+    
     const conversations = [
     { id: 1, name: "Sarah Smith", online: true, lastSeen: DiningHall.Chase },
     { id: 2, name: "Derrick Jones", online: false, lastSeen: DiningHall.Lenoir },
@@ -36,4 +39,34 @@ export default function ConversationsPage(){
             </Card>
         </div>
     )
+}
+
+// The `getServerSideProps` function is used to fetch the user data and on
+// the server side before rendering the page to both pre-load the Supabase
+// user and profile data. If the user is not logged in, we can catch this
+// here and redirect the user to the login page.
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  // Create the supabase context that works specifically on the server and
+  // pass in the context.
+  const supabase = createSupabaseServerClient(context);
+
+  // Attempt to load the user data
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  // If the user is not logged in, redirect them to the login page.
+  if (userError || !userData) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  // Return the user and profile as props.
+  return {
+    props: {
+      user: userData.user,
+    },
+  };
 }

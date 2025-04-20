@@ -1,12 +1,12 @@
 import { UtensilsCrossed } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Card, CardContent } from "./ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Card, CardContent } from "../ui/card";
 import { DiningHall } from "./conversation-card";
 
 type DirectMessageHeaderProps = {
     name: string,
     online: boolean,
-    lastSeen: DiningHall
+    lastSeen?: DiningHall
 }
 
 export default function DirectMessageHeader({name, online, lastSeen}: DirectMessageHeaderProps){

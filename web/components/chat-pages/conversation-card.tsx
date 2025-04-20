@@ -1,6 +1,6 @@
 import { UtensilsCrossed } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Card, CardContent } from "./ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Card, CardContent } from "../ui/card";
 
 export enum DiningHall {
     Lenoir = "Lenoir",
