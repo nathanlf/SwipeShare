@@ -135,7 +135,6 @@ function PostCard({
 }: props) {
   const listitems = dining_halls.map((hall) => {
     return (
-      // eslint-disable-next-line react/jsx-key
       <div className="flex flex-row gap-0.5" key={hall}>
         <MapPin size={15} />
         <p>{hall}</p>

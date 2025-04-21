@@ -1,5 +1,13 @@
 // components/app-sidebar.tsx
-import { Home, MessageSquare, Clock, Settings, Soup, LogOut, UserRound } from "lucide-react";
+import {
+  Home,
+  MessageSquare,
+  Clock,
+  Settings,
+  Soup,
+  LogOut,
+  UserRound,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,10 +21,14 @@ import {
 import Link from "next/link";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
 import { getProfile } from "@/utils/supabase/queries/profile";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 // Menu items
@@ -43,7 +55,6 @@ const items = [
   },
 ];
 
-
 export function AppSidebar() {
   const queryClient = useQueryClient();
   const supabase = createSupabaseComponentClient();
@@ -57,7 +68,6 @@ export function AppSidebar() {
       return await getProfile(supabase, data.user!, data.user!.id);
     },
   });
-
 
   return (
     <Sidebar className="border-r-0 max-w-[260px]">
@@ -74,7 +84,10 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="hover:bg-gray-100">
-                    <Link href={item.url} className="flex items-center gap-3 text-gray-700">
+                    <Link
+                      href={item.url}
+                      className="flex items-center gap-3 text-gray-700"
+                    >
                       <item.icon size={18} />
                       <span>{item.title}</span>
                     </Link>
@@ -87,7 +100,6 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t py-3 px-4">
         <div className="flex items-center gap-2">
-
           {data && (
             <div className="flex items-center gap-3">
               {/* Dark mode / light mode toggle. */}
@@ -132,7 +144,8 @@ export function AppSidebar() {
             </div>
           )}
 
-          <div className="text-sm text-gray-700">{data ? data.handle : "swipey"}
+          <div className="text-sm text-gray-700">
+            {data ? data.handle : "swipey"}
           </div>
         </div>
       </SidebarFooter>
