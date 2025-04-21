@@ -1,3 +1,4 @@
+// @hidden
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ScrollState {
@@ -9,48 +10,18 @@ interface UseAutoScrollOptions {
   offset?: number;
   smooth?: boolean;
   content?: React.ReactNode;
-  preserveScrollPositionOnContentChange?: boolean;
 }
 
 export function useAutoScroll(options: UseAutoScrollOptions = {}) {
-  const { 
-    offset = 20, 
-    smooth = false, 
-    content,
-    preserveScrollPositionOnContentChange = true
-  } = options;
-  
+  const { offset = 20, smooth = false, content } = options;
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastContentHeight = useRef(0);
-  const lastScrollHeight = useRef(0);
-  const lastScrollTop = useRef(0);
-  const messagesLengthRef = useRef(0);
-  const contentChangeRef = useRef(false);
   const userHasScrolled = useRef(false);
 
   const [scrollState, setScrollState] = useState<ScrollState>({
     isAtBottom: true,
     autoScrollEnabled: true,
   });
-
-  // Preserve current scroll position and content height
-  const saveScrollPosition = useCallback(() => {
-    if (!scrollRef.current) return;
-    
-    lastScrollHeight.current = scrollRef.current.scrollHeight;
-    lastScrollTop.current = scrollRef.current.scrollTop;
-    
-    // Count number of message children to detect content changes
-    const messageCount = scrollRef.current.querySelectorAll('[data-message-id]').length;
-    
-    // If there are more messages than before (but we're not at the bottom), 
-    // we likely loaded older messages, so flag for scroll position preservation
-    if (messageCount > messagesLengthRef.current && !checkIsAtBottom(scrollRef.current)) {
-      contentChangeRef.current = true;
-    }
-    
-    messagesLengthRef.current = messageCount;
-  }, []);
 
   const checkIsAtBottom = useCallback(
     (element: HTMLElement) => {
@@ -88,22 +59,6 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
     [smooth]
   );
 
-  // Restore scroll position after content changes
-  const restoreScrollPosition = useCallback(() => {
-    if (!scrollRef.current || !contentChangeRef.current) return;
-    
-    // Calculate how much the content height has changed
-    const newScrollHeight = scrollRef.current.scrollHeight;
-    const scrollHeightDiff = newScrollHeight - lastScrollHeight.current;
-    
-    // If the height increased (content was added above), adjust scroll position
-    if (scrollHeightDiff > 0 && preserveScrollPositionOnContentChange) {
-      scrollRef.current.scrollTop = lastScrollTop.current + scrollHeightDiff;
-    }
-    
-    contentChangeRef.current = false;
-  }, [preserveScrollPositionOnContentChange]);
-
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
 
@@ -114,10 +69,7 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
       // Re-enable auto-scroll if at the bottom
       autoScrollEnabled: atBottom ? true : prev.autoScrollEnabled,
     }));
-    
-    // Save position on each scroll
-    saveScrollPosition();
-  }, [checkIsAtBottom, saveScrollPosition]);
+  }, [checkIsAtBottom]);
 
   useEffect(() => {
     const element = scrollRef.current;
@@ -130,50 +82,33 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
   useEffect(() => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
-    
-    // Check if it's a top load (older messages) or a bottom load (new messages)
-    // by seeing if we had scroll position saved
-    restoreScrollPosition();
 
     const currentHeight = scrollElement.scrollHeight;
     const hasNewContent = currentHeight !== lastContentHeight.current;
 
     if (hasNewContent) {
-      if (scrollState.autoScrollEnabled && !contentChangeRef.current) {
+      if (scrollState.autoScrollEnabled) {
         requestAnimationFrame(() => {
           scrollToBottom(lastContentHeight.current === 0);
         });
       }
       lastContentHeight.current = currentHeight;
     }
-  }, [content, scrollState.autoScrollEnabled, scrollToBottom, restoreScrollPosition]);
+  }, [content, scrollState.autoScrollEnabled, scrollToBottom]);
 
   useEffect(() => {
     const element = scrollRef.current;
     if (!element) return;
 
-    // Save scroll position before resize
-    const beforeResize = () => {
-      saveScrollPosition();
-    };
-    
-    // Restore after resize
-    const afterResize = () => {
+    const resizeObserver = new ResizeObserver(() => {
       if (scrollState.autoScrollEnabled) {
         scrollToBottom(true);
-      } else if (preserveScrollPositionOnContentChange) {
-        restoreScrollPosition();
       }
-    };
-
-    const resizeObserver = new ResizeObserver(() => {
-      beforeResize();
-      afterResize();
     });
 
     resizeObserver.observe(element);
     return () => resizeObserver.disconnect();
-  }, [scrollState.autoScrollEnabled, scrollToBottom, saveScrollPosition, restoreScrollPosition, preserveScrollPositionOnContentChange]);
+  }, [scrollState.autoScrollEnabled, scrollToBottom]);
 
   const disableAutoScroll = useCallback(() => {
     const atBottom = scrollRef.current
@@ -196,7 +131,5 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
     autoScrollEnabled: scrollState.autoScrollEnabled,
     scrollToBottom: () => scrollToBottom(false),
     disableAutoScroll,
-    saveScrollPosition,
-    restoreScrollPosition,
   };
 }

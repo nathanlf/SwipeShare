@@ -265,8 +265,6 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
           }}
         >
           <ChatMessageList 
-            onScrollToTop={handleLoadMoreMessages}
-            isLoadingMore={isFetchingNextPage}
           >
             {hasNextPage && (
               <div 
