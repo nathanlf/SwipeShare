@@ -236,6 +236,7 @@ export default function TimeInput() {
                           );
                           setOpenFrom(false);
                         }}
+                        className="text-black"
                       >
                         {entry.label}
                         <Check
@@ -291,6 +292,7 @@ export default function TimeInput() {
                           );
                           setOpenTo(false);
                         }}
+                        className="text-black"
                       >
                         {entry.label}
                         <Check

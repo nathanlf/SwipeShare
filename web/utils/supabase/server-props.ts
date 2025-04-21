@@ -1,6 +1,10 @@
 import { type GetServerSidePropsContext } from "next";
 import { createServerClient, serializeCookieHeader } from "@supabase/ssr";
-export function createClient({ req, res }: GetServerSidePropsContext) {
+
+export function createSupabaseServerClient({
+  req,
+  res,
+}: GetServerSidePropsContext) {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -23,5 +27,6 @@ export function createClient({ req, res }: GetServerSidePropsContext) {
       },
     }
   );
+
   return supabase;
 }

@@ -5,14 +5,7 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./table";
+import { Table, TableBody, TableCell, TableRow } from "./table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -29,7 +22,7 @@ export function DataTable<TData, TValue>({
   });
   //const first = True;
   return (
-    <div className="rounded-md">
+    <div className="rounded-md ">
       <Table className="gap-2 border-separate border-spacing-y-0.5">
         <TableBody>
           {table.getRowModel().rows?.length ? (

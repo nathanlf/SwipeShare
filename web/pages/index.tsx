@@ -18,7 +18,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
-import { createClient } from "@/utils/supabase/server-props";
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 
 export type Timeslot = {
   starttime: string;
@@ -211,7 +211,7 @@ function PostCard({
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Create the supabase context that works specifically on the server and
   // pass in the context.
-  const supabase = createClient(context);
+  const supabase = createSupabaseServerClient(context);
 
   // Attempt to load the user data
   const { data: userData, error: userError } = await supabase.auth.getUser();

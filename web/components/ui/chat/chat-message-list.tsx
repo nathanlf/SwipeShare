@@ -8,7 +8,7 @@ interface ChatMessageListProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const ChatMessageList = React.forwardRef<HTMLDivElement, ChatMessageListProps>(
-  ({ className, children, smooth = true, ...props }) => {
+  ({ className, children, smooth = true, ...props }, ref) => {
     const {
       scrollRef,
       isAtBottom,
@@ -19,10 +19,13 @@ const ChatMessageList = React.forwardRef<HTMLDivElement, ChatMessageListProps>(
       content: children,
     });
 
+    // Merge the forwarded ref with the scroll ref
+    React.useImperativeHandle(ref, () => scrollRef.current as HTMLDivElement);
+
     return (
       <div className="relative w-full h-full">
         <div
-          className={`flex flex-col w-full h-full p-4 overflow-y-auto ${smooth ? "scroll-smooth" : ""} ${className}`}
+          className={`flex flex-col w-full h-full p-4 overflow-y-auto ${className}`}
           ref={scrollRef}
           onWheel={disableAutoScroll}
           onTouchMove={disableAutoScroll}
@@ -33,15 +36,13 @@ const ChatMessageList = React.forwardRef<HTMLDivElement, ChatMessageListProps>(
 
         {!isAtBottom && (
           <Button
-            onClick={() => {
-              scrollToBottom();
-            }}
+            onClick={scrollToBottom}
             size="icon"
-            variant="secondary"
+            variant="ghost"
             className="absolute bottom-2 left-1/2 transform -translate-x-1/2 inline-flex rounded-full shadow-md"
             aria-label="Scroll to bottom"
           >
-            <ArrowDown className="h-4 w-4" />
+            <ArrowDown className="h-4 w-4"/>
           </Button>
         )}
       </div>
