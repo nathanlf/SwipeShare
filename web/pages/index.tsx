@@ -95,8 +95,8 @@ type props = {
     dining_halls: string[];
     times: Timeslot[];
     is_request: boolean;
-    imgsrc: string | null;
-    caption: string | null;
+    imgsrc?: string;
+    caption?: string;
 
 };
 function PostCard({ username, time_since_post, dining_halls, times, is_request, imgsrc, caption }: props) {
@@ -104,7 +104,7 @@ function PostCard({ username, time_since_post, dining_halls, times, is_request, 
     const listitems = dining_halls.map((hall) => {
         return (
             // eslint-disable-next-line react/jsx-key
-            <div className="flex flex-row gap-0.5">
+            <div className="flex flex-row gap-0.5" key={hall}>
                 <MapPin size={15} />
                 <p>{hall}</p>
             </div>

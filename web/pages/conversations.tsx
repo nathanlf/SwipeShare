@@ -1,39 +1,112 @@
-import ConversationCard from "@/components/conversation-card";
-import { DiningHall } from "@/components/conversation-card";
+import ConversationCard from "@/components/chat-pages/conversation-card";
 import SearchBar from "@/components/search-bar";
 import { Card } from "@/components/ui/card";
-export default function ConversationsPage(){
-    const conversations = [
-    { id: 1, name: "Sarah Smith", online: true, lastSeen: DiningHall.Chase },
-    { id: 2, name: "Derrick Jones", online: false, lastSeen: DiningHall.Lenoir },
-    { id: 3, name: "Samuel Ketes", online: true, lastSeen: DiningHall.Chase },
-    { id: 4, name: "Jessica Brown", online: false, lastSeen: DiningHall.Chase },
-    { id: 5, name: "Michael Taylor", online: true, lastSeen: DiningHall.Lenoir },
-    { id: 6, name: "Emma Wilson", online: true, lastSeen: DiningHall.Chase },
-    { id: 7, name: "David Miller", online: false, lastSeen: DiningHall.Chase },
-    { id: 8, name: "Olivia Davis", online: true, lastSeen: DiningHall.Lenoir },
-    { id: 9, name: "James Johnson", online: true, lastSeen: DiningHall.Chase },
-    { id: 10, name: "Sophia Martin", online: false, lastSeen: DiningHall.Chase },
-    { id: 11, name: "Benjamin Clark", online: true, lastSeen: DiningHall.Lenoir },
-  ];
-    return(
-        <div className="flex justify-start items-center w-full h-full flex-col">
-            <div className="flex flex-row justify-between w-4/5 mb-1">
-                <p className="text-black font-bold w-4/5 text-lg sm:text-2xl">
-                Conversations
-                </p>     
-                <SearchBar></SearchBar>
-            </div>
-            <Card className="min-h-5/6 w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
-                {conversations.map((conversation) => (
-                    <ConversationCard
-                        key={conversation.id}
-                        name={conversation.name}
-                        online={conversation.online}
-                        lastSeen={conversation.lastSeen}
-                    />
-                ))}
-            </Card>
-        </div>
-    )
+import { createSupabaseComponentClient } from "@/utils/supabase/component";
+import { getConversations } from "@/utils/supabase/queries/chat";
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";
+import { User } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
+import { GetServerSidePropsContext } from "next/dist/types";
+import { useRouter } from "next/router";
+import { Chat } from "@/utils/supabase/models/chat";
+import { z } from "zod";
+import { DiningHall } from "@/components/chat-pages/conversation-card";
+import { useState } from "react";
+
+type ConversationPageProps = {
+  user: User;
+};
+
+export default function ConversationsPage({ user }: ConversationPageProps) {
+  const router = useRouter();
+  const supabase = createSupabaseComponentClient();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: conversations = [], isLoading } = useQuery({
+    queryKey: ["conversations", user.id],
+    queryFn: async () => {
+      return await getConversations(supabase, user.id);
+    },
+    enabled: !!user.id,
+  });
+
+  const handleConversationClick = (chatId: string) => {
+    router.push(`/chat/${chatId}`);
+  };
+
+  const getOtherUser = (conversation: z.infer<typeof Chat>) => {
+    return conversation.user_1.id === user.id ? conversation.user_2 : conversation.user_1;
+  };
+
+  const isUserOnline = () => {
+    return true; // placeholder
+  };
+
+  const getLastDiningHall = () => {
+    const halls = [DiningHall.Chase, DiningHall.Lenoir];
+    return halls[Math.floor(Math.random() * halls.length)];
+  };
+
+  const filteredConversations = conversations.filter((conversation) => {
+    const otherUser = getOtherUser(conversation);
+    return otherUser.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  return (
+    <div className="flex justify-start items-center w-full h-full flex-col">
+      <div className="flex flex-row justify-between w-4/5 mb-1">
+        <p className="text-black font-bold w-4/5 text-lg sm:text-2xl">Conversations</p>
+        <SearchBar
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by name..."
+        />
+      </div>
+      <Card className="min-h-5/6 w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-32">Loading conversations...</div>
+        ) : filteredConversations.length === 0 ? (
+          <div className="flex justify-center items-center h-32">No conversations match your search</div>
+        ) : (
+          filteredConversations.map((conversation) => {
+            const otherUser = getOtherUser(conversation);
+            return (
+              <div
+                key={conversation.id}
+                onClick={() => handleConversationClick(conversation.id)}
+                className="cursor-pointer hover:bg-purple-100 transition-colors"
+              >
+                <ConversationCard
+                  name={otherUser.name}
+                  online={isUserOnline()}
+                  lastSeen={getLastDiningHall()}
+                  avatarUrl={otherUser.avatar_url}
+                />
+              </div>
+            );
+          })
+        )}
+      </Card>
+    </div>
+  );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const supabase = createSupabaseServerClient(context);
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      user: userData.user,
+    },
+  };
 }

@@ -15,7 +15,7 @@ import { createClient } from "@/utils/supabase/clients/component";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
-import { getProfileData } from "@/utils/supabase/queries/profile";
+import { getProfile } from "@/utils/supabase/queries/profile";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -54,7 +54,7 @@ export function AppSidebar() {
     queryFn: async () => {
       const { data } = await supabase.auth.getUser();
       if (!data) return null;
-      return await getProfileData(supabase, data.user!, data.user!.id);
+      return await getProfile(supabase, data.user!, data.user!.id);
     },
   });
 
