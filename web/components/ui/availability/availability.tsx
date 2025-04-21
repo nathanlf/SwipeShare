@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,22 +16,42 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { DataTable } from "@/components/ui/datatable";
-import { columns, Timeslot } from ".";
+import { Timeslot } from "../../../pages";
 import { useEffect } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+
+export const columns = (
+  onDelete: (timeslot: Timeslot) => void
+): ColumnDef<Timeslot>[] => [
+  {
+    accessorKey: "starttime",
+    cell: ({ row }) => {
+      const { starttime, endtime } = row.original;
+      return (
+        <div
+          className="text-left font-bold rounded-4xl text-sm flex justify-between items-center cursor-pointer hover:bg-accent p-2 group"
+          onClick={() => onDelete(row.original)}
+        >
+          <span>
+            {starttime} - {endtime}
+          </span>
+          <Trash2 className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500" />
+        </div>
+      );
+    },
+  },
+];
 
 const fifteenMinuteSteps = Array.from({ length: 4 * 4 }, (_, i) => {
   const h = Math.floor(i / 4) + 8;
   const m = (i % 4) * 15;
-  // return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
   return `${String(h)}:${String(m).padStart(2, "0")}`;
 });
 const fifteenMinuteSteps2 = Array.from({ length: 10 * 4 }, (_, i) => {
   const h = Math.floor(i / 4) + 1;
   const m = (i % 4) * 15;
-  // return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
   return `${String(h)}:${String(m).padStart(2, "0")}`;
 });
 
@@ -72,13 +92,11 @@ timeslist.push({ value: "11:00p", label: "11:00p" });
 const fifteenMinuteStepsto = Array.from({ length: 3 * 4 }, (_, i) => {
   const h = Math.floor(i / 4) + 9;
   const m = (i % 4) * 15;
-  // return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
   return `${String(h)}:${String(m).padStart(2, "0")}`;
 });
 const fifteenMinuteStepsto2 = Array.from({ length: 11 * 4 }, (_, i) => {
   const h = Math.floor(i / 4) + 1;
   const m = (i % 4) * 15;
-  // return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
   return `${String(h)}:${String(m).padStart(2, "0")}`;
 });
 const validTimes2 = new Set(fifteenMinuteStepsto);
@@ -105,8 +123,6 @@ for (const item of validTimespm2) {
   const newitem: Listitem = { value: item + "p", label: item + "p" };
   timeslist_to.push(newitem);
 }
-
-//light purple secondary: bg-[#cd5bde41]
 
 export default function TimeInput() {
   const [openFrom, setOpenFrom] = React.useState(false);
@@ -143,12 +159,13 @@ export default function TimeInput() {
       }
       setButtonClicked(false);
     }
-  }, [buttonClicked, valueFrom, valueTo]);
+  }, [buttonClicked, valueFrom, valueTo, timeslots]);
 
   function convertTimeToMinutes(timeStr: string): number | null {
     const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})([ap])$/i);
     if (!match) return null;
 
+    // eslint-disable-next-line prefer-const, @typescript-eslint/no-unused-vars
     let [_, hourStr, minStr, meridiem] = match;
     let hour = parseInt(hourStr, 10);
     const minutes = parseInt(minStr, 10);
@@ -165,9 +182,24 @@ export default function TimeInput() {
     return hour * 60 + minutes;
   }
 
+  const handleDeleteTimeslot = (timeslot: Timeslot) => {
+    setTimeslots((prev) =>
+      prev.filter(
+        (slot) =>
+          !(
+            slot.starttime === timeslot.starttime &&
+            slot.endtime === timeslot.endtime
+          )
+      )
+    );
+    toast("Timeslot deleted.");
+  };
+
+  const tableColumns = columns(handleDeleteTimeslot);
+
   return (
     <div className="flex flex-col gap-y-10">
-      <div className="flex flex-row items-center gap-x-16 mx-20 px-6 my-10 py-4 rounded-md text-center justify-center ">
+      <div className="flex flex-row items-center gap-x-16 mx-20 px-6 my-10 py-4 rounded-md text-center justify-center">
         <div className="flex flex-row gap-x-4 items-center">
           <p className="text-sm text-muted-foreground">From</p>
           <Popover open={openFrom} onOpenChange={setOpenFrom}>
@@ -178,8 +210,8 @@ export default function TimeInput() {
                 aria-expanded={openFrom}
                 className={
                   valueFrom
-                    ? "w-[200px] justify-between font-semibold hover:bg-accent1-muted bg-[#3bbf9026] border-primary1 border-2 "
-                    : "w-[200px] justify-between font-semibold hover:bg-accent1-muted border-primary1 border-2"
+                    ? "w-[200px] justify-between font-semibold hover:bg-accent1-muted bg-[#3bbf9026] border-primary1 border-2"
+                    : "w-[200px] justify-between font-semibold bg-white hover:bg-accent1-muted border-primary1 border-2 cursor-pointer"
                 }
               >
                 {valueFrom
@@ -210,7 +242,7 @@ export default function TimeInput() {
                           className={cn(
                             "ml-auto",
                             valueFrom === entry.value
-                              ? "opacity-100 "
+                              ? "opacity-100"
                               : "opacity-0"
                           )}
                         />
@@ -233,8 +265,8 @@ export default function TimeInput() {
                 aria-expanded={openTo}
                 className={
                   valueTo
-                    ? "w-[200px] justify-between font-semibold hover:bg-accent1-muted bg-[#3bbf9026] border-primary1 border-2 "
-                    : "w-[200px] justify-between font-semibold hover:bg-accent1-muted border-primary1 border-2"
+                    ? "w-[200px] justify-between font-semibold hover:bg-accent1-muted bg-[#3bbf9026] border-primary1 border-2 cursor-pointer"
+                    : "w-[200px] justify-between font-semibold bg-white hover:bg-accent1-muted border-primary1 border-2 cursor-pointer"
                 }
               >
                 {valueTo
@@ -265,7 +297,7 @@ export default function TimeInput() {
                           className={cn(
                             "ml-auto",
                             valueTo === entry.value
-                              ? "opacity-100 "
+                              ? "opacity-100"
                               : "opacity-0"
                           )}
                         />
@@ -280,13 +312,14 @@ export default function TimeInput() {
             onClick={() => {
               setButtonClicked(true);
             }}
+            className="bg-secondary1 cursor-pointer"
           >
-            add
+            Add
           </Button>
         </div>
       </div>
       <div className="w-full px-40">
-        <DataTable columns={columns} data={timeslots} />
+        <DataTable columns={tableColumns} data={timeslots} />
       </div>
     </div>
   );

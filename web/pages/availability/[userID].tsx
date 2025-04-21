@@ -16,36 +16,41 @@ import {
 } from "@/components/ui/popover";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import TimeInput from "../../components/ui/availability/availability";
+// import { GetServerSidePropsContext } from "next";
+// import { createClient } from "@/utils/supabase/server-props";
 
 export default function AvailabilityPage() {
   const [available, setAvailable] = useState(false);
   const [notManual, setNotManual] = useState(true);
 
   return (
-    <div className="w-full h-full flex justify-center items-start mt-12">
-      <Card className="h-4/5 w-7/10 bg-white">
+    <div className="w-full h-full flex justify-center items-start mt-12 overflow-y-auto">
+      <Card className="h-[80vh] w-7/10 bg-white">
         <CardHeader>
           <div className="flex flex-row justify-between">
             <CardTitle className="text-4xl font-light">
               <span className="text-primary">Status - </span>
               {available ? (
-                <span className="text-accent text-4xl font-light">
+                <span className="text-accent1 text-4xl font-light">
                   Available to Gift
                 </span>
               ) : (
-                <span className="text-text text-4xl">Unavailable</span>
+                <span className="text-text text-4xl text-[#484349]">
+                  Unavailable
+                </span>
               )}
             </CardTitle>
 
             {!notManual && (
               <Popover>
                 <PopoverTrigger>
-                  <Button className="bg-secondary cursor-pointer">
+                  <Button className="bg-secondary1 cursor-pointer">
                     <Plus />
                     Alter Availability
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="border-accent w-[350px] mt-2">
+                <PopoverContent className="border-accent1 w-[350px] mt-2">
                   <h1 className="font-semibold">Status Settings</h1>
                   <p className="text-gray-500 text-sm">
                     Change your availability here.
@@ -55,7 +60,7 @@ export default function AvailabilityPage() {
                       onClick={() => {
                         setAvailable(true);
                       }}
-                      className="rounded-4xl w-2/3 bg-accent cursor-pointer font-semibold"
+                      className="rounded-4xl w-2/3 bg-accent1 cursor-pointer font-semibold"
                     >
                       Available to Gift
                     </Button>
@@ -63,7 +68,7 @@ export default function AvailabilityPage() {
                       onClick={() => {
                         setAvailable(false);
                       }}
-                      className="rounded-4xl w-2/3 bg-background cursor-pointer font-semibold"
+                      className="rounded-4xl w-2/3 bg-[#484349] cursor-pointer font-semibold"
                     >
                       Unavailable
                     </Button>
@@ -79,23 +84,16 @@ export default function AvailabilityPage() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="w-full h-8/10 overflow-y-scroll">
-          <div className="ml-8">
-            <h1 className="text-background text-2xl font-bold">Add Times</h1>
-          </div>
-          <div className="ml-8 mt-8">
-            <h1 className="text-background text-2xl font-bold">
-              Available Times
-            </h1>
-          </div>
+        <CardContent className="w-full h-4/5 overflow-y-scroll">
+          <TimeInput />
         </CardContent>
 
-        <CardFooter>
-          <div className="w-full flex justify-end items-center gap-5 mt-10 pr-10">
+        <CardFooter className="flex flex-col items-end mt-auto">
+          <div className="w-full flex justify-end items-center gap-5 mt-15 mb-5 pr-10">
             <Switch
               checked={notManual}
               onCheckedChange={setNotManual}
-              className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
+              className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent1 [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
             />
             <Label className="text-base">Sync status with your schedule.</Label>
           </div>
@@ -104,3 +102,24 @@ export default function AvailabilityPage() {
     </div>
   );
 }
+
+// export async function getServerSideProps(context: GetServerSidePropsContext) {
+//   const supabase = createClient(context);
+
+//   const { data: userData, error: userError } = await supabase.auth.getUser();
+
+//   if (userError || !userData) {
+//     return {
+//       redirect: {
+//         destination: "/login",
+//         permanent: false,
+//       },
+//     };
+//   }
+
+//   return {
+//     props: {
+//       user: userData.user,
+//     },
+//   };
+// }
