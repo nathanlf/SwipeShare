@@ -29,7 +29,7 @@ export default function Login() {
               <h1 className="text-xl font-bold">Log in to SwipeShare</h1>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link href="/" className="underline underline-offset-4">Sign up here!</Link>
+                <Link href="/signup" className="underline underline-offset-4">Sign up here!</Link>
               </div>
             </div>
             <div className="flex flex-col gap-6">

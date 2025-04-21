@@ -1,6 +1,6 @@
 import { UtensilsCrossed } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Card, CardContent } from "./ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Card, CardContent } from "../ui/card";
 
 export enum DiningHall {
     Lenoir = "Lenoir",
@@ -11,11 +11,14 @@ type ConversationCardProps = {
     name: string,
     online: boolean,
     lastSeen: DiningHall
+    avatarUrl?: string | null
 }
 
 export default function ConversationCard({name, online, lastSeen}: ConversationCardProps){
+
     return(
-        <Card className="rounded-none w-full h-20 flex justify-center">
+        <Card className="rounded-none w-full h-20 flex justify-center hover:bg-slate-100 hover:translate-y-[-3px]
+      transition-transform duration-100 ease-in-out cursor-pointer">
             <CardContent className="py-2">
                 <div className="flex flex-row justify-start items-center">
                     <Avatar className="ml-1">
@@ -35,5 +38,4 @@ export default function ConversationCard({name, online, lastSeen}: ConversationC
             </CardContent>
         </Card> 
     )
-    
 }

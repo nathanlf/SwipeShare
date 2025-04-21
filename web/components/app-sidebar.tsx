@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useProfile } from "@/hooks/use-profile";
 
 // Menu items
 const items = [
@@ -37,6 +38,12 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { data: profile, isLoading, error } = useProfile();
+
+  if (isLoading) return null;
+  console.log(error?.message)
+  if (error || !profile) return <div className="p-4">Error loading sidebar</div>;
+
   return (
     <Sidebar className="border-r-0 max-w-[260px]">
       <SidebarContent className="pt-4">
@@ -66,9 +73,9 @@ export function AppSidebar() {
       <SidebarFooter className="border-t py-3 px-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
-
+            {profile.name?.[0] ?? "?"}
           </div>
-          <div className="text-sm text-gray-700">swipey</div>
+          <div className="text-sm text-gray-700">{profile.name}</div>
         </div>
       </SidebarFooter>
     </Sidebar>
