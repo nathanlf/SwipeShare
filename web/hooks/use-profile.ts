@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { createSupabaseComponentClient } from "@/utils/supabase/component";
 import { Profile } from "@/utils/supabase/models/profile";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 
 export const useProfile = () => {
   const supabase = createSupabaseComponentClient();
@@ -24,7 +24,7 @@ export const useProfile = () => {
         throw new Error("Could not load profile");
       }
 
-      return Profile.parse(profile); 
+      return Profile.parse(profile);
     },
     staleTime: 1000 * 60 * 5,
   });
