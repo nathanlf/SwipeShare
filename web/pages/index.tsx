@@ -10,7 +10,7 @@ import { createClient } from "@/utils/supabase/clients/component";
 import { createSupabaseServerClient } from "@/utils/supabase/clients/server-props";
 import { Profile } from "@/utils/supabase/models/post";
 import { User } from "@supabase/supabase-js";
-import { getProfileData } from "@/utils/supabase/queries/profile";
+import { getProfile } from "@/utils/supabase/queries/profile";
 import { z } from "zod";
 
 import {
@@ -177,7 +177,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 
     // Load the profile data
-    const profile = await getProfileData(
+    const profile = await getProfile(
         supabase,
         userData.user,
         userData.user.id
