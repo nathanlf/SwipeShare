@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createSupabaseComponentClient } from "@/utils/supabase/component";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useQueryClient } from "@tanstack/react-query";
 import { Soup, AtSign } from "lucide-react";
 import Link from "next/link";
