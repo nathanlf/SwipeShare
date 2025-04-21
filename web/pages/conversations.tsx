@@ -1,7 +1,7 @@
 import ConversationCard from "@/components/chat-pages/conversation-card";
 import SearchBar from "@/components/search-bar";
 import { Card } from "@/components/ui/card";
-import { createSupabaseComponentClient } from "@/utils/supabase/component";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { getConversations } from "@/utils/supabase/queries/chat";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { User } from "@supabase/supabase-js";
@@ -35,7 +35,9 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   };
 
   const getOtherUser = (conversation: z.infer<typeof Chat>) => {
-    return conversation.user_1.id === user.id ? conversation.user_2 : conversation.user_1;
+    return conversation.user_1.id === user.id
+      ? conversation.user_2
+      : conversation.user_1;
   };
 
   const isUserOnline = () => {
@@ -55,7 +57,9 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   return (
     <div className="flex justify-start items-center w-full h-full flex-col">
       <div className="flex flex-row justify-between w-4/5 mb-1">
-        <p className="text-black font-bold w-4/5 text-lg sm:text-2xl">Conversations</p>
+        <p className="text-black font-bold w-4/5 text-lg sm:text-2xl">
+          Conversations
+        </p>
         <SearchBar
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -64,9 +68,13 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
       </div>
       <Card className="min-h-5/6 w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
         {isLoading ? (
-          <div className="flex justify-center items-center h-32">Loading conversations...</div>
+          <div className="flex justify-center items-center h-32">
+            Loading conversations...
+          </div>
         ) : filteredConversations.length === 0 ? (
-          <div className="flex justify-center items-center h-32">No conversations match your search</div>
+          <div className="flex justify-center items-center h-32">
+            No conversations match your search
+          </div>
         ) : (
           filteredConversations.map((conversation) => {
             const otherUser = getOtherUser(conversation);
