@@ -2,12 +2,20 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { createSupabaseComponentClient } from "@/utils/supabase/component";
+import {
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getChatById, getUsersInChat } from "@/utils/supabase/queries/chat";
 import { getMessages, sendMessage } from "@/utils/supabase/queries/message";
-import { addMessageToCacheFn, updateMessageInCacheFn, deleteMessageFromCacheFn } from "@/utils/supabase/cache/message-cache";
+import {
+  addMessageToCacheFn,
+  updateMessageInCacheFn,
+  deleteMessageFromCacheFn,
+} from "@/utils/supabase/cache/message-cache";
 import { z } from "zod";
 import { DraftMessage } from "@/utils/supabase/models/message";
 import { toast } from "sonner";
@@ -26,7 +34,9 @@ interface DirectMessagePageProps {
   authUser: User;
 }
 
-export default function DirectMessagePage({ authUser }: DirectMessagePageProps) {
+export default function DirectMessagePage({
+  authUser,
+}: DirectMessagePageProps) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const queryUtils = useQueryClient();
@@ -34,10 +44,10 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Track the ID of the anchor message (the one we want to stay in view)
   const firstVisibleMessageIdRef = useRef<string | null>(null);
-  
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [draftMessageText, setDraftMessageText] = useState("");
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
@@ -56,7 +66,7 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
   const { data: user } = useQuery({
     queryKey: ["user", authUser.id],
     queryFn: async () => {
-      return await getProfile(supabase, authUser.id);
+      return await getProfile(supabase, authUser, authUser.id);
     },
     enabled: !!authUser,
   });
@@ -70,22 +80,22 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
     enabled: !!chatId,
   });
 
-  const otherUser = users?.find(u => u.id !== user?.id);
+  const otherUser = users?.find((u) => u.id !== user?.id);
 
   // Function to find the first visible message element
   const findFirstVisibleMessage = useCallback(() => {
     if (!scrollContainerRef.current) return null;
-    
+
     const container = scrollContainerRef.current;
     const containerTop = container.getBoundingClientRect().top;
-    const messageElements = container.querySelectorAll('[data-message-id]');
-    
+    const messageElements = container.querySelectorAll("[data-message-id]");
+
     for (const element of messageElements) {
       const rect = element.getBoundingClientRect();
       // If element is at least partially visible
       if (rect.bottom > containerTop) {
         // Get the message ID
-        const messageId = element.getAttribute('data-message-id');
+        const messageId = element.getAttribute("data-message-id");
         return messageId;
       }
     }
@@ -95,21 +105,23 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
   // Function to find a message element by ID and scroll to it
   const scrollToMessageById = useCallback((messageId: string | null) => {
     if (!messageId || !scrollContainerRef.current) return;
-    
+
     const container = scrollContainerRef.current;
-    const messageElement = container.querySelector(`[data-message-id="${messageId}"]`);
-    
+    const messageElement = container.querySelector(
+      `[data-message-id="${messageId}"]`
+    );
+
     if (messageElement) {
       // Use a small offset to position it visibly but not right at the top
-      messageElement.scrollIntoView({ block: 'start', behavior: 'auto' });
+      messageElement.scrollIntoView({ block: "start", behavior: "auto" });
     }
   }, []);
 
-  const { 
+  const {
     data: messages,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["messages", chatId],
     queryFn: async ({ pageParam = 0 }) => {
@@ -118,7 +130,7 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
         setIsAnchoringScroll(true);
         firstVisibleMessageIdRef.current = findFirstVisibleMessage();
       }
-      
+
       return await getMessages(supabase, chatId as string, pageParam);
     },
     initialPageParam: 0,
@@ -144,13 +156,17 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
 
   const addMessageToCache = useCallback(
     (newMessage: z.infer<typeof DraftMessage>) =>
-      addMessageToCacheFn(queryUtils, chatId as string, [user!, otherUser!])(newMessage),
+      addMessageToCacheFn(queryUtils, chatId as string, [user!, otherUser!])(
+        newMessage
+      ),
     [chatId, otherUser, queryUtils, user]
   );
 
   const updateMessageInCache = useCallback(
     (updatedMessage: z.infer<typeof DraftMessage>) =>
-      updateMessageInCacheFn(queryUtils, chatId as string, [user!, otherUser!])(updatedMessage),
+      updateMessageInCacheFn(queryUtils, chatId as string, [user!, otherUser!])(
+        updatedMessage
+      ),
     [chatId, otherUser, queryUtils, user]
   );
 
@@ -213,7 +229,12 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
       .channel("message-updates")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "message", filter: `chat_id=eq.${chat.id}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "message",
+          filter: `chat_id=eq.${chat.id}`,
+        },
         (payload) => {
           const newMessage = DraftMessage.parse(payload.new);
           if (newMessage.author_id !== user?.id) {
@@ -223,7 +244,12 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "message", filter: `chat_id=eq.${chat.id}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "message",
+          filter: `chat_id=eq.${chat.id}`,
+        },
         (payload) => {
           const updatedMessage = DraftMessage.parse(payload.new);
           updateMessageInCache(updatedMessage);
@@ -231,7 +257,12 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
       )
       .on(
         "postgres_changes",
-        { event: "DELETE", schema: "public", table: "message", filter: `chat_id=eq.${chat.id}` },
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "message",
+          filter: `chat_id=eq.${chat.id}`,
+        },
         (payload) => {
           const messageToDeleteID = payload.old.id;
           deleteMessageFromCache(messageToDeleteID);
@@ -242,48 +273,65 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
     return () => {
       supabase.removeChannel(messageChanges);
     };
-  }, [addMessageToCache, updateMessageInCache, deleteMessageFromCache, chat?.id, supabase, user?.id, messages?.pages]);
+  }, [
+    addMessageToCache,
+    updateMessageInCache,
+    deleteMessageFromCache,
+    chat?.id,
+    supabase,
+    user?.id,
+    messages?.pages,
+  ]);
 
   const isParticipant = users?.some((u) => u.id === authUser.id);
-  if (!isParticipant) return <div>You are not authorized to view this chat.</div>;
+  if (!isParticipant)
+    return <div>You are not authorized to view this chat.</div>;
   if (!chat || !otherUser || !user) return <div>Loading chat...</div>;
 
   const allMessages = messages?.pages.flatMap((page) => page).reverse() || [];
 
   return (
     <div className="bg-[#DCDEE5] min-h-screen w-full flex items-center justify-center flex-col">
-      <DirectMessageHeader name={otherUser.name || "Loading..."} online={true} />
+      <DirectMessageHeader
+        name={otherUser.name || "Loading..."}
+        online={true}
+      />
       <Card className="bg-[#EFEAF6] h-[75vh] w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
-        <div 
-          className="flex-grow overflow-y-auto" 
+        <div
+          className="flex-grow overflow-y-auto"
           ref={scrollContainerRef}
           style={{
             // This CSS property helps with scroll anchoring
             overscrollBehavior: "contain",
             // This ensures content is positioned absolutely during scroll
-            position: "relative"
+            position: "relative",
           }}
         >
-          <ChatMessageList 
-          >
+          <ChatMessageList>
             {hasNextPage && (
-              <div 
+              <div
                 className="h-8 flex items-center justify-center cursor-pointer text-sm text-blue-500 hover:text-blue-700 mb-4"
                 onClick={handleLoadMoreMessages}
               >
-                {isFetchingNextPage ? "Loading previous messages..." : "Load previous messages"}
+                {isFetchingNextPage
+                  ? "Loading previous messages..."
+                  : "Load previous messages"}
               </div>
             )}
-            
+
             {allMessages.map((message) => {
               const isSent = message.author.id === user?.id;
               return (
-                <div 
-                  key={message.id} 
-                  className={`mb-4 flex flex-col ${isSent ? "items-end" : "items-start"}`}
+                <div
+                  key={message.id}
+                  className={`mb-4 flex flex-col ${
+                    isSent ? "items-end" : "items-start"
+                  }`}
                   data-message-id={message.id}
                 >
-                  <Message type={isSent ? MessageType.Sent : MessageType.Received}>
+                  <Message
+                    type={isSent ? MessageType.Sent : MessageType.Received}
+                  >
                     {message.content}
                   </Message>
                   {message.attachment_url && (
@@ -333,11 +381,20 @@ export default function DirectMessagePage({ authUser }: DirectMessagePageProps) 
               className="min-h-12 resize-none rounded-lg bg-white border-0 p-3 shadow-none focus-visible:ring-0 w-full"
             />
             <div className="flex items-center p-3 pt-0">
-              <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <ImageIcon className="size-4" />
                 <span className="sr-only">Attach file</span>
               </Button>
-              <Button type="submit" size="sm" className="ml-auto gap-1.5 text-black bg-primary1">
+              <Button
+                type="submit"
+                size="sm"
+                className="ml-auto gap-1.5 text-black bg-primary1"
+              >
                 Send Message
                 <CornerDownLeft className="size-3.5" />
               </Button>
