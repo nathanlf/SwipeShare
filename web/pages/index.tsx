@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from 'next/image';
@@ -18,8 +18,8 @@ import {
 } from "@tanstack/react-table"
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DataTable } from "@/components/ui/datatable";
 import { GetServerSidePropsContext } from "next";
+import { DataTable } from "@/components/ui/datatable";
 
 export type Timeslot = {
     starttime: string,
@@ -52,7 +52,7 @@ export const columns: ColumnDef<Timeslot>[] = [
 
 
 
-type HomePageProps = { user: User; profile: z.infer<typeof PostAuthor> };
+type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
 
 export default function Home({ user, profile }: HomePageProps) {
@@ -66,7 +66,6 @@ export default function Home({ user, profile }: HomePageProps) {
                     <TabsTrigger value="password">Requests</TabsTrigger>
                 </TabsList>
                 <TabsContent value="account">
-
                     <div className="flex flex-col gap-y-8 overflow-y-auto">
                         <PostCard username="user123" time_since_post="3m" dining_halls={["Chase", "Lenoir"]} times={timeslots} is_request={false} />
                         <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />

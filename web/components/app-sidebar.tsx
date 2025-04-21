@@ -1,5 +1,5 @@
 // components/app-sidebar.tsx
-import { Home, MessageSquare, Clock, Settings, Soup } from "lucide-react";
+import { Home, MessageSquare, Clock, Settings, Soup, LogOut, UserRound } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,6 +11,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/clients/component";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/router";
+import { getProfileData } from "@/utils/supabase/queries/profile";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 // Menu items
 const items = [
@@ -36,7 +43,22 @@ const items = [
   },
 ];
 
+
 export function AppSidebar() {
+  const queryClient = useQueryClient();
+  const supabase = createClient();
+  const router = useRouter();
+
+  const { data } = useQuery({
+    queryKey: ["user_profile"],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data) return null;
+      return await getProfileData(supabase, data.user!, data.user!.id);
+    },
+  });
+
+
   return (
     <Sidebar className="border-r-0 max-w-[260px]">
       <SidebarContent className="pt-4">
@@ -65,10 +87,53 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t py-3 px-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
 
+          {data && (
+            <div className="flex items-center gap-3">
+              {/* Dark mode / light mode toggle. */}
+              {/* Dropdown menu for the user, if it exists. */}
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar className="mt-1">
+                    <AvatarImage
+                      src={
+                        supabase.storage
+                          .from("avatars")
+                          .getPublicUrl(data.avatar_url ?? "").data.publicUrl
+                      }
+                    />
+                    <AvatarFallback className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
+                      <UserRound />
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/profile/${data.id}`)}
+                  >
+                    <UserRound /> My Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      // Upon signing out, we need to hard-refresh the `user_profile`
+                      // query so that the header profile photo updates to indicate
+                      // that there is no longer a valid user. We can select this
+                      // specific query to refresh in the React Query client by
+                      // supplying the query key.
+                      queryClient.resetQueries({ queryKey: ["user_profile"] });
+                      router.push("/");
+                    }}
+                  >
+                    <LogOut /> Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+
+          <div className="text-sm text-gray-700">{data ? data.handle : "swipey"}
           </div>
-          <div className="text-sm text-gray-700">swipey</div>
         </div>
       </SidebarFooter>
     </Sidebar>
