@@ -19,6 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
+import { getProfile } from "@/utils/supabase/queries/profile";
 
 export type Timeslot = {
   starttime: string;
@@ -226,13 +227,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   //   // Load the profile data
-  //   const profile = await getProfile(supabase, userData.user, userData.user.id);   !!! getProfile does not exist !!!
+  const profile = await getProfile(supabase, userData.user, userData.user.id);
 
   // Return the user and profile as props.
   return {
     props: {
       user: userData.user,
-      //   profile: profile,
+      profile: profile,
     },
   };
 }
