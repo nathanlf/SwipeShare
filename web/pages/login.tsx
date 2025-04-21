@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/clients/component";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { toast } from "sonner"
@@ -19,7 +19,7 @@ import { toast } from "sonner"
 export default function Login() {
 
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = createSupabaseComponentClient();
   const queryClient = useQueryClient();
   // Create states for each field in the form.
   const [email, setEmail] = useState("");

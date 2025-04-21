@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/clients/component";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/router";
@@ -46,7 +46,7 @@ const items = [
 
 export function AppSidebar() {
   const queryClient = useQueryClient();
-  const supabase = createClient();
+  const supabase = createSupabaseComponentClient();
   const router = useRouter();
 
   const { data } = useQuery({

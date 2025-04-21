@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
-import { createClient } from "@/utils/supabase/clients/component";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { createSupabaseServerClient } from "@/utils/supabase/clients/server-props";
 import { Profile } from "@/utils/supabase/models/post";
 import { User } from "@supabase/supabase-js";
@@ -56,7 +56,7 @@ type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
 
 export default function Home({ user, profile }: HomePageProps) {
-    const supabase = createClient();
+    const supabase = createSupabaseComponentClient();
 
     return (
         <div >
