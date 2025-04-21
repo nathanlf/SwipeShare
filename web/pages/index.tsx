@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -5,41 +6,29 @@ import {
   CardDescription,
   CardTitle,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
+import { createSupabaseServerClient } from "@/utils/supabase/clients/server-props";
+import { Profile } from "@/utils/supabase/models/post";
+import { User } from "@supabase/supabase-js";
+import { getProfile } from "@/utils/supabase/queries/profile";
+import { z } from "zod";
+
+import { ColumnDef } from "@tanstack/react-table";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
 
 export type Timeslot = {
   starttime: string;
   endtime: string;
 };
-
 export const timeslots: Timeslot[] = [
   {
     starttime: "10a",
@@ -54,6 +43,7 @@ export const timeslots: Timeslot[] = [
     endtime: "5p",
   },
 ];
+
 export const columns: ColumnDef<Timeslot>[] = [
   {
     accessorKey: "starttime",
@@ -68,7 +58,11 @@ export const columns: ColumnDef<Timeslot>[] = [
   },
 ];
 
-export default function Home() {
+type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+
+export default function Home({ user, profile }: HomePageProps) {
+  const supabase = createSupabaseComponentClient();
+
   return (
     <div>
       <Tabs defaultValue="account" className="w-1/2 mx-auto">
@@ -77,24 +71,29 @@ export default function Home() {
           <TabsTrigger value="password">Requests</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
-          <ScrollArea>
-            <div className="flex flex-col gap-y-8">
-              <PostCard
-                username="user123"
-                time_since_post="3m"
-                dining_halls={["Chase", "Lenoir"]}
-                times={timeslots}
-                is_request={false}
-              />
-              <PostCard
-                username="user456"
-                time_since_post="2h"
-                dining_halls={["Chase"]}
-                times={timeslots}
-                is_request={false}
-              />
-            </div>
-          </ScrollArea>
+          <div className="flex flex-col gap-y-8 overflow-y-auto">
+            <PostCard
+              username="user123"
+              time_since_post="3m"
+              dining_halls={["Chase", "Lenoir"]}
+              times={timeslots}
+              is_request={false}
+            />
+            <PostCard
+              username="user456"
+              time_since_post="2h"
+              dining_halls={["Chase"]}
+              times={timeslots}
+              is_request={false}
+            />
+            <PostCard
+              username="user456"
+              time_since_post="2h"
+              dining_halls={["Chase"]}
+              times={timeslots}
+              is_request={false}
+            />
+          </div>
         </TabsContent>
         <TabsContent value="password">
           <ScrollArea>
@@ -129,8 +128,8 @@ type props = {
   dining_halls: string[];
   times: Timeslot[];
   is_request: boolean;
-  imgsrc: string | null;
-  caption: string | null;
+  imgsrc?: string;
+  caption?: string;
 };
 function PostCard({
   username,
@@ -144,7 +143,7 @@ function PostCard({
   const listitems = dining_halls.map((hall) => {
     return (
       // eslint-disable-next-line react/jsx-key
-      <div className="flex flex-row gap-0.5">
+      <div className="flex flex-row gap-0.5" key={hall}>
         <MapPin size={15} />
         <p>{hall}</p>
       </div>
@@ -194,7 +193,7 @@ function PostCard({
               className="object-cover mx-auto self-center w-full h-[120px]"
             ></Image>
           ) : (
-            <div className="mb-8" /> // Reserve image height when missing
+            <div className="mb-8"></div> // Reserve image height when missing
           )}
           <Button variant="secondary1" size="default" className=" rounded-sm ">
             {is_request ? "Donate Swipe" : "Request Swipe"}
@@ -210,6 +209,40 @@ function PostCard({
       </CardContent>
     </Card>
   );
+}
+
+// The `getServerSideProps` function is used to fetch the user data and on
+// the server side before rendering the page to both pre-load the Supabase
+// user and profile data. If the user is not logged in, we can catch this
+// here and redirect the user to the login page.
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  // Create the supabase context that works specifically on the server and
+  // pass in the context.
+  const supabase = createSupabaseServerClient(context);
+
+  // Attempt to load the user data
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  // If the user is not logged in, redirect them to the login page.
+  if (userError || !userData) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  // Load the profile data
+  const profile = await getProfile(supabase, userData.user, userData.user.id);
+
+  // Return the user and profile as props.
+  return {
+    props: {
+      user: userData.user,
+      profile: profile,
+    },
+  };
 }
 
 /* 
