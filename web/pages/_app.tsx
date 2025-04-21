@@ -3,14 +3,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AppProps } from "next/app";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { useRouter } from "next/router";
-import { Toaster } from "@/components/ui/sonner"
-
 
 const queryClient = new QueryClient();
 //use ifexcludedroutes array
 export default function App({ Component, pageProps }: AppProps) {
-
   const router = useRouter();
   // The excludedRoutes array contains routes that should not be added into the global
   // sidebar layout.
@@ -22,13 +20,12 @@ export default function App({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
         <Toaster />
       </QueryClientProvider>
-
     );
-
   }
+
   return (
     <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
+      <SidebarProvider className="">
         <div className="flex h-screen w-full overflow-hidden">
           <AppSidebar />
           <main className="flex-1 bg-[#DCDEE5]">

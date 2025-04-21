@@ -39,6 +39,8 @@
   --secondary1-muted: oklch(0.66 0.2125 321.96 / 63.14%);
   --accent1: oklch(0.72 0.1333 164.95);
   --accent2: oklch(0.56 0.1156 162.55);
+  --accent1-muted: oklch(0.72 0.1333 164.95 / 30.2%);
+  --accent1-moremuted: oklch(0.72 0.1333 164.95 / 14.9%);
 }
 
 @theme inline {
@@ -85,6 +87,8 @@
   --color-secondary1-muted: var(--secondary1-muted);
   --color-accent1: var(--accent1);
   --color-accent2: var(--accent2);
+  --color-accent1-muted: var(--accent1-muted);
+  --color-accent1-moremuted: var(--accent1-moremuted);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -99,6 +103,7 @@ body {
   background: var(--background-light);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  --primary: #a67db8;
 }
 
 .dark {
