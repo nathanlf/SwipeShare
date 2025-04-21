@@ -7,23 +7,18 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
-import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
-import { createSupabaseServerClient } from "@/utils/supabase/clients/server-props";
-import { Profile } from "@/utils/supabase/models/post";
-import { User } from "@supabase/supabase-js";
-import { getProfile } from "@/utils/supabase/queries/profile";
-import { z } from "zod";
+// import { User } from "@supabase/supabase-js";
+// import { z } from "zod";
 
 import { ColumnDef } from "@tanstack/react-table";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
+import { createClient } from "@/utils/supabase/server-props";
 
 export type Timeslot = {
   starttime: string;
@@ -58,11 +53,9 @@ export const columns: ColumnDef<Timeslot>[] = [
   },
 ];
 
-type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+// type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
-export default function Home({ user, profile }: HomePageProps) {
-  const supabase = createSupabaseComponentClient();
-
+export default function Home() {
   return (
     <div>
       <Tabs defaultValue="account" className="w-1/2 mx-auto">
@@ -218,7 +211,7 @@ function PostCard({
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Create the supabase context that works specifically on the server and
   // pass in the context.
-  const supabase = createSupabaseServerClient(context);
+  const supabase = createClient(context);
 
   // Attempt to load the user data
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -233,14 +226,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  // Load the profile data
-  const profile = await getProfile(supabase, userData.user, userData.user.id);
+  //   // Load the profile data
+  //   const profile = await getProfile(supabase, userData.user, userData.user.id);   !!! getProfile does not exist !!!
 
   // Return the user and profile as props.
   return {
     props: {
       user: userData.user,
-      profile: profile,
+      //   profile: profile,
     },
   };
 }
