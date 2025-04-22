@@ -1,13 +1,10 @@
-"use client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardDescription,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import Image from "next/image";
+import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import CreatePost from "@/components/post";
+import Image from 'next/image';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
 // import { User } from "@supabase/supabase-js";
@@ -59,6 +56,11 @@ export const columns: ColumnDef<Timeslot>[] = [
 export default function Home() {
   return (
     <div>
+      {/* Fixed position CreatePost button that's always visible */}
+      <div className="fixed bottom-6 right-6 z-10">
+        <CreatePost />
+      </div>
+      
       <Tabs defaultValue="account" className="w-1/2 mx-auto">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
