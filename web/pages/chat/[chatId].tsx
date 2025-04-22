@@ -66,7 +66,7 @@ export default function DirectMessagePage({
   const { data: user } = useQuery({
     queryKey: ["user", authUser.id],
     queryFn: async () => {
-      return await getProfile(supabase, authUser, authUser.id);
+      return await getProfile(supabase, authUser.id);
     },
     enabled: !!authUser,
   });
@@ -285,7 +285,7 @@ export default function DirectMessagePage({
 
   const isParticipant = users?.some((u) => u.id === authUser.id);
   if (!isParticipant)
-    return <div>You are not authorized to view this chat.</div>;
+    return <div className="text-center">You are not authorized to view this chat.</div>;
   if (!chat || !otherUser || !user) return <div>Loading chat...</div>;
 
   const allMessages = messages?.pages.flatMap((page) => page).reverse() || [];

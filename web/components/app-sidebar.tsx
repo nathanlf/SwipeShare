@@ -65,7 +65,7 @@ export function AppSidebar() {
     queryFn: async () => {
       const { data } = await supabase.auth.getUser();
       if (!data) return null;
-      return await getProfile(supabase, data.user!, data.user!.id);
+      return await getProfile(supabase, data.user!.id);
     },
   });
 

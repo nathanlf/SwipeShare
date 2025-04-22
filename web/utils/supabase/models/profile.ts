@@ -5,6 +5,6 @@ export const Profile = z.object({
   name: z.string(),
   handle: z.string(),
   avatar_url: z.string().nullable(),
-  availability: z.array(z.any()).nullable().optional(), // Array of JSONB objects
+  availability: z.array(z.any()).nullable().optional(),
   is_flexible: z.boolean().nullable().optional(),
 });

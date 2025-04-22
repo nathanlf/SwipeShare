@@ -1,4 +1,4 @@
-import { SupabaseClient, User } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { Profile } from "../models/profile";
 import { z } from "zod";
 
@@ -23,21 +23,19 @@ import { z } from "zod";
 
 export const getProfile = async(
     supabase:SupabaseClient,
-    user:User,
     profileId:string
     ): Promise<z.infer<typeof Profile>> => {
         const {data,error} = await supabase
         .from('profile')
-        .select('id,name,handle,avatar_url')
+        .select('id, name, handle, avatar_url, availability, is_flexible')
         .eq('id',profileId)
         .single();
+        console.log(data)
         if(error){console.log(error.message);
             throw new Error(error.message);}
         
-          // ... your implementation here ...
           return Profile.parse(data);
-
-    }
+}
 
 export const changeProfileImage = async (
   supabase: SupabaseClient,

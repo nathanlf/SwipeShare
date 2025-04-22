@@ -227,7 +227,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   //   // Load the profile data
-  const profile = await getProfile(supabase, userData.user, userData.user.id);
+  const profile = await getProfile(supabase, userData.user.id);
 
   // Return the user and profile as props.
   return {
