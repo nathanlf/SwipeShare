@@ -88,3 +88,4 @@ export const changeProfileDisplayName = async (
     throw new Error(`Error updating profile: ${updateError.message}`);
   }
 };
+

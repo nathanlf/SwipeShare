@@ -1,9 +1,11 @@
 import { z } from "zod";
 
-/** Defines the schema for profile and author data. */
-export const Profile = z.object({
-  id: z.string(),
-  name: z.string(),
-  handle: z.string(),
-  avatar_url: z.string().nullable(),
+export const Post = z.object({
+  id: z.string().uuid(),
+  content: z.string(),
+  author_id: z.string().uuid(),
+  created_at: z.string().datetime().nullable().optional(),
+  attachment_url: z.string().nullable().optional(),
 });
+
+export type PostType = z.infer<typeof Post>;
