@@ -4,196 +4,248 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import CreatePost from "@/components/post";
 import Image from 'next/image';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
-import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-} from "@tanstack/react-table"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+// import { User } from "@supabase/supabase-js";
+// import { z } from "zod";
+
+import { ColumnDef } from "@tanstack/react-table";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { GetServerSidePropsContext } from "next";
+import { DataTable } from "@/components/ui/datatable";
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";
+import { getProfile } from "@/utils/supabase/queries/profile";
 
 export type Timeslot = {
-    starttime: string
-    endtime: string
-}
-
+  starttime: string;
+  endtime: string;
+};
 export const timeslots: Timeslot[] = [
-    {
-        starttime: "10a",
-        endtime: "11a",
-    },
-    {
-        starttime: "12:30p",
-        endtime: "2p",
-    },
-    {
-        starttime: "4p",
-        endtime: "5p",
-    }
-]
+  {
+    starttime: "10a",
+    endtime: "11a",
+  },
+  {
+    starttime: "12:30p",
+    endtime: "2p",
+  },
+  {
+    starttime: "4p",
+    endtime: "5p",
+  },
+];
+
 export const columns: ColumnDef<Timeslot>[] = [
-    {
-        accessorKey: "starttime",
-        cell: ({ row }) => {
-            const { starttime, endtime } = row.original;
-            return <div className="text-left font-bold !rounded-md text-sm">{starttime} - {endtime}</div>
-        },
-    },
-]
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
-}
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-}: DataTableProps<TData, TValue>) {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    })
-    //const first = True;
-    return (
-        <div className="rounded-md ">
-            <Table className="gap-2 border-separate border-spacing-y-0.5"
-            >
-                <TableBody className="gap-2">
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row, index) => {
-                            const color = Number.isInteger(index / 2) ? "bg-[#3bbf904d] !rounded-md border-none mt-2 hover:bg-[#3bbf9040] gap-y-7" : "bg-[#3bbf9026] !rounded-md border-none mt-2 hover:bg-[#3bbf901a] gap-y-7";
-                            return (
-                                <TableRow className={color}
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell className="rounded-md py-0.5 leading-6 my-5" key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            )
-                        })
-                    ) : (
-                        <TableRow className="bg-green-200">
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+  {
+    accessorKey: "starttime",
+    cell: ({ row }) => {
+      const { starttime, endtime } = row.original;
+      return (
+        <div className="text-left font-bold !rounded-md text-sm">
+          {starttime} - {endtime}
         </div>
-    )
-}
+      );
+    },
+  },
+];
+
+// type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
 export default function Home() {
-    return (
-        <div>
-            {/* Fixed position CreatePost button that's always visible */}
-            <div className="fixed bottom-6 right-6 z-10">
-                <CreatePost />
+  return (
+    <div>
+      {/* Fixed position CreatePost button that's always visible */}
+      <div className="fixed bottom-6 right-6 z-10">
+        <CreatePost />
+      </div>
+      
+      <Tabs defaultValue="account" className="w-1/2 mx-auto">
+        <TabsList className="grid w-full grid-cols-2 mb-12">
+          <TabsTrigger value="account">Donations</TabsTrigger>
+          <TabsTrigger value="password">Requests</TabsTrigger>
+        </TabsList>
+        <TabsContent value="account">
+          <div className="flex flex-col gap-y-8 overflow-y-auto">
+            <PostCard
+              username="user123"
+              time_since_post="3m"
+              dining_halls={["Chase", "Lenoir"]}
+              times={timeslots}
+              is_request={false}
+            />
+            <PostCard
+              username="user456"
+              time_since_post="2h"
+              dining_halls={["Chase"]}
+              times={timeslots}
+              is_request={false}
+            />
+            <PostCard
+              username="user456"
+              time_since_post="2h"
+              dining_halls={["Chase"]}
+              times={timeslots}
+              is_request={false}
+            />
+          </div>
+        </TabsContent>
+        <TabsContent value="password">
+          <ScrollArea>
+            <div className="flex flex-col gap-y-8">
+              <PostCard
+                username="user456"
+                time_since_post="3m"
+                dining_halls={["Chase"]}
+                times={timeslots}
+                is_request={true}
+                imgsrc={"/sampleimg.png"}
+                caption={"feeling hungry and hopeful :p"}
+              />
+              <PostCard
+                username="user456"
+                time_since_post="3m"
+                dining_halls={["Chase"]}
+                times={timeslots}
+                is_request={true}
+              />
             </div>
-        
-            <Tabs defaultValue="account" className="w-1/2 mx-auto">
-                <TabsList className="grid w-full grid-cols-2 mb-12">
-                    <TabsTrigger value="account">Donations</TabsTrigger>
-                    <TabsTrigger value="password">Requests</TabsTrigger>
-                </TabsList>
-                <TabsContent value="account">
-                    <ScrollArea>
-                        <div className="flex flex-col gap-y-8">
-                            <PostCard username="user123" time_since_post="3m" dining_halls={["Chase", "Lenoir"]} times={timeslots} is_request={false} />
-                            <PostCard username="user456" time_since_post="2h" dining_halls={["Chase"]} times={timeslots} is_request={false} />
-                        </div>
-                    </ScrollArea>
-                </TabsContent>
-                <TabsContent value="password">
-                    <ScrollArea>
-                        <div className="flex flex-col gap-y-8">
-                            <PostCard username="user456" time_since_post="3m" dining_halls={["Chase"]} times={timeslots} is_request={true} imgsrc={"/sampleimg.png"} caption={"feeling hungry and hopeful :p"} />
-                            <PostCard username="user456" time_since_post="3m" dining_halls={["Chase"]} times={timeslots} is_request={true} />
-                        </div>
-                    </ScrollArea>
-                </TabsContent>
-            </Tabs>
-        </div>
-    );
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }
 
 type props = {
-    username: string;
-    time_since_post: string;
-    dining_halls: string[];
-    times: Timeslot[];
-    is_request: boolean;
-    imgsrc?: string;
-    caption?: string;
+  username: string;
+  time_since_post: string;
+  dining_halls: string[];
+  times: Timeslot[];
+  is_request: boolean;
+  imgsrc?: string;
+  caption?: string;
 };
-
-function PostCard({ username, time_since_post, dining_halls, times, is_request, imgsrc, caption }: props) {
-    const listitems = dining_halls.map((hall, index) => {
-        return (
-            <div className="flex flex-row gap-0.5" key={index}>
-                <MapPin size={15} />
-                <p>{hall}</p>
-            </div>
-        );
-    })
+function PostCard({
+  username,
+  time_since_post,
+  dining_halls,
+  times,
+  is_request,
+  imgsrc,
+  caption,
+}: props) {
+  const listitems = dining_halls.map((hall) => {
     return (
-        <Card className="rounded-sm px-4 gap-3" >
-            <CardHeader>
-                <CardTitle className="text-xl font-sans font-bold">{is_request ? "Swipe Requested" : "Swipe Available"}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-row gap-x-6">
-                <div className="space-y-4 flex-3">
-                    <div className="flex flex-col gap-y-2">
-                        <CardDescription className="flex flex-row gap-x-1 pt-0.5">
-                            <CalendarDays size={16} />
-                            <p className="text-xs ">{time_since_post} ~ @{username}</p>
-                        </CardDescription>
-                        <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
-                            {listitems}
-                        </CardDescription>
-                    </div>
-                    {caption ? <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">{caption}</p> : null}
-                    <div className="flex flex-row">
-                        <div className="w-full">
-                            <DataTable columns={columns} data={times} />
-                        </div>
-                    </div>
-                    <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-                        View all Time Slots
-                    </CardDescription>
-                </div>
-                <div className="flex-2 flex flex-col gap-y-6 mx-16">
-                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : (
-                        <div className="mb-8" /> // Reserve image height when missing
-                    )}
-                    <Button variant="secondary1" size="default" className="rounded-sm">{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
-                    <Button variant="outline" className="rounded-sm text-muted-foreground">
-                        <MessagesSquare size={30} />
-                        Message @{username}
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+      <div className="flex flex-row gap-0.5" key={hall}>
+        <MapPin size={15} />
+        <p>{hall}</p>
+      </div>
     );
+  });
+  return (
+    <Card className="rounded-sm px-4 gap-3">
+      <CardHeader>
+        <CardTitle className="text-xl font-sans font-bold">
+          {is_request ? "Swipe Requested" : "Swipe Available"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-row gap-x-6">
+        <div className="space-y-4 flex-3">
+          <div className="flex flex-col gap-y-2">
+            <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+              <CalendarDays size={16} />
+              <p className="text-xs ">
+                {time_since_post} ~ @{username}
+              </p>
+            </CardDescription>
+            <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
+              {listitems}
+            </CardDescription>
+          </div>
+          {caption ? (
+            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
+              {caption}
+            </p>
+          ) : null}
+          <div className="flex flex-row">
+            <div className="w-full">
+              <DataTable columns={columns} data={times} />
+            </div>
+          </div>
+          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
+            View all Time Slots
+          </CardDescription>
+        </div>
+        <div className="flex-2 flex flex-col gap-y-6 mx-16">
+          {imgsrc ? (
+            <Image
+              width={100}
+              height={100}
+              src={imgsrc}
+              alt="image"
+              className="object-cover mx-auto self-center w-full h-[120px]"
+            ></Image>
+          ) : (
+            <div className="mb-8"></div> // Reserve image height when missing
+          )}
+          <Button variant="secondary1" size="default" className=" rounded-sm ">
+            {is_request ? "Donate Swipe" : "Request Swipe"}
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-sm text-muted-foreground"
+          >
+            <MessagesSquare size={30} />
+            Message @{username}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
+
+// The `getServerSideProps` function is used to fetch the user data and on
+// the server side before rendering the page to both pre-load the Supabase
+// user and profile data. If the user is not logged in, we can catch this
+// here and redirect the user to the login page.
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  // Create the supabase context that works specifically on the server and
+  // pass in the context.
+  const supabase = createSupabaseServerClient(context);
+
+  // Attempt to load the user data
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  // If the user is not logged in, redirect them to the login page.
+  if (userError || !userData) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  //   // Load the profile data
+  const profile = await getProfile(supabase, userData.user.id);
+
+  // Return the user and profile as props.
+  return {
+    props: {
+      user: userData.user,
+      profile: profile,
+    },
+  };
+}
+
+/* 
+ <div className="flex-2 flex flex-col gap-y-6 mx-16">
+                    {imgsrc ? <Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image> : null}
+                    <Button variant="secondary1" size="default" className=" rounded-sm " >{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
+                    <Button variant="outline" className="rounded-sm text-muted-foreground" ><MessagesSquare size={30} />
+                        Message @{username}</Button>
+
+                </div>
+*/

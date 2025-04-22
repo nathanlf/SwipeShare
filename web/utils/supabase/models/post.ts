@@ -1,0 +1,11 @@
+import { z } from "zod";
+
+export const Post = z.object({
+  id: z.string().uuid(),
+  content: z.string(),
+  author_id: z.string().uuid(),
+  created_at: z.string().datetime().nullable().optional(),
+  attachment_url: z.string().nullable().optional(),
+});
+
+export type PostType = z.infer<typeof Post>;
