@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { MapPin, ImageIcon } from "lucide-react";
+import { MapPin, ImageIcon, CirclePlus, Plus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
@@ -19,9 +19,9 @@ export default function CreatePost() {
   const [description, setDescription] = useState("");
   const [diningHalls, setDiningHalls] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
+
   const availableDiningHalls = ["Chase", "Lenoir"];
-  
+
   const handleDiningHallToggle = (hall: string) => {
     if (diningHalls.includes(hall)) {
       setDiningHalls(diningHalls.filter(h => h !== hall));
@@ -32,19 +32,19 @@ export default function CreatePost() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formData = {
       type: postType,
       description,
       diningHalls,
       image: selectedFile
     };
-    
+
     console.log("Submitting post:", formData);
     // update supabase via API calls
     // depending on the post type
-      // call getRequests() query
-      // call getDonations() query
+    // call getRequests() query
+    // call getDonations() query
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,12 +56,13 @@ export default function CreatePost() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default" className="bg-primary1 text-white rounded-full shadow-lg">
+        <Button variant="default" className="bg-accent2 hover:bg-accent1 text-white rounded-lg shadow-lg gap-x-1">
           Create Post
+          <Plus />
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-white/90 backdrop-blur-md max-w-md">
+      <DialogContent className="bg-white/90 backdrop-blur-md max-w-lg sm:max-w-md lg:min-w-2xl">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create a New Post</DialogTitle>
@@ -94,7 +95,7 @@ export default function CreatePost() {
                 </Button>
               </div>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-1">
                 <MapPin size={16} />
@@ -105,10 +106,10 @@ export default function CreatePost() {
                   <Button
                     key={hall}
                     type="button"
-                    variant={diningHalls.includes(hall) ? "default" : "outline"}
+                    variant={diningHalls.includes(hall) ? "accent1" : "outline"}
                     size="sm"
                     onClick={() => handleDiningHallToggle(hall)}
-                    className={diningHalls.includes(hall) ? "bg-primary1 text-white" : ""}
+                    className={diningHalls.includes(hall) ? " text-white" : ""}
                   >
                     {hall}
                   </Button>
@@ -130,23 +131,23 @@ export default function CreatePost() {
               />
             </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-1">
-                  <ImageIcon size={16} />
-                  Add an Image (Optional)
-                </label>
-                <Input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full"
-                />
-                {selectedFile && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Selected: {selectedFile.name}
-                  </p>
-                )}
-              </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-1">
+                <ImageIcon size={16} />
+                Add an Image (Optional)
+              </label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full"
+              />
+              {selectedFile && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Selected: {selectedFile.name}
+                </p>
+              )}
+            </div>
           </div>
 
           <DialogFooter className="mt-6">
@@ -155,8 +156,8 @@ export default function CreatePost() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-primary1 text-white"
               disabled={!postType || diningHalls.length === 0}
             >

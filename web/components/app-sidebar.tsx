@@ -7,6 +7,8 @@ import {
   Soup,
   LogOut,
   UserRound,
+  CalendarCog,
+  CalendarFold,
 } from "lucide-react";
 import {
   Sidebar,
@@ -49,6 +51,11 @@ const items = [
     icon: Clock,
   },
   {
+    title: "My Availability",
+    url: "/",
+    icon: CalendarFold
+  },
+  {
     title: "Settings",
     url: "/settings",
     icon: Settings,
@@ -68,6 +75,35 @@ export function AppSidebar() {
       return await getProfile(supabase, data.user!.id);
     },
   });
+
+  const items = [
+    {
+      title: "Home",
+      url: "/",
+      icon: Home,
+    },
+    {
+      title: "Conversations",
+      url: "/conversations",
+      icon: MessageSquare,
+    },
+    {
+      title: "Past Transactions",
+      url: "/transactions",
+      icon: Clock,
+    },
+    {
+      title: "My Availability",
+      url: data ? `/availability/${data.id}` : "/",
+      icon: CalendarFold
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
+    },
+  ];
+
 
   return (
     <Sidebar className="border-r-0 max-w-[260px]">

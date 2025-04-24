@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import CreatePost from "@/components/post";
 import Image from 'next/image';
 
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
 // import { User } from "@supabase/supabase-js";
@@ -55,45 +56,42 @@ export const columns: ColumnDef<Timeslot>[] = [
 
 export default function Home() {
   return (
-    <div>
-      {/* Fixed position CreatePost button that's always visible */}
-      <div className="fixed bottom-6 right-6 z-10">
-        <CreatePost />
-      </div>
-      
+    <div className="flex flex-col">
       <Tabs defaultValue="account" className="w-1/2 mx-auto">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
           <TabsTrigger value="password">Requests</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
-          <div className="flex flex-col gap-y-8 overflow-y-auto">
-            <PostCard
-              username="user123"
-              time_since_post="3m"
-              dining_halls={["Chase", "Lenoir"]}
-              times={timeslots}
-              is_request={false}
-            />
-            <PostCard
-              username="user456"
-              time_since_post="2h"
-              dining_halls={["Chase"]}
-              times={timeslots}
-              is_request={false}
-            />
-            <PostCard
-              username="user456"
-              time_since_post="2h"
-              dining_halls={["Chase"]}
-              times={timeslots}
-              is_request={false}
-            />
-          </div>
+          <ScrollArea className="h-150 w-full rounded-md">
+            <div className="flex flex-col overflow-y-auto">
+              <PostCard
+                username="user123"
+                time_since_post="3m"
+                dining_halls={["Chase", "Lenoir"]}
+                times={timeslots}
+                is_request={false}
+              />
+              <PostCard
+                username="user456"
+                time_since_post="2h"
+                dining_halls={["Chase"]}
+                times={timeslots}
+                is_request={false}
+              />
+              <PostCard
+                username="user456"
+                time_since_post="2h"
+                dining_halls={["Chase"]}
+                times={timeslots}
+                is_request={false}
+              />
+            </div>
+          </ScrollArea>
         </TabsContent>
         <TabsContent value="password">
-          <ScrollArea>
-            <div className="flex flex-col gap-y-8">
+          <ScrollArea className="h-150 w-full rounded-md">
+            <div className="flex flex-col">
               <PostCard
                 username="user456"
                 time_since_post="3m"
@@ -114,10 +112,13 @@ export default function Home() {
           </ScrollArea>
         </TabsContent>
       </Tabs>
+      <div className="fixed bottom-6 right-6 z-10">
+        <CreatePost />
+      </div>
     </div>
   );
 }
-
+//fixed bottom-6 right-6 z-10"
 type props = {
   username: string;
   time_since_post: string;
@@ -145,7 +146,7 @@ function PostCard({
     );
   });
   return (
-    <Card className="rounded-sm px-4 gap-3">
+    <Card className="rounded-sm px-4 gap-3 mb-8">
       <CardHeader>
         <CardTitle className="text-xl font-sans font-bold">
           {is_request ? "Swipe Requested" : "Swipe Available"}
