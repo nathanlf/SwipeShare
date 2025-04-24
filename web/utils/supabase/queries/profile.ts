@@ -30,7 +30,6 @@ export const getProfile = async(
         .select('id, name, handle, avatar_url, availability, is_flexible')
         .eq('id',profileId)
         .single();
-        console.log(data)
         if(error){console.log(error.message);
             throw new Error(error.message);}
         

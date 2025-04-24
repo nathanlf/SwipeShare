@@ -55,7 +55,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   });
 
   return (
-    <div className="flex justify-start items-center w-full h-full flex-col">
+    <div className="flex justify-center items-center w-full h-full flex-col mt-4">
       <div className="flex flex-row justify-between w-4/5 mb-1">
         <p className="text-black font-bold w-4/5 text-lg sm:text-2xl">
           Conversations

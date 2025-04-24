@@ -11,7 +11,7 @@ type DirectMessageHeaderProps = {
 
 export default function DirectMessageHeader({name, online, lastSeen}: DirectMessageHeaderProps){
     return(
-        <Card className="rounded-b-none w-5/6 mt-[-3rem] h-20 flex justify-center">
+        <Card className="rounded-b-none w-full sm:w-5/6 mt-6 h-20 flex justify-center">
             <CardContent className="py-2">
                 <div className="flex flex-row justify-start items-center">
                     <Avatar className="ml-1">

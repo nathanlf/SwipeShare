@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
 import CreatePost from "@/components/post";
 import Image from 'next/image';
 
@@ -57,7 +55,10 @@ export const columns: ColumnDef<Timeslot>[] = [
 export default function Home() {
   return (
     <div className="flex flex-col">
-      <Tabs defaultValue="account" className="w-1/2 mx-auto">
+      <div className="fixed bottom-6 right-6 z-10">
+        <CreatePost/>
+      </div>
+      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
           <TabsTrigger value="password">Requests</TabsTrigger>
@@ -137,6 +138,7 @@ function PostCard({
   imgsrc,
   caption,
 }: props) {
+
   const listitems = dining_halls.map((hall) => {
     return (
       <div className="flex flex-row gap-0.5" key={hall}>
