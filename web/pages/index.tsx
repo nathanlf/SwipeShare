@@ -57,35 +57,38 @@ export const columns: ColumnDef<Timeslot>[] = [
 export default function Home() {
   return (
     <div className="flex flex-col">
+
       <Tabs defaultValue="account" className="w-1/2 mx-auto">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
           <TabsTrigger value="password">Requests</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
-          <ScrollArea className="h-150 w-full rounded-md">
-            <div className="flex flex-col overflow-y-auto">
-              <PostCard
-                username="user123"
-                time_since_post="3m"
-                dining_halls={["Chase", "Lenoir"]}
-                times={timeslots}
-                is_request={false}
-              />
-              <PostCard
-                username="user456"
-                time_since_post="2h"
-                dining_halls={["Chase"]}
-                times={timeslots}
-                is_request={false}
-              />
-              <PostCard
-                username="user456"
-                time_since_post="2h"
-                dining_halls={["Chase"]}
-                times={timeslots}
-                is_request={false}
-              />
+          <ScrollArea className="h-150  w-full rounded-md">
+            <div className="mx-4">
+              <div className="flex flex-col overflow-y-auto">
+                <PostCard
+                  username="user123"
+                  time_since_post="3m"
+                  dining_halls={["Chase", "Lenoir"]}
+                  times={timeslots}
+                  is_request={false}
+                />
+                <PostCard
+                  username="user456"
+                  time_since_post="2h"
+                  dining_halls={["Chase"]}
+                  times={timeslots}
+                  is_request={false}
+                />
+                <PostCard
+                  username="user456"
+                  time_since_post="2h"
+                  dining_halls={["Chase"]}
+                  times={timeslots}
+                  is_request={false}
+                />
+              </div>
             </div>
           </ScrollArea>
         </TabsContent>
