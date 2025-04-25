@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   // The excludedRoutes array contains routes that should not be added into the global
   // sidebar layout.
-  const excludedRoutes = ["/login", "/signup"];
+  const excludedRoutes = ["/login", "/signup", "/welcome"];
 
   if (excludedRoutes.includes(router.pathname)) {
     return (
