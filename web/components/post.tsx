@@ -10,15 +10,25 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { MapPin, ImageIcon, Plus } from "lucide-react";
+import { MapPin, ImageIcon, Plus, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { createRequest } from "@/utils/supabase/queries/request";
+import { createDonation } from "@/utils/supabase/queries/donation";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
+import { User } from "@supabase/supabase-js";
 
-export default function CreatePost() {
+export default function CreatePost(user: User) {
   const [postType, setPostType] = useState<"donation" | "request" | null>(null);
   const [description, setDescription] = useState("");
   const [diningHalls, setDiningHalls] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const supabase = createSupabaseComponentClient();
 
   const availableDiningHalls = ["Chase", "Lenoir"];
 
@@ -30,21 +40,79 @@ export default function CreatePost() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      // Upload to the existing image bucket
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get the public URL
+      const { data } = supabase.storage
+        .from('post-images')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const formData = {
-      type: postType,
-      description,
-      diningHalls,
-      image: selectedFile
-    };
-
-    console.log("Submitting post:", formData);
-    // update supabase via API calls
-    // depending on the post type
-    // call getRequests() query
-    // call getDonations() query
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Format content with dining halls included
+      const content = JSON.stringify({
+        text: description,
+        diningHalls: diningHalls,
+      });
+      
+      let attachmentUrl: string | null = null;
+      
+      // Upload image if selected
+      if (selectedFile) {
+        attachmentUrl = await uploadImage(selectedFile);
+      }
+      
+      // Create post based on type using the appropriate function
+      if (postType === "request") {
+        await createRequest(supabase, content, user.id, attachmentUrl);
+      } else if (postType === "donation") {
+        await createDonation(supabase, content, user.id, attachmentUrl);
+      }
+      
+      // Success handling
+      toast.success("Post Created", {
+        description: `Your ${postType} has been successfully posted`,
+      });
+      
+      // Reset form and close dialog
+      setDescription("");
+      setDiningHalls([]);
+      setSelectedFile(null);
+      setPostType(null);
+      setIsDialogOpen(false);
+      
+    } catch (error: any) {
+      console.error("Error creating post:", error);
+      toast.error("Error", {
+        description: `Failed to create post: ${error?.message || "Unknown error"}`,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,15 +122,19 @@ export default function CreatePost() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" className="bg-accent2 hover:bg-accent1 text-white rounded-lg shadow-lg gap-x-1">
+        <Button 
+          variant="default" 
+          className="bg-accent2 hover:bg-accent1 text-white rounded-lg shadow-lg gap-x-1"
+          onClick={() => setIsDialogOpen(true)}
+        >
           Create Post
           <Plus />
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-white/90 backdrop-blur-md max-w-lg sm:max-w-md lg:min-w-2xl">
+      <DialogContent className="bg-white/90 backdrop-blur-md max-w-lg sm:max-w-md lg:max-w-2xl">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create a New Post</DialogTitle>
@@ -82,6 +154,7 @@ export default function CreatePost() {
                   variant={postType === "donation" ? "default" : "outline"}
                   onClick={() => setPostType("donation")}
                   className={postType === "donation" ? "bg-primary1 text-white" : ""}
+                  disabled={isSubmitting}
                 >
                   Donate a Swipe
                 </Button>
@@ -90,6 +163,7 @@ export default function CreatePost() {
                   variant={postType === "request" ? "default" : "outline"}
                   onClick={() => setPostType("request")}
                   className={postType === "request" ? "bg-primary1 text-white" : ""}
+                  disabled={isSubmitting}
                 >
                   Request a Swipe
                 </Button>
@@ -106,10 +180,11 @@ export default function CreatePost() {
                   <Button
                     key={hall}
                     type="button"
-                    variant={diningHalls.includes(hall) ? "accent1" : "outline"}
+                    variant={diningHalls.includes(hall) ? "secondary" : "outline"}
                     size="sm"
                     onClick={() => handleDiningHallToggle(hall)}
-                    className={diningHalls.includes(hall) ? " text-white" : ""}
+                    className={diningHalls.includes(hall) ? "bg-secondary text-white" : ""}
+                    disabled={isSubmitting}
                   >
                     {hall}
                   </Button>
@@ -128,6 +203,7 @@ export default function CreatePost() {
                 className="w-full border border-gray-300 rounded-md"
                 placeholder="Add more details about your post..."
                 rows={3}
+                disabled={isSubmitting}
               />
             </div>
 
@@ -141,6 +217,7 @@ export default function CreatePost() {
                 accept="image/*"
                 onChange={handleFileChange}
                 className="w-full"
+                disabled={isSubmitting}
               />
               {selectedFile && (
                 <p className="text-xs text-gray-500 mt-1">
@@ -152,16 +229,27 @@ export default function CreatePost() {
 
           <DialogFooter className="mt-6">
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button 
+                type="button" 
+                variant="outline"
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
             </DialogClose>
             <Button
               type="submit"
               className="bg-primary1 text-white"
-              disabled={!postType || diningHalls.length === 0}
+              disabled={!postType || diningHalls.length === 0 || isSubmitting}
             >
-              Post
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Posting...
+                </>
+              ) : (
+                "Post"
+              )}
             </Button>
           </DialogFooter>
         </form>
