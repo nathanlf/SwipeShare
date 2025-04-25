@@ -12,7 +12,7 @@ import { Chat } from "@/utils/supabase/models/chat";
 import { z } from "zod";
 import { DiningHall } from "@/components/chat-pages/conversation-card";
 import { useState } from "react";
-
+import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
 type ConversationPageProps = {
   user: User;
 };
@@ -21,6 +21,9 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Use the online users context
+  const { isUserOnline } = useOnlineUsersContext();
 
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ["conversations", user.id],
@@ -38,10 +41,6 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
     return conversation.user_1.id === user.id
       ? conversation.user_2
       : conversation.user_1;
-  };
-
-  const isUserOnline = () => {
-    return true; // placeholder
   };
 
   const getLastDiningHall = () => {
@@ -86,7 +85,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
               >
                 <ConversationCard
                   name={otherUser.name}
-                  online={isUserOnline()}
+                  online={isUserOnline(otherUser.id)}
                   lastSeen={getLastDiningHall()}
                   avatarUrl={otherUser.avatar_url}
                 />

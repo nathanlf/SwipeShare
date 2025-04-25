@@ -29,7 +29,7 @@ import { CornerDownLeft, Image as ImageIcon } from "lucide-react";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
-
+import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
 interface DirectMessagePageProps {
   authUser: User;
 }
@@ -40,6 +40,9 @@ export default function DirectMessagePage({
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const queryUtils = useQueryClient();
+  
+  // Use the online users context
+  const { isUserOnline } = useOnlineUsersContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
@@ -294,7 +297,7 @@ export default function DirectMessagePage({
     <div className="bg-[#DCDEE5] min-h-screen w-full flex items-center justify-center flex-col">
       <DirectMessageHeader
         name={otherUser.name || "Loading..."}
-        online={true}
+        online={isUserOnline(otherUser.id)}
       />
       <Card className="bg-[#EFEAF6] h-[75vh] w-full sm:w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
         <div
@@ -310,7 +313,7 @@ export default function DirectMessagePage({
           <ChatMessageList>
             {hasNextPage && (
               <div
-                className="h-8 flex items-center justify-center cursor-pointer text-sm text-blue-500 hover:text-blue-700 mb-4"
+                className="h-8 flex items-center justify-center cursor-pointer text-sm text-primary1 hover:text-accent1 mb-4"
                 onClick={handleLoadMoreMessages}
               >
                 {isFetchingNextPage
