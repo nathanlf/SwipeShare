@@ -296,7 +296,7 @@ export default function DirectMessagePage({
         name={otherUser.name || "Loading..."}
         online={true}
       />
-      <Card className="bg-[#EFEAF6] h-[75vh] w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
+      <Card className="bg-[#EFEAF6] h-[75vh] w-full sm:w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
         <div
           className="flex-grow overflow-y-auto"
           ref={scrollContainerRef}
