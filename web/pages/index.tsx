@@ -57,8 +57,7 @@ export default function Home() {
     <div className="flex flex-col">
 
 
-      <Tabs defaultValue="account" className="w-1/2 mx-auto">
-
+      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
           <TabsTrigger value="password">Requests</TabsTrigger>
