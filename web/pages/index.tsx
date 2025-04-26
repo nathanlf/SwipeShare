@@ -17,6 +17,7 @@ import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
 import CreatePostButton from "@/components/post";
+import { Badge } from "@/components/ui/badge";
 
 export type Timeslot = {
   starttime: string;
@@ -56,14 +57,13 @@ export default function Home({ user }: { user: User }) {
     <div className="flex flex-col">
 
 
-      <Tabs defaultValue="account" className="w-1/2 mx-auto">
-
+      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
           <TabsTrigger value="password">Requests</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
-          <ScrollArea className="h-150  w-full rounded-md">
+          <ScrollArea className="h-170 w-full rounded-md">
             <div className="mx-4">
               <div className="flex flex-col overflow-y-auto">
                 <PostCard
@@ -72,6 +72,7 @@ export default function Home({ user }: { user: User }) {
                   dining_halls={["Chase", "Lenoir"]}
                   times={timeslots}
                   is_request={false}
+                  isflexible={true}
                 />
                 <PostCard
                   username="user456"
@@ -79,6 +80,7 @@ export default function Home({ user }: { user: User }) {
                   dining_halls={["Chase"]}
                   times={timeslots}
                   is_request={false}
+                  isflexible={true}
                 />
                 <PostCard
                   username="user456"
@@ -86,6 +88,7 @@ export default function Home({ user }: { user: User }) {
                   dining_halls={["Chase"]}
                   times={timeslots}
                   is_request={false}
+                  isflexible={false}
                 />
               </div>
             </div>
@@ -129,6 +132,7 @@ type props = {
   is_request: boolean;
   imgsrc?: string;
   caption?: string;
+  isflexible: boolean;
 };
 function PostCard({
   username,
@@ -137,7 +141,7 @@ function PostCard({
   times,
   is_request,
   imgsrc,
-  caption,
+  caption, isflexible
 }: props) {
 
   const listitems = dining_halls.map((hall) => {
@@ -158,55 +162,39 @@ function PostCard({
       <CardContent className="flex flex-row gap-x-6">
         <div className="space-y-4 flex-3">
           <div className="flex flex-col gap-y-2">
-            <CardDescription className="flex flex-row gap-x-1 pt-0.5">
-              <CalendarDays size={16} />
-              <p className="text-xs ">
-                {time_since_post} ~ @{username}
-              </p>
-            </CardDescription>
+            <div className="flex flex-row gap-x-3 items-start">
+              <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+                <CalendarDays size={16} />
+                <p className="text-xs ">
+                  {time_since_post} ~ @{username}
+                </p>
+              </CardDescription>
+              {isflexible ? <Badge variant="default" className="bg-[#ff9000] " >flexible</Badge> : null}
+            </div>
             <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
               {listitems}
             </CardDescription>
           </div>
-          {caption ? (
-            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
-              {caption}
-            </p>
-          ) : null}
+          {caption ? (<p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">{caption}</p>) : null}
           <div className="flex flex-row">
             <div className="w-full">
               <DataTable columns={columns} data={times} />
             </div>
           </div>
-          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-            View all Time Slots
-          </CardDescription>
+          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">View all Time Slots</CardDescription>
         </div>
         <div className="flex-2 flex flex-col gap-y-6 mx-16">
-          {imgsrc ? (
-            <Image
-              width={100}
-              height={100}
-              src={imgsrc}
-              alt="image"
-              className="object-cover mx-auto self-center w-full h-[120px]"
-            ></Image>
-          ) : (
-            <div className="mb-8"></div> // Reserve image height when missing
-          )}
-          <Button variant="secondary1" size="default" className=" rounded-sm ">
-            {is_request ? "Donate Swipe" : "Request Swipe"}
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-sm text-muted-foreground"
-          >
-            <MessagesSquare size={30} />
-            Message @{username}
+          {imgsrc ? (<Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image>) :
+            (<div className="mb-8"></div> // Reserve image height when missing
+            )}
+          <Button variant="secondary1" size="default" className=" rounded-sm ">{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
+          <Button variant="outline" className="rounded-sm text-muted-foreground">
+            <MessagesSquare size={30} />Message @{username}
           </Button>
         </div>
       </CardContent>
     </Card>
+
   );
 }
 
