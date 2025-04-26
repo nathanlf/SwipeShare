@@ -4,7 +4,7 @@ export const Post = z.object({
   id: z.string().uuid(),
   content: z.string(),
   author_id: z.string().uuid(),
-  created_at: z.string().datetime().nullable().optional(),
+  created_at: z.string().nullable().optional(),
   attachment_url: z.string().nullable().optional(),
 });
 

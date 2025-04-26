@@ -20,7 +20,11 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 
-export default function CreatePost(user: User) {
+interface CreatePostProps {
+  user: User
+}
+
+export default function CreatePostButton({user}: CreatePostProps) {
   const [postType, setPostType] = useState<"donation" | "request" | null>(null);
   const [description, setDescription] = useState("");
   const [diningHalls, setDiningHalls] = useState<string[]>([]);
@@ -48,7 +52,7 @@ export default function CreatePost(user: User) {
 
       // Upload to the existing image bucket
       const { error: uploadError } = await supabase.storage
-        .from('post-images')
+        .from('attachments')
         .upload(filePath, file);
 
       if (uploadError) {
@@ -57,7 +61,7 @@ export default function CreatePost(user: User) {
 
       // Get the public URL
       const { data } = supabase.storage
-        .from('post-images')
+        .from('attachments')
         .getPublicUrl(filePath);
 
       return data.publicUrl;
@@ -105,6 +109,7 @@ export default function CreatePost(user: User) {
       setPostType(null);
       setIsDialogOpen(false);
       
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error creating post:", error);
       toast.error("Error", {
@@ -180,10 +185,13 @@ export default function CreatePost(user: User) {
                   <Button
                     key={hall}
                     type="button"
-                    variant={diningHalls.includes(hall) ? "secondary" : "outline"}
+                    variant="outline"
                     size="sm"
                     onClick={() => handleDiningHallToggle(hall)}
-                    className={diningHalls.includes(hall) ? "bg-secondary text-white" : ""}
+                    className={diningHalls.includes(hall) 
+                      ? "bg-primary1 text-white" 
+                      : ""
+                    }
                     disabled={isSubmitting}
                   >
                     {hall}
@@ -200,7 +208,7 @@ export default function CreatePost(user: User) {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full border border-gray-300 rounded-md"
+                className="w-full border border-gray-300 rounded-md text-slate-700"
                 placeholder="Add more details about your post..."
                 rows={3}
                 disabled={isSubmitting}
@@ -212,18 +220,21 @@ export default function CreatePost(user: User) {
                 <ImageIcon size={16} />
                 Add an Image (Optional)
               </label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="w-full"
-                disabled={isSubmitting}
-              />
-              {selectedFile && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Selected: {selectedFile.name}
+              <div className="relative">
+                <label className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                  <span className="text-gray-700 font-medium">Choose File</span>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={isSubmitting}
+                  />
+                </label>
+                <p className="mt-1 text-sm text-gray-600">
+                  {selectedFile ? `Selected: ${selectedFile.name}` : "No file chosen"}
                 </p>
-              )}
+              </div>
             </div>
           </div>
 
