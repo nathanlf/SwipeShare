@@ -58,7 +58,7 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 z-10">
         <CreatePost/>
       </div>
-      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14">
+      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14 flex">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
           <TabsTrigger value="password">Requests</TabsTrigger>

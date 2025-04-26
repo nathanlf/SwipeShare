@@ -334,6 +334,7 @@ export default function DirectMessagePage({
                 >
                   <Message
                     type={isSent ? MessageType.Sent : MessageType.Received}
+                    name={isSent ? user.name : otherUser.name}
                   >
                     {message.content}
                   </Message>
@@ -386,7 +387,6 @@ export default function DirectMessagePage({
             <div className="flex items-center p-3 pt-0">
               <Button
                 type="button"
-                variant="ghost"
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -396,7 +396,7 @@ export default function DirectMessagePage({
               <Button
                 type="submit"
                 size="sm"
-                className="ml-auto gap-1.5 text-black bg-primary1"
+                className="ml-auto gap-1.5 text-white bg-primary1"
               >
                 Send Message
                 <CornerDownLeft className="size-3.5" />

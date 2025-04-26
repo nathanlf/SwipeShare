@@ -25,7 +25,7 @@ export default function AvailabilityPage() {
   const [notManual, setNotManual] = useState(true);
 
   return (
-    <div className="w-full h-full flex justify-center items-start mt-12 overflow-y-auto">
+    <div className="w-full h-full flex justify-center items-center overflow-y-auto">
       <Card className="h-[80vh] w-7/10 bg-white">
         <CardHeader>
           <div className="flex flex-row justify-between">

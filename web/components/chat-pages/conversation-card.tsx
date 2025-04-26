@@ -23,7 +23,7 @@ export default function ConversationCard({name, online, lastSeen}: ConversationC
                 <div className="flex flex-row justify-start items-center">
                     <Avatar className="ml-1">
                         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarFallback>{name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col ml-4">
                         <p className="font-bold text-sm">{name}</p>

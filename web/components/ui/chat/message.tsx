@@ -9,15 +9,16 @@ export enum MessageType {
 type MessageProps = {
     type: MessageType
     children: ReactNode
+    name: string
 }
 
-export default function Message({ type, children}: MessageProps){
+
+export default function Message({ type, children, name}: MessageProps){
         const messageClasses = type === MessageType.Sent
         ? "bg-[#A07fb4] text-white" 
         : "bg-gray-100 text-gray-800"; 
-        const fallback = type === MessageType.Sent
-        ? "ME" 
-        : "SS"; 
+        const fallback = name[0].toUpperCase()
+
     return(
         <ChatBubble variant={type} >
             <ChatBubbleAvatar fallback={fallback}/>
