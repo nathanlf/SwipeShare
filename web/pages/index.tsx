@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
-import CreatePost from "@/components/post";
 import Image from 'next/image';
 
 
@@ -16,6 +15,8 @@ import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
+import { User } from "@supabase/supabase-js";
+import CreatePostButton from "@/components/post";
 import { Badge } from "@/components/ui/badge";
 
 export type Timeslot = {
@@ -51,9 +52,7 @@ export const columns: ColumnDef<Timeslot>[] = [
   },
 ];
 
-// type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
-
-export default function Home() {
+export default function Home({ user }: { user: User }) {
   return (
     <div className="flex flex-col">
 
@@ -119,7 +118,7 @@ export default function Home() {
         </TabsContent>
       </Tabs>
       <div className="fixed bottom-6 right-6 z-10">
-        <CreatePost />
+        <CreatePostButton user={user}/>
       </div>
     </div>
   );
