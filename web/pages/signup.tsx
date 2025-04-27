@@ -7,6 +7,8 @@ import { Soup, AtSign } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { toast } from "sonner"
+
 
 export default function Signup() {
   const router = useRouter();
@@ -26,14 +28,17 @@ export default function Signup() {
     });
     if (error) {
       console.error(error);
-      window.alert(error);
+      toast(error.message)
+
     }
     queryClient.resetQueries({ queryKey: ["user_profile"] });
 
     if (error) return;
-    router.push("/");
+    router.push('/welcome');
     // ... your implementation here ...
   };
+
+
 
   return (
     <div className="flex min-h-[calc(100svh)] flex-col text-primary-foreground items-center justify-center gap-6 bg-primary1 p-6 md:p-10">
@@ -100,12 +105,14 @@ export default function Signup() {
                   required
                 />
               </div>
+
               <Button
                 className="w-full bg-[#3bbf90cc] hover:bg-accent1"
                 onClick={signUp}
               >
                 Sign Up
               </Button>
+
             </div>
           </div>
         </div>

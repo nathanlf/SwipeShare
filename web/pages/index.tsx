@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
+
 import Image from 'next/image';
 
 
@@ -16,8 +17,12 @@ import { DataTable } from "@/components/ui/datatable";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
+
+import { z } from "zod";
+import { Profile } from "@/utils/supabase/models/profile";
 import CreatePostButton from "@/components/post";
 import { Badge } from "@/components/ui/badge";
+
 
 export type Timeslot = {
   starttime: string;
@@ -52,16 +57,21 @@ export const columns: ColumnDef<Timeslot>[] = [
   },
 ];
 
-export default function Home({ user }: { user: User }) {
+
+// type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+
+export default function HomePage({ user, profile }: HomePageProps) {
+  console.log(profile);
   return (
     <div className="flex flex-col">
+      <Tabs defaultValue={profile.is_donator ? "requests" : "donations"} className="w-1/2 mx-auto">
 
-
-      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14">
         <TabsList className="grid w-full grid-cols-2 mb-12">
-          <TabsTrigger value="account">Donations</TabsTrigger>
-          <TabsTrigger value="password">Requests</TabsTrigger>
+          <TabsTrigger value="donations">Donations</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
         </TabsList>
+
         <TabsContent value="account">
           <ScrollArea className="h-170 w-full rounded-md">
             <div className="mx-4">
@@ -91,10 +101,11 @@ export default function Home({ user }: { user: User }) {
                   isflexible={false}
                 />
               </div>
+
             </div>
           </ScrollArea>
         </TabsContent>
-        <TabsContent value="password">
+        <TabsContent value="requests">
           <ScrollArea className="h-150 w-full rounded-md">
             <div className="flex flex-col">
               <PostCard
