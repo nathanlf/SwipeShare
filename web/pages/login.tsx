@@ -34,6 +34,7 @@ export default function Login() {
         description: error.message,
       })
       console.error(error);
+      return
     }
     queryClient.resetQueries({ queryKey: ["user_profile"] });
     router.push('/');

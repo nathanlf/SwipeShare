@@ -30,7 +30,7 @@ export const getProfile = async(
         .select('id, name, handle, avatar_url, availability, is_flexible')
         .eq('id',profileId)
         .single();
-        console.log(data)
+       // console.log(data)
         if(error){console.log(error.message);
             throw new Error(error.message);}
         
@@ -89,3 +89,17 @@ export const changeProfileDisplayName = async (
   }
 };
 
+export const setFlexibility = async(
+  supabase:SupabaseClient,
+  profileId:string,
+  isflexible:boolean):
+  Promise<void> =>{
+    const{data: data, error:error} = await supabase
+    .from('profile')
+    .update({is_flexible:isflexible})
+    .eq('id',profileId)
+    .select();
+    console.log(data);
+    if(error){throw new Error(error.message);}
+
+  }

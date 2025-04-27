@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardDescription, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
 import CreatePost from "@/components/post";
 import Image from 'next/image';
 
@@ -18,6 +16,9 @@ import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
+import { User } from "@supabase/supabase-js";
+import { z } from "zod";
+import { Profile } from "@/utils/supabase/models/profile";
 
 export type Timeslot = {
   starttime: string;
@@ -53,10 +54,13 @@ export const columns: ColumnDef<Timeslot>[] = [
 ];
 
 // type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
-export default function Home() {
+export default function HomePage({ user, profile }: HomePageProps) {
+  console.log(profile);
   return (
     <div className="flex flex-col">
+      <div className="text-center text-lg">flexiblity is {profile.is_flexible ? "true" : "false"} and {profile.handle}</div>
       <Tabs defaultValue="account" className="w-1/2 mx-auto">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
