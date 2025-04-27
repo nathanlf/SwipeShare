@@ -7,4 +7,5 @@ export const Profile = z.object({
   avatar_url: z.string().nullable(),
   availability: z.array(z.any()).nullable().optional(),
   is_flexible: z.boolean().nullable().optional(),
+  is_donator: z.boolean().nullable().optional(),
 });

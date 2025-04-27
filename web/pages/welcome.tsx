@@ -1,18 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
     ToggleGroup,
     ToggleGroupItem,
 } from "@/components/ui/toggle-group"
-import { getProfile, setFlexibility } from "@/utils/supabase/queries/profile";
-import { Carrot, Croissant, CupSoda, Dessert, Donut, Salad, Soup } from "lucide-react";
-import { GetServerSidePropsContext } from "next";
+import { getProfile, setFlexibility, setPersona } from "@/utils/supabase/queries/profile";
+import { Carrot, Croissant, CupSoda, Salad, Soup } from "lucide-react";
 import { useState } from "react";
-import { createSupabaseServerClient } from "@/utils/supabase/server-props";
-import { profile } from "console";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
-import router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { toast } from "sonner";
 
 
@@ -38,34 +34,46 @@ export default function WelcomePage() {
         },
     });
     const gotohome = async (profileid: string) => {
-        if (isFlexible == null || isDonator) {
-            toast("Please fill out all above fields.")
+        if (isDonator == null) {
+            toast("Please fill out all of the fields above.", {
+                className: "!bg-red-600 !text-primary-foreground !border-none",
+            });
             return;
         }
-
+        if (isFlexible == null) {
+            toast("Please fill out all of the fields above.", {
+                className: "!bg-red-600 !text-primary-foreground !border-none",
+            });
+            return;
+        }
         console.log("is donator is " + isDonator);
         console.log("is flexible is " + isFlexible);
         console.log("user id is " + profileid);
-
         await setFlexibility(supabase, profileid, isFlexible);
-
+        await setPersona(supabase, profileid, isDonator);
         await queryClient.resetQueries({ queryKey: ["user_profile"] });
 
         router.push('/');
     }
 
-    const [isFlexible, setIsFlexible] = useState<boolean>();
-    const [isDonator, setIsDonator] = useState<boolean>();
+    const [isFlexible, setIsFlexible] = useState<boolean | null>(null);
+    const [isDonator, setIsDonator] = useState<boolean | null>(null);
 
     const updatedonator = (value: string) => {
         if (value == "donating") {
             setIsDonator(true);
-        } else { setIsDonator(false); }
+        } else if (value == "requesting") { setIsDonator(false); }
+        else (setIsDonator(null));
     }
     const updateflexible = (value: string) => {
+
         if (value == "flexible") {
             setIsFlexible(true);
-        } else (setIsFlexible(false));
+        }
+        else if (value == "not_flexible") {
+            setIsFlexible(false);
+        }
+        else (setIsFlexible(null));
     }
 
     return (
@@ -106,7 +114,7 @@ export default function WelcomePage() {
                 </div>
                 <div className="flex flex-col mt-8 gap-y-10 items-center justify-center">
                     <div className="flex flex-row gap-x-2 mt-10">
-                        <p > Don't worry, you can always change these preferences later.</p>
+                        <p > Don&apos;t worry, you can always change these preferences later.</p>
                         <Soup />
                     </div>
                     <Button variant="secondary1" className="border text-primary-foreground border-primary-foreground " size="lg" onClick={() => { gotohome(data.id) }}>Start Sharing!</Button>

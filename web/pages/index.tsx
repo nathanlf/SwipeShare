@@ -60,13 +60,12 @@ export default function HomePage({ user, profile }: HomePageProps) {
   console.log(profile);
   return (
     <div className="flex flex-col">
-      <div className="text-center text-lg">flexiblity is {profile.is_flexible ? "true" : "false"} and {profile.handle}</div>
-      <Tabs defaultValue="account" className="w-1/2 mx-auto">
+      <Tabs defaultValue={profile.is_donator ? "requests" : "donations"} className="w-1/2 mx-auto">
         <TabsList className="grid w-full grid-cols-2 mb-12">
-          <TabsTrigger value="account">Donations</TabsTrigger>
-          <TabsTrigger value="password">Requests</TabsTrigger>
+          <TabsTrigger value="donations">Donations</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">
+        <TabsContent value="donations">
           <ScrollArea className="h-150 w-full rounded-md">
             <div className="flex flex-col overflow-y-auto">
               <PostCard
@@ -93,7 +92,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
             </div>
           </ScrollArea>
         </TabsContent>
-        <TabsContent value="password">
+        <TabsContent value="requests">
           <ScrollArea className="h-150 w-full rounded-md">
             <div className="flex flex-col">
               <PostCard

@@ -27,7 +27,7 @@ export const getProfile = async(
     ): Promise<z.infer<typeof Profile>> => {
         const {data,error} = await supabase
         .from('profile')
-        .select('id, name, handle, avatar_url, availability, is_flexible')
+        .select('id, name, handle, avatar_url, availability, is_flexible, is_donator')
         .eq('id',profileId)
         .single();
        // console.log(data)
@@ -92,14 +92,27 @@ export const changeProfileDisplayName = async (
 export const setFlexibility = async(
   supabase:SupabaseClient,
   profileId:string,
-  isflexible:boolean):
+  is_flexible:boolean):
   Promise<void> =>{
     const{data: data, error:error} = await supabase
     .from('profile')
-    .update({is_flexible:isflexible})
+    .update({is_flexible:is_flexible})
     .eq('id',profileId)
     .select();
     console.log(data);
     if(error){throw new Error(error.message);}
-
   }
+
+  export const setPersona = async(
+    supabase:SupabaseClient,
+    profileId:string,
+    is_donator:boolean):
+    Promise<void> =>{
+      const{data: data, error:error} = await supabase
+      .from('profile')
+      .update({is_donator:is_donator})
+      .eq('id',profileId)
+      .select();
+      console.log(data);
+      if(error){throw new Error(error.message);}
+    }
