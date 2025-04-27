@@ -116,3 +116,17 @@ export const setFlexibility = async(
       console.log(data);
       if(error){throw new Error(error.message);}
     }
+
+    export const setHandleDB = async(
+      supabase:SupabaseClient,
+      profileId:string,
+      handle:string
+    ):Promise<void>=>{
+      const{data:data, error:error} = await supabase
+        .from('profile')
+        .update({handle:handle})
+        .eq('id',profileId)
+        .select();
+        console.log(data);
+        if(error){throw new Error(error.message);}
+    }
