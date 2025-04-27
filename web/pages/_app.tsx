@@ -10,7 +10,9 @@ const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const excludedRoutes = ["/login", "/signup"];
+
+  const excludedRoutes = ["/login", "/signup", "/welcome"];
+
 
   if (excludedRoutes.includes(router.pathname)) {
     return (

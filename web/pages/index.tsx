@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
-import CreatePost from "@/components/post";
-import Image from 'next/image';
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import Image from "next/image";
 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,8 +19,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
+import CreatePostButton from "@/components/post";
+import { Badge } from "@/components/ui/badge";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
+import { User } from "@supabase/supabase-js";
+
 
 export type Timeslot = {
   starttime: string;
@@ -50,47 +59,55 @@ export const columns: ColumnDef<Timeslot>[] = [
   },
 ];
 
-// type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
-export default function Home() {
+// type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
+
+export default function HomePage({ user, profile }: HomePageProps) {
+  console.log(profile);
   return (
-    <div className="flex flex-col">
-      <div className="fixed bottom-6 right-6 z-10">
-        <CreatePost/>
-      </div>
-      <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14 flex">
+    <div className="flex flex-col mt-14">
+      <Tabs defaultValue={profile.is_donator ? "requests" : "donations"} className="w-1/2 mx-auto">
+
         <TabsList className="grid w-full grid-cols-2 mb-12">
-          <TabsTrigger value="account">Donations</TabsTrigger>
-          <TabsTrigger value="password">Requests</TabsTrigger>
+          <TabsTrigger value="donations">Donations</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">
-          <ScrollArea className="h-150 w-full rounded-md">
-            <div className="flex flex-col overflow-y-auto">
-              <PostCard
-                username="user123"
-                time_since_post="3m"
-                dining_halls={["Chase", "Lenoir"]}
-                times={timeslots}
-                is_request={false}
-              />
-              <PostCard
-                username="user456"
-                time_since_post="2h"
-                dining_halls={["Chase"]}
-                times={timeslots}
-                is_request={false}
-              />
-              <PostCard
-                username="user456"
-                time_since_post="2h"
-                dining_halls={["Chase"]}
-                times={timeslots}
-                is_request={false}
-              />
+
+        <TabsContent value="donations">
+          <ScrollArea className="h-170 w-full rounded-md">
+            <div className="mx-4">
+              <div className="flex flex-col overflow-y-auto">
+                <PostCard
+                  username="user123"
+                  time_since_post="3m"
+                  dining_halls={["Chase", "Lenoir"]}
+                  times={timeslots}
+                  is_request={false}
+                  isflexible={true}
+                />
+                <PostCard
+                  username="user456"
+                  time_since_post="2h"
+                  dining_halls={["Chase"]}
+                  times={timeslots}
+                  is_request={false}
+                  isflexible={true}
+                />
+                <PostCard
+                  username="user456"
+                  time_since_post="2h"
+                  dining_halls={["Chase"]}
+                  times={timeslots}
+                  is_request={false}
+                  isflexible={false}
+                />
+              </div>
+
             </div>
           </ScrollArea>
         </TabsContent>
-        <TabsContent value="password">
+        <TabsContent value="requests">
           <ScrollArea className="h-150 w-full rounded-md">
             <div className="flex flex-col">
               <PostCard
@@ -101,6 +118,7 @@ export default function Home() {
                 is_request={true}
                 imgsrc={"/sampleimg.png"}
                 caption={"feeling hungry and hopeful :p"}
+                isflexible={false}
               />
               <PostCard
                 username="user456"
@@ -108,13 +126,14 @@ export default function Home() {
                 dining_halls={["Chase"]}
                 times={timeslots}
                 is_request={true}
+                isflexible={false}
               />
             </div>
           </ScrollArea>
         </TabsContent>
       </Tabs>
       <div className="fixed bottom-6 right-6 z-10">
-        <CreatePost />
+        <CreatePostButton user={user} />
       </div>
     </div>
   );
@@ -128,6 +147,7 @@ type props = {
   is_request: boolean;
   imgsrc?: string;
   caption?: string;
+  isflexible: boolean;
 };
 function PostCard({
   username,
@@ -137,8 +157,8 @@ function PostCard({
   is_request,
   imgsrc,
   caption,
+  isflexible,
 }: props) {
-
   const listitems = dining_halls.map((hall) => {
     return (
       <div className="flex flex-row gap-0.5" key={hall}>
@@ -157,12 +177,19 @@ function PostCard({
       <CardContent className="flex flex-row gap-x-6">
         <div className="space-y-4 flex-3">
           <div className="flex flex-col gap-y-2">
-            <CardDescription className="flex flex-row gap-x-1 pt-0.5">
-              <CalendarDays size={16} />
-              <p className="text-xs ">
-                {time_since_post} ~ @{username}
-              </p>
-            </CardDescription>
+            <div className="flex flex-row gap-x-3 items-start">
+              <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+                <CalendarDays size={16} />
+                <p className="text-xs ">
+                  {time_since_post} ~ @{username}
+                </p>
+              </CardDescription>
+              {isflexible ? (
+                <Badge variant="default" className="bg-[#ff9000] ">
+                  flexible
+                </Badge>
+              ) : null}
+            </div>
             <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
               {listitems}
             </CardDescription>
