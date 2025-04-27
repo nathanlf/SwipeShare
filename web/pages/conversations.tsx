@@ -12,7 +12,7 @@ import { Chat } from "@/utils/supabase/models/chat";
 import { z } from "zod";
 import { DiningHall } from "@/components/chat-pages/conversation-card";
 import { useState } from "react";
-
+import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
 type ConversationPageProps = {
   user: User;
 };
@@ -21,6 +21,9 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Use the online users context
+  const { isUserOnline } = useOnlineUsersContext();
 
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ["conversations", user.id],
@@ -40,10 +43,6 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
       : conversation.user_1;
   };
 
-  const isUserOnline = () => {
-    return true; // placeholder
-  };
-
   const getLastDiningHall = () => {
     const halls = [DiningHall.Chase, DiningHall.Lenoir];
     return halls[Math.floor(Math.random() * halls.length)];
@@ -56,8 +55,8 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
 
   return (
     <div className="flex justify-center items-center w-full h-full flex-col mt-4">
-      <div className="flex flex-row justify-between w-4/5 mb-1">
-        <p className="text-black font-bold w-4/5 text-lg sm:text-2xl">
+      <div className="flex flex-row justify-around sm:justify-between w-full sm:w-4/5 mb-1">
+        <p className="text-black font-bold w-4/5 text-xl sm:text-2xl ml-4">
           Conversations
         </p>
         <SearchBar
@@ -66,7 +65,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
           placeholder="Search by name..."
         />
       </div>
-      <Card className="min-h-5/6 w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
+      <Card className="min-h-5/6 w-full sm:w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
             Loading conversations...
@@ -86,7 +85,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
               >
                 <ConversationCard
                   name={otherUser.name}
-                  online={isUserOnline()}
+                  online={isUserOnline(otherUser.id)}
                   lastSeen={getLastDiningHall()}
                   avatarUrl={otherUser.avatar_url}
                 />
