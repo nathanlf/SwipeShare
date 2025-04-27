@@ -64,7 +64,7 @@ type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 export default function HomePage({ user, profile }: HomePageProps) {
   console.log(profile);
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col mt-14">
       <Tabs defaultValue={profile.is_donator ? "requests" : "donations"} className="w-1/2 mx-auto">
 
         <TabsList className="grid w-full grid-cols-2 mb-12">
@@ -72,7 +72,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
           <TabsTrigger value="requests">Requests</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="account">
+        <TabsContent value="donations">
           <ScrollArea className="h-170 w-full rounded-md">
             <div className="mx-4">
               <div className="flex flex-col overflow-y-auto">
@@ -129,7 +129,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
         </TabsContent>
       </Tabs>
       <div className="fixed bottom-6 right-6 z-10">
-        <CreatePostButton user={user}/>
+        <CreatePostButton user={user} />
       </div>
     </div>
   );
