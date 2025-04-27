@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
 // import { User } from "@supabase/supabase-js";
@@ -24,7 +23,6 @@ import { Badge } from "@/components/ui/badge";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
-
 
 export type Timeslot = {
   starttime: string;
@@ -59,7 +57,6 @@ export const columns: ColumnDef<Timeslot>[] = [
   },
 ];
 
-
 // type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
@@ -67,8 +64,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
   console.log(profile);
   return (
     <div className="flex flex-col mt-14">
-      <Tabs defaultValue={profile.is_donator ? "requests" : "donations"} className="w-1/2 mx-auto">
-
+      <Tabs
+        defaultValue={profile.is_donator ? "requests" : "donations"}
+        className="w-1/2 mx-auto"
+      >
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="donations">Donations</TabsTrigger>
           <TabsTrigger value="requests">Requests</TabsTrigger>
@@ -103,7 +102,6 @@ export default function HomePage({ user, profile }: HomePageProps) {
                   isflexible={false}
                 />
               </div>
-
             </div>
           </ScrollArea>
         </TabsContent>

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-import { createSupabaseComponentClient } from '@/utils/supabase/clients/component';
-import { useOnlineUsers } from '@/hooks/useOnlineUsers';
-import { useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
+import React, { createContext, useContext, ReactNode } from "react";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
+import { useOnlineUsers } from "@/hooks/useOnlineUsers";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
 
 // Create context for online users
 interface OnlineUsersContextType {
@@ -22,7 +22,7 @@ interface OnlineUsersProviderProps {
 export function OnlineUsersProvider({ children }: OnlineUsersProviderProps) {
   const supabase = createSupabaseComponentClient();
   const [user, setUser] = useState<User | null>(null);
-  
+
   // Get the current user
   useEffect(() => {
     const getUser = async () => {
@@ -31,26 +31,28 @@ export function OnlineUsersProvider({ children }: OnlineUsersProviderProps) {
         setUser(data.user);
       }
     };
-    
+
     getUser();
-    
+
     // Set up auth listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-      }
-    });
-    
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN" && session?.user) {
+          setUser(session.user);
+        } else if (event === "SIGNED_OUT") {
+          setUser(null);
+        }
+      },
+    );
+
     return () => {
       authListener?.subscription?.unsubscribe();
     };
   }, [supabase]);
-  
+
   // Get online users data from hook
   const onlineUsersData = useOnlineUsers(supabase, user);
-  
+
   return (
     <OnlineUsersContext.Provider value={onlineUsersData}>
       {children}

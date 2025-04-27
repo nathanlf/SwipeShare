@@ -17,15 +17,17 @@ const chatSelectFragment = `
  */
 export const getUsersInChat = async (
   supabase: SupabaseClient,
-  chatId: string
+  chatId: string,
 ): Promise<[z.infer<typeof Profile>, z.infer<typeof Profile>]> => {
   const { data: chat, error } = await supabase
     .from("chat")
-    .select(`
+    .select(
+      `
       id,
       user_1(id, name, handle, avatar_url, availability, is_flexible),
       user_2(id, name, handle, avatar_url, availability, is_flexible)
-    `)
+    `,
+    )
     .eq("id", chatId)
     .single();
 
@@ -43,7 +45,7 @@ export const getUsersInChat = async (
  */
 export const getChatById = async (
   supabase: SupabaseClient,
-  chatId: string
+  chatId: string,
 ): Promise<z.infer<typeof Chat>> => {
   const { data: chat, error } = await supabase
     .from("chat")
@@ -64,19 +66,19 @@ export const getChatById = async (
 export const getOrCreateChatByUsers = async (
   supabase: SupabaseClient,
   user1Id: string,
-  user2Id: string
+  user2Id: string,
 ): Promise<z.infer<typeof Chat>> => {
   const { data: existingChat, error: searchError } = await supabase
     .from("chat")
     .select(chatSelectFragment)
     .or(
-      `and(user_1.eq.${user1Id},user_2.eq.${user2Id}),and(user_1.eq.${user2Id},user_2.eq.${user1Id})`
+      `and(user_1.eq.${user1Id},user_2.eq.${user2Id}),and(user_1.eq.${user2Id},user_2.eq.${user1Id})`,
     )
     .maybeSingle();
 
   if (searchError) {
     throw new Error(
-      `Error searching for existing chat: ${searchError.message}`
+      `Error searching for existing chat: ${searchError.message}`,
     );
   }
 
@@ -106,7 +108,7 @@ export const getOrCreateChatByUsers = async (
  */
 export const editChat = async (
   supabase: SupabaseClient,
-  chat: z.infer<typeof Chat>
+  chat: z.infer<typeof Chat>,
 ): Promise<void> => {
   const updatableFields = {
     last_activity: chat.last_activity,
@@ -128,7 +130,7 @@ export const editChat = async (
  */
 export const getConversations = async (
   supabase: SupabaseClient,
-  currentUserId: string
+  currentUserId: string,
 ): Promise<z.infer<typeof Chat>[]> => {
   const { data: chats, error } = await supabase
     .from("chat")
@@ -149,8 +151,12 @@ export const getConversations = async (
 export const getOrCreateChatForNavigation = async (
   supabase: SupabaseClient,
   currentUserId: string,
-  otherUserId: string
+  otherUserId: string,
 ): Promise<string> => {
-  const chat = await getOrCreateChatByUsers(supabase, currentUserId, otherUserId);
+  const chat = await getOrCreateChatByUsers(
+    supabase,
+    currentUserId,
+    otherUserId,
+  );
   return chat.id;
 };

@@ -65,7 +65,7 @@ export function AppSidebar() {
     {
       title: "My Availability",
       url: data ? `/availability/${data.id}` : "/",
-      icon: CalendarFold
+      icon: CalendarFold,
     },
     {
       title: "Settings",
@@ -73,7 +73,6 @@ export function AppSidebar() {
       icon: Settings,
     },
   ];
-
 
   return (
     <Sidebar className="border-r-0 max-w-[260px]">

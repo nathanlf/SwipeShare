@@ -17,14 +17,12 @@ export function useOnlineUsers(supabase: SupabaseClient, user: User | null) {
 
     // Handle users joining
     const handleUserJoin = (newPresences: any[]) => {
-      const joiningUserIds = newPresences.map(
-        (presence) => presence.user_id
-      );
+      const joiningUserIds = newPresences.map((presence) => presence.user_id);
 
       setOnlineUsers((prevUsers) => {
         // Filter out duplicates
         const uniqueJoiningIds = joiningUserIds.filter(
-          (id) => !prevUsers.includes(id)
+          (id) => !prevUsers.includes(id),
         );
         if (uniqueJoiningIds.length === 0) return prevUsers;
         return [...prevUsers, ...uniqueJoiningIds];
@@ -33,13 +31,11 @@ export function useOnlineUsers(supabase: SupabaseClient, user: User | null) {
 
     // Handle users leaving
     const handleUserLeave = (leftPresences: any[]) => {
-      const leavingUserIds = leftPresences.map(
-        (presence) => presence.user_id
-      );
+      const leavingUserIds = leftPresences.map((presence) => presence.user_id);
 
       if (leavingUserIds.length > 0) {
         setOnlineUsers((prevUsers) =>
-          prevUsers.filter((userId) => !leavingUserIds.includes(userId))
+          prevUsers.filter((userId) => !leavingUserIds.includes(userId)),
         );
       }
     };
@@ -56,7 +52,7 @@ export function useOnlineUsers(supabase: SupabaseClient, user: User | null) {
         // When syncing, get the current state
         const state = presenceChannel.presenceState();
         const currentUsers = Object.values(state).flatMap((presences: any[]) =>
-          presences.map((presence) => presence.user_id)
+          presences.map((presence) => presence.user_id),
         );
 
         setOnlineUsers(currentUsers);

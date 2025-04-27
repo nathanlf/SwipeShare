@@ -12,12 +12,9 @@ import { Button } from "@/components/ui/button";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
-import { toast } from "sonner"
-
-
+import { toast } from "sonner";
 
 export default function Login() {
-
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const queryClient = useQueryClient();
@@ -27,21 +24,24 @@ export default function Login() {
 
   const logIn = async () => {
     // ... your implementation here ...
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) {
       toast("Uh oh! Something went wrong", {
         className: "!bg-red-600 !text-primary-foreground !border-none",
         descriptionClassName: "!text-primary-foreground",
-        description: error.message
+        description: error.message,
       });
       /* toast("Uh oh! Something went wrong", {
          description: error.message,
        })*/
       console.error(error);
-      return
+      return;
     }
     queryClient.resetQueries({ queryKey: ["user_profile"] });
-    router.push('/');
+    router.push("/");
   };
 
   return (
@@ -50,7 +50,10 @@ export default function Login() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-2">
-              <a href="#" className="flex flex-col items-center gap-2 font-medium">
+              <a
+                href="#"
+                className="flex flex-col items-center gap-2 font-medium"
+              >
                 <div className="flex flex-row gap-x-1 items-center justify-center rounded-md">
                   <Cookie />
                   <Sandwich />
@@ -63,13 +66,16 @@ export default function Login() {
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link href="/signup" className="underline underline-offset-4">Sign up here!</Link>
+                <Link href="/signup" className="underline underline-offset-4">
+                  Sign up here!
+                </Link>
               </div>
             </div>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input className="text-accent1 placeholder:text-accent1"
+                <Input
+                  className="text-accent1 placeholder:text-accent1"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="janedoe@example.com"
@@ -86,15 +92,17 @@ export default function Login() {
                 />
               </div>
 
-              <Button variant="default" className="w-full bg-[#3bbf90cc] hover:bg-accent1" onClick={logIn} >
+              <Button
+                variant="default"
+                className="w-full bg-[#3bbf90cc] hover:bg-accent1"
+                onClick={logIn}
+              >
                 Login
               </Button>
-
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-
 }

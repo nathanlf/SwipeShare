@@ -73,7 +73,7 @@ export default function AvailabilityPage({
         async () => {
           const newProfile = await getProfile(supabase, profile.id);
           setProfile(newProfile);
-        }
+        },
       )
       .subscribe();
 

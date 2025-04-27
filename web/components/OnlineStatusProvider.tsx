@@ -1,7 +1,13 @@
 // components/OnlineStatusProvider.tsx
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { User } from '@supabase/supabase-js';
-import { createSupabaseComponentClient } from '@/utils/supabase/clients/component';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { User } from "@supabase/supabase-js";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 
 // Define the context type
 type OnlineStatusContextType = {
@@ -25,19 +31,25 @@ type OnlineStatusProviderProps = {
   currentUser: User | null;
 };
 
-export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({ children, currentUser }) => {
+export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({
+  children,
+  currentUser,
+}) => {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [usersToTrack, setUsersToTrack] = useState<string[]>([]);
   const supabase = createSupabaseComponentClient();
 
   // Function to check if a user is online
-  const isUserOnline = useCallback((userId: string) => {
-    return onlineUsers.includes(userId);
-  }, [onlineUsers]);
+  const isUserOnline = useCallback(
+    (userId: string) => {
+      return onlineUsers.includes(userId);
+    },
+    [onlineUsers],
+  );
 
   // Function to add users to track
   const addUsersToTrack = useCallback((userIds: string[]) => {
-    setUsersToTrack(prevUsers => {
+    setUsersToTrack((prevUsers) => {
       const uniqueUsers = [...new Set([...prevUsers, ...userIds])];
       return uniqueUsers;
     });
@@ -48,7 +60,7 @@ export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({ chil
     if (!currentUser || usersToTrack.length === 0) return;
 
     // Create a channel for presence tracking
-    const channel = supabase.channel('online-users', {
+    const channel = supabase.channel("online-users", {
       config: {
         presence: {
           key: currentUser.id,
@@ -58,21 +70,21 @@ export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({ chil
 
     // Handle presence state changes
     channel
-      .on('presence', { event: 'sync' }, () => {
+      .on("presence", { event: "sync" }, () => {
         // Get the current state of all online users
         const presenceState = channel.presenceState();
-        
+
         // Extract user IDs from presence state
-        const currentOnlineUsers = Object.keys(presenceState).filter(id => 
+        const currentOnlineUsers = Object.keys(presenceState).filter((id) =>
           // Only include users we're tracking
-          usersToTrack.includes(id)
+          usersToTrack.includes(id),
         );
-        
+
         // Update the state with online users
         setOnlineUsers(currentOnlineUsers);
       })
       .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
+        if (status === "SUBSCRIBED") {
           // When subscribed, track the current user's presence
           await channel.track({
             user_id: currentUser.id,
@@ -88,7 +100,9 @@ export const OnlineStatusProvider: React.FC<OnlineStatusProviderProps> = ({ chil
   }, [currentUser, usersToTrack, supabase]);
 
   return (
-    <OnlineStatusContext.Provider value={{ isUserOnline, addUsersToTrack, onlineUsers }}>
+    <OnlineStatusContext.Provider
+      value={{ isUserOnline, addUsersToTrack, onlineUsers }}
+    >
       {children}
     </OnlineStatusContext.Provider>
   );

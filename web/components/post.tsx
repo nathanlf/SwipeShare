@@ -21,10 +21,10 @@ import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 
 interface CreatePostProps {
-  user: User
+  user: User;
 }
 
-export default function CreatePostButton({user}: CreatePostProps) {
+export default function CreatePostButton({ user }: CreatePostProps) {
   const [postType, setPostType] = useState<"donation" | "request" | null>(null);
   const [description, setDescription] = useState("");
   const [diningHalls, setDiningHalls] = useState<string[]>([]);
@@ -38,7 +38,7 @@ export default function CreatePostButton({user}: CreatePostProps) {
 
   const handleDiningHallToggle = (hall: string) => {
     if (diningHalls.includes(hall)) {
-      setDiningHalls(diningHalls.filter(h => h !== hall));
+      setDiningHalls(diningHalls.filter((h) => h !== hall));
     } else {
       setDiningHalls([...diningHalls, hall]);
     }
@@ -46,13 +46,13 @@ export default function CreatePostButton({user}: CreatePostProps) {
 
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
       // Upload to the existing image bucket
       const { error: uploadError } = await supabase.storage
-        .from('attachments')
+        .from("attachments")
         .upload(filePath, file);
 
       if (uploadError) {
@@ -61,55 +61,55 @@ export default function CreatePostButton({user}: CreatePostProps) {
 
       // Get the public URL
       const { data } = supabase.storage
-        .from('attachments')
+        .from("attachments")
         .getPublicUrl(filePath);
 
       return data.publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
       throw error;
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Format content with dining halls included
       const content = JSON.stringify({
         text: description,
         diningHalls: diningHalls,
       });
-      
+
       let attachmentUrl: string | null = null;
-      
+
       // Upload image if selected
       if (selectedFile) {
         attachmentUrl = await uploadImage(selectedFile);
       }
-      
+
       // Create post based on type using the appropriate function
       if (postType === "request") {
         await createRequest(supabase, content, user.id, attachmentUrl);
       } else if (postType === "donation") {
         await createDonation(supabase, content, user.id, attachmentUrl);
       }
-      
+
       // Success handling
       toast.success("Post Created", {
         description: `Your ${postType} has been successfully posted`,
       });
-      
+
       // Reset form and close dialog
       setDescription("");
       setDiningHalls([]);
       setSelectedFile(null);
       setPostType(null);
       setIsDialogOpen(false);
-      
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error creating post:", error);
       toast.error("Error", {
@@ -129,8 +129,8 @@ export default function CreatePostButton({user}: CreatePostProps) {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="default" 
+        <Button
+          variant="default"
           className="bg-accent2 hover:bg-accent1 text-white rounded-lg shadow-lg gap-x-1"
           onClick={() => setIsDialogOpen(true)}
         >
@@ -158,7 +158,9 @@ export default function CreatePostButton({user}: CreatePostProps) {
                   type="button"
                   variant={postType === "donation" ? "default" : "outline"}
                   onClick={() => setPostType("donation")}
-                  className={postType === "donation" ? "bg-primary1 text-white" : ""}
+                  className={
+                    postType === "donation" ? "bg-primary1 text-white" : ""
+                  }
                   disabled={isSubmitting}
                 >
                   Donate a Swipe
@@ -167,7 +169,9 @@ export default function CreatePostButton({user}: CreatePostProps) {
                   type="button"
                   variant={postType === "request" ? "default" : "outline"}
                   onClick={() => setPostType("request")}
-                  className={postType === "request" ? "bg-primary1 text-white" : ""}
+                  className={
+                    postType === "request" ? "bg-primary1 text-white" : ""
+                  }
                   disabled={isSubmitting}
                 >
                   Request a Swipe
@@ -188,9 +192,8 @@ export default function CreatePostButton({user}: CreatePostProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDiningHallToggle(hall)}
-                    className={diningHalls.includes(hall) 
-                      ? "bg-primary1 text-white" 
-                      : ""
+                    className={
+                      diningHalls.includes(hall) ? "bg-primary1 text-white" : ""
                     }
                     disabled={isSubmitting}
                   >
@@ -201,7 +204,10 @@ export default function CreatePostButton({user}: CreatePostProps) {
             </div>
 
             <div>
-              <label htmlFor="description" className="text-sm font-medium text-gray-700 block mb-2">
+              <label
+                htmlFor="description"
+                className="text-sm font-medium text-gray-700 block mb-2"
+              >
                 Description (Optional)
               </label>
               <Textarea
@@ -232,7 +238,9 @@ export default function CreatePostButton({user}: CreatePostProps) {
                   />
                 </label>
                 <p className="mt-1 text-sm text-gray-600">
-                  {selectedFile ? `Selected: ${selectedFile.name}` : "No file chosen"}
+                  {selectedFile
+                    ? `Selected: ${selectedFile.name}`
+                    : "No file chosen"}
                 </p>
               </div>
             </div>
@@ -240,11 +248,7 @@ export default function CreatePostButton({user}: CreatePostProps) {
 
           <DialogFooter className="mt-6">
             <DialogClose asChild>
-              <Button 
-                type="button" 
-                variant="outline"
-                disabled={isSubmitting}
-              >
+              <Button type="button" variant="outline" disabled={isSubmitting}>
                 Cancel
               </Button>
             </DialogClose>

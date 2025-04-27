@@ -21,7 +21,7 @@ const getFallbackAuthor = (author_id: string): z.infer<typeof Profile> => ({
  */
 const findAuthorOrFallback = (
   author_id: string,
-  members?: z.infer<typeof Profile>[]
+  members?: z.infer<typeof Profile>[],
 ): z.infer<typeof Profile> => {
   if (!members || members.length === 0) {
     return getFallbackAuthor(author_id);
@@ -35,7 +35,7 @@ const findAuthorOrFallback = (
   // Validate that the found user has all required fields
   try {
     return Profile.parse(foundUser);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return getFallbackAuthor(author_id);
   }
@@ -46,7 +46,7 @@ export const addMessageToCacheFn =
   (
     queryUtils: QueryClient,
     chatId: string | string[] | undefined,
-    members: z.infer<typeof Profile>[] | undefined
+    members: z.infer<typeof Profile>[] | undefined,
   ) =>
   (newMessage: z.infer<typeof DraftMessage>) => {
     queryUtils.setQueryData(
@@ -71,10 +71,10 @@ export const addMessageToCacheFn =
         return {
           pageParams: oldData.pageParams,
           pages: oldData.pages.map((page, index) =>
-            index === 0 ? [parsedMessage, ...page] : page
+            index === 0 ? [parsedMessage, ...page] : page,
           ),
         };
-      }
+      },
     );
   };
 
@@ -83,7 +83,7 @@ export const updateMessageInCacheFn =
   (
     queryUtils: QueryClient,
     chatId: string | string[] | undefined,
-    members: z.infer<typeof Profile>[] | undefined
+    members: z.infer<typeof Profile>[] | undefined,
   ) =>
   (updatedMessage: z.infer<typeof DraftMessage>) => {
     queryUtils.setQueryData(
@@ -107,11 +107,11 @@ export const updateMessageInCacheFn =
           pageParams: oldData.pageParams,
           pages: oldData.pages.map((page) =>
             page.map((message) =>
-              message.id === updatedMessage.id ? parsedMessage : message
-            )
+              message.id === updatedMessage.id ? parsedMessage : message,
+            ),
           ),
         };
-      }
+      },
     );
   };
 
@@ -129,9 +129,9 @@ export const deleteMessageFromCacheFn =
         return {
           pageParams: oldData.pageParams,
           pages: oldData.pages.map((page) =>
-            page.filter((message) => message.id !== messageId)
+            page.filter((message) => message.id !== messageId),
           ),
         };
-      }
+      },
     );
   };

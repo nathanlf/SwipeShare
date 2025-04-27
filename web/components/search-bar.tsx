@@ -6,7 +6,11 @@ type SearchBarProps = {
   placeholder?: string;
 };
 
-export default function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
+export default function SearchBar({
+  value,
+  onChange,
+  placeholder,
+}: SearchBarProps) {
   return (
     <div className="flex items-center w-full max-w-sm rounded-lg px-3.5 gap-2">
       <Input

@@ -21,7 +21,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Use the online users context
   const { isUserOnline } = useOnlineUsersContext();
 

@@ -13,7 +13,6 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const excludedRoutes = ["/login", "/signup", "/welcome"];
 
-
   if (excludedRoutes.includes(router.pathname)) {
     return (
       <QueryClientProvider client={queryClient}>

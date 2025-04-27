@@ -8,7 +8,7 @@ export const createDonation = async (
   supabase: SupabaseClient,
   content: string,
   author_id: string,
-  attachment_url?: string | null
+  attachment_url?: string | null,
 ): Promise<PostType> => {
   const newDonation = {
     id: uuidv4(),
@@ -23,7 +23,7 @@ export const createDonation = async (
     .insert(newDonation)
     .select("*")
     .single();
-  console.log(data)
+  console.log(data);
   if (error) {
     console.error(error);
     throw new Error(error.message);
@@ -35,7 +35,7 @@ export const createDonation = async (
 // Get a donation by ID
 export const getDonationById = async (
   supabase: SupabaseClient,
-  donationId: string
+  donationId: string,
 ): Promise<PostType> => {
   const { data, error } = await supabase
     .from("donation")
@@ -55,7 +55,7 @@ export const getDonationById = async (
 export const getAllDonations = async (
   supabase: SupabaseClient,
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
 ): Promise<PostType[]> => {
   const { data, error } = await supabase
     .from("donation")
@@ -76,7 +76,7 @@ export const getDonationsByAuthor = async (
   supabase: SupabaseClient,
   authorId: string,
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
 ): Promise<PostType[]> => {
   const { data, error } = await supabase
     .from("donation")
@@ -97,7 +97,7 @@ export const getDonationsByAuthor = async (
 export const updateDonation = async (
   supabase: SupabaseClient,
   donationId: string,
-  updates: Partial<Omit<PostType, "id" | "created_at" | "author_id">>
+  updates: Partial<Omit<PostType, "id" | "created_at" | "author_id">>,
 ): Promise<PostType> => {
   const { data, error } = await supabase
     .from("donation")
@@ -117,7 +117,7 @@ export const updateDonation = async (
 // Delete a donation
 export const deleteDonation = async (
   supabase: SupabaseClient,
-  donationId: string
+  donationId: string,
 ): Promise<boolean> => {
   const { error } = await supabase
     .from("donation")

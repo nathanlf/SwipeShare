@@ -40,7 +40,7 @@ export default function DirectMessagePage({
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const queryUtils = useQueryClient();
-  
+
   // Use the online users context
   const { isUserOnline } = useOnlineUsersContext();
 
@@ -111,7 +111,7 @@ export default function DirectMessagePage({
 
     const container = scrollContainerRef.current;
     const messageElement = container.querySelector(
-      `[data-message-id="${messageId}"]`
+      `[data-message-id="${messageId}"]`,
     );
 
     if (messageElement) {
@@ -160,23 +160,23 @@ export default function DirectMessagePage({
   const addMessageToCache = useCallback(
     (newMessage: z.infer<typeof DraftMessage>) =>
       addMessageToCacheFn(queryUtils, chatId as string, [user!, otherUser!])(
-        newMessage
+        newMessage,
       ),
-    [chatId, otherUser, queryUtils, user]
+    [chatId, otherUser, queryUtils, user],
   );
 
   const updateMessageInCache = useCallback(
     (updatedMessage: z.infer<typeof DraftMessage>) =>
       updateMessageInCacheFn(queryUtils, chatId as string, [user!, otherUser!])(
-        updatedMessage
+        updatedMessage,
       ),
-    [chatId, otherUser, queryUtils, user]
+    [chatId, otherUser, queryUtils, user],
   );
 
   const deleteMessageFromCache = useCallback(
     (messageId: string) =>
       deleteMessageFromCacheFn(queryUtils, chatId as string)(messageId),
-    [chatId, queryUtils]
+    [chatId, queryUtils],
   );
 
   const handleLoadMoreMessages = useCallback(() => {
@@ -243,7 +243,7 @@ export default function DirectMessagePage({
           if (newMessage.author_id !== user?.id) {
             addMessageToCache(newMessage);
           }
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -256,7 +256,7 @@ export default function DirectMessagePage({
         (payload) => {
           const updatedMessage = DraftMessage.parse(payload.new);
           updateMessageInCache(updatedMessage);
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -269,7 +269,7 @@ export default function DirectMessagePage({
         (payload) => {
           const messageToDeleteID = payload.old.id;
           deleteMessageFromCache(messageToDeleteID);
-        }
+        },
       )
       .subscribe();
 
@@ -288,7 +288,11 @@ export default function DirectMessagePage({
 
   const isParticipant = users?.some((u) => u.id === authUser.id);
   if (!isParticipant)
-    return <div className="text-center">You are not authorized to view this chat.</div>;
+    return (
+      <div className="text-center">
+        You are not authorized to view this chat.
+      </div>
+    );
   if (!chat || !otherUser || !user) return <div>Loading chat...</div>;
 
   const allMessages = messages?.pages.flatMap((page) => page).reverse() || [];
