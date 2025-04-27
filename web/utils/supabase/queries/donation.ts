@@ -23,7 +23,7 @@ export const createDonation = async (
     .insert(newDonation)
     .select("*")
     .single();
-
+  console.log(data)
   if (error) {
     console.error(error);
     throw new Error(error.message);
