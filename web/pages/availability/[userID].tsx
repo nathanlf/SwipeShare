@@ -39,10 +39,10 @@ export default function AvailabilityPage({
   const supabase = createSupabaseComponentClient();
 
   useEffect(() => {
-    const THIRTY_SECONDS = 30_000;
+    const FIVE_SECONDS = 5_000;
     const timedExecution = setInterval(() => {
       setNow(nowEasternMs);
-    }, THIRTY_SECONDS);
+    }, FIVE_SECONDS);
 
     return () => clearInterval(timedExecution);
   }, []);
