@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DataTable } from "@/components/ui/datatable";
 import { useEffect } from "react";
@@ -371,8 +372,20 @@ export default function TimeInput({ profile }: TimeInputProps) {
           </Button>
         </div>
       </div>
-      <div className="w-full px-40">
-        <DataTable columns={tableColumns} data={timeslots} />
+
+      <div className="flex flex-col gap-y-8">
+        <div className="flex flex-row justify-between">
+          <Label className="text-[#484349] text-2xl font-bold underline ml-[10%]">
+            Your Available Timeslots
+          </Label>
+          <Label className="text-gray text-muted-foreground text-sm mr-[10%]">
+            *Click timeslots to delete.
+          </Label>
+        </div>
+
+        <div className="w-full px-40">
+          <DataTable columns={tableColumns} data={timeslots} />
+        </div>
       </div>
     </div>
   );
