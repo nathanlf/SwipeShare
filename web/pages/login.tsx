@@ -29,11 +29,16 @@ export default function Login() {
     // ... your implementation here ...
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-
       toast("Uh oh! Something went wrong", {
-        description: error.message,
-      })
+        className: "!bg-red-600 !text-primary-foreground !border-none",
+        descriptionClassName: "!text-primary-foreground",
+        description: error.message
+      });
+      /* toast("Uh oh! Something went wrong", {
+         description: error.message,
+       })*/
       console.error(error);
+      return
     }
     queryClient.resetQueries({ queryKey: ["user_profile"] });
     router.push('/');
