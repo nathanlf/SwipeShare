@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardDescription, CardTitle, CardContent } from "@/components/ui/card";
-import Image from 'next/image';
-
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import Image from "next/image";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
@@ -13,11 +18,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
+import CreatePostButton from "@/components/post";
+import { Badge } from "@/components/ui/badge";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
-import CreatePostButton from "@/components/post";
-import { Badge } from "@/components/ui/badge";
 
 export type Timeslot = {
   starttime: string;
@@ -55,8 +60,6 @@ export const columns: ColumnDef<Timeslot>[] = [
 export default function Home({ user }: { user: User }) {
   return (
     <div className="flex flex-col">
-
-
       <Tabs defaultValue="account" className="w-1/2 mx-auto mt-14">
         <TabsList className="grid w-full grid-cols-2 mb-12">
           <TabsTrigger value="account">Donations</TabsTrigger>
@@ -105,6 +108,7 @@ export default function Home({ user }: { user: User }) {
                 is_request={true}
                 imgsrc={"/sampleimg.png"}
                 caption={"feeling hungry and hopeful :p"}
+                isflexible={false}
               />
               <PostCard
                 username="user456"
@@ -112,13 +116,14 @@ export default function Home({ user }: { user: User }) {
                 dining_halls={["Chase"]}
                 times={timeslots}
                 is_request={true}
+                isflexible={false}
               />
             </div>
           </ScrollArea>
         </TabsContent>
       </Tabs>
       <div className="fixed bottom-6 right-6 z-10">
-        <CreatePostButton user={user}/>
+        <CreatePostButton user={user} />
       </div>
     </div>
   );
@@ -141,9 +146,9 @@ function PostCard({
   times,
   is_request,
   imgsrc,
-  caption, isflexible
+  caption,
+  isflexible,
 }: props) {
-
   const listitems = dining_halls.map((hall) => {
     return (
       <div className="flex flex-row gap-0.5" key={hall}>
@@ -169,32 +174,55 @@ function PostCard({
                   {time_since_post} ~ @{username}
                 </p>
               </CardDescription>
-              {isflexible ? <Badge variant="default" className="bg-[#ff9000] " >flexible</Badge> : null}
+              {isflexible ? (
+                <Badge variant="default" className="bg-[#ff9000] ">
+                  flexible
+                </Badge>
+              ) : null}
             </div>
             <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
               {listitems}
             </CardDescription>
           </div>
-          {caption ? (<p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">{caption}</p>) : null}
+          {caption ? (
+            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
+              {caption}
+            </p>
+          ) : null}
           <div className="flex flex-row">
             <div className="w-full">
               <DataTable columns={columns} data={times} />
             </div>
           </div>
-          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">View all Time Slots</CardDescription>
+          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
+            View all Time Slots
+          </CardDescription>
         </div>
         <div className="flex-2 flex flex-col gap-y-6 mx-16">
-          {imgsrc ? (<Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image>) :
-            (<div className="mb-8"></div> // Reserve image height when missing
-            )}
-          <Button variant="secondary1" size="default" className=" rounded-sm ">{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
-          <Button variant="outline" className="rounded-sm text-muted-foreground">
-            <MessagesSquare size={30} />Message @{username}
+          {imgsrc ? (
+            <Image
+              width={100}
+              height={100}
+              src={imgsrc}
+              alt="image"
+              className="object-cover mx-auto self-center w-full h-[120px]"
+            ></Image>
+          ) : (
+            <div className="mb-8"></div> // Reserve image height when missing
+          )}
+          <Button variant="secondary1" size="default" className=" rounded-sm ">
+            {is_request ? "Donate Swipe" : "Request Swipe"}
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-sm text-muted-foreground"
+          >
+            <MessagesSquare size={30} />
+            Message @{username}
           </Button>
         </div>
       </CardContent>
     </Card>
-
   );
 }
 

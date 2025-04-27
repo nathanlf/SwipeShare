@@ -18,9 +18,17 @@ import {
 } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { DataTable } from "@/components/ui/datatable";
-import { Timeslot } from "../../../pages";
 import { useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
+import { z } from "zod";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
+import { Profile } from "@/utils/supabase/models/profile";
+import { updateAvailability } from "@/utils/supabase/queries/profile";
+
+export type Timeslot = {
+  starttime: string;
+  endtime: string;
+};
 
 export const columns = (
   onDelete: (timeslot: Timeslot) => void
@@ -102,6 +110,7 @@ const fifteenMinuteStepsto2 = Array.from({ length: 11 * 4 }, (_, i) => {
 const validTimes2 = new Set(fifteenMinuteStepsto);
 const validTimespm2 = new Set(fifteenMinuteStepsto2);
 
+timeslist_to.push({ value: "8:15a", label: "8:15a" });
 timeslist_to.push({ value: "8:30a", label: "8:30a" });
 timeslist_to.push({ value: "8:45a", label: "8:45a" });
 
@@ -124,7 +133,8 @@ for (const item of validTimespm2) {
   timeslist_to.push(newitem);
 }
 
-export default function TimeInput() {
+type TimeInputProps = { profile: z.infer<typeof Profile> };
+export default function TimeInput({ profile }: TimeInputProps) {
   const [openFrom, setOpenFrom] = React.useState(false);
   const [openTo, setOpenTo] = React.useState(false);
 
@@ -133,33 +143,74 @@ export default function TimeInput() {
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [timeslots, setTimeslots] = React.useState<Timeslot[]>([]);
 
+  const supabase = createSupabaseComponentClient();
+
   useEffect(() => {
-    if (buttonClicked) {
-      if (valueFrom != "" && valueTo != "") {
-        const str_timefrom = convertTimeToMinutes(valueFrom);
-        const str_timeto = convertTimeToMinutes(valueTo);
-        if (str_timeto && str_timefrom) {
-          if (str_timeto <= str_timefrom) {
-            toast("Please enter a valid time range!");
-          } else if (
-            timeslots.some(
-              (slot) => slot.starttime === valueFrom && slot.endtime === valueTo
-            )
-          ) {
-            toast("Timeslot has already been entered.");
-          } else {
-            setTimeslots((prev: Timeslot[]) => [
-              ...prev,
-              { starttime: valueFrom, endtime: valueTo },
-            ]);
-            setValueFrom("");
-            setValueTo("");
-          }
-        }
-      }
-      setButtonClicked(false);
+    setTimeslots(profile.availability || []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!buttonClicked) return;
+    setButtonClicked(false);
+
+    if (!valueFrom || !valueTo) return;
+
+    const fromMin = convertTimeToMinutes(valueFrom)!;
+    const toMin = convertTimeToMinutes(valueTo)!;
+
+    if (toMin <= fromMin) {
+      toast("Please enter a valid time range!");
+      return;
     }
-  }, [buttonClicked, valueFrom, valueTo, timeslots]);
+    if (
+      timeslots.some((s) => s.starttime === valueFrom && s.endtime === valueTo)
+    ) {
+      toast("Timeslot has already been entered.");
+      return;
+    }
+
+    setTimeslots((prev) => {
+      const raw = [...prev, { starttime: valueFrom, endtime: valueTo }];
+      return mergeAndSortSlots(raw);
+    });
+
+    setValueFrom("");
+    setValueTo("");
+    // eslint-disable-next-line
+  }, [buttonClicked, timeslots, valueFrom, valueTo]);
+
+  function mergeAndSortSlots(slots: Timeslot[]): Timeslot[] {
+    if (slots.length === 0) return [];
+
+    const sorted = [...slots].sort((a, b) => {
+      const aStart = convertTimeToMinutes(a.starttime)!;
+      const bStart = convertTimeToMinutes(b.starttime)!;
+      return aStart - bStart;
+    });
+
+    const merged: Timeslot[] = [{ ...sorted[0] }];
+    for (const slot of sorted.slice(1)) {
+      const last: Timeslot = merged[merged.length - 1];
+      const lastEnd: number = convertTimeToMinutes(last.endtime)!;
+      const currStart: number = convertTimeToMinutes(slot.starttime)!;
+      const currEnd: number = convertTimeToMinutes(slot.endtime)!;
+
+      if (currStart <= lastEnd) {
+        if (currEnd > lastEnd) {
+          last.endtime = slot.endtime;
+        }
+      } else {
+        merged.push({ ...slot });
+      }
+    }
+
+    return merged;
+  }
+
+  useEffect(() => {
+    updateAvailability(supabase, timeslots);
+  }, [supabase, timeslots]);
 
   function convertTimeToMinutes(timeStr: string): number | null {
     const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})([ap])$/i);

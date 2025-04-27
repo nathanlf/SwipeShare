@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Profile } from "../models/profile";
 import { z } from "zod";
+import { Timeslot } from "@/components/ui/availability/availability";
 
 /*export const getProfile = async (
   supabase: SupabaseClient,
@@ -21,20 +22,22 @@ import { z } from "zod";
   return Profile.parse(profile);
 };*/
 
-export const getProfile = async(
-    supabase:SupabaseClient,
-    profileId:string
-    ): Promise<z.infer<typeof Profile>> => {
-        const {data,error} = await supabase
-        .from('profile')
-        .select('id, name, handle, avatar_url, availability, is_flexible')
-        .eq('id',profileId)
-        .single();
-        if(error){console.log(error.message);
-            throw new Error(error.message);}
-        
-          return Profile.parse(data);
-}
+export const getProfile = async (
+  supabase: SupabaseClient,
+  profileId: string
+): Promise<z.infer<typeof Profile>> => {
+  const { data, error } = await supabase
+    .from("profile")
+    .select("id, name, handle, avatar_url, availability, is_flexible")
+    .eq("id", profileId)
+    .single();
+  if (error) {
+    console.log(error.message);
+    throw new Error(error.message);
+  }
+
+  return Profile.parse(data);
+};
 
 export const changeProfileImage = async (
   supabase: SupabaseClient,
@@ -71,7 +74,6 @@ export const changeProfileDisplayName = async (
   supabase: SupabaseClient,
   newDisplayName: string
 ): Promise<void> => {
-    
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError || !userData) throw Error("Error loading current user.");
@@ -88,3 +90,19 @@ export const changeProfileDisplayName = async (
   }
 };
 
+export const updateAvailability = async (
+  supabase: SupabaseClient,
+  availability: Timeslot[]
+): Promise<void> => {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData) throw Error("Error loading current user.");
+
+  const { error: updateError } = await supabase
+    .from("profile")
+    .update({ availability: availability })
+    .eq("id", userData.user.id);
+
+  if (updateError) {
+    console.error(new Error(`Error updating profile: ${updateError.message}`));
+  }
+};
