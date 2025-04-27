@@ -15,14 +15,70 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TimeInput from "../../components/ui/availability/availability";
-// import { GetServerSidePropsContext } from "next";
-// import { createClient } from "@/utils/supabase/server-props";
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";
+import { getProfile } from "@/utils/supabase/queries/profile";
+import { GetServerSidePropsContext } from "next";
+import { z } from "zod";
+import { Profile } from "@/utils/supabase/models/profile";
+import { DateTime } from "luxon";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 
-export default function AvailabilityPage() {
+type AvailabilityProps = {
+  initialProfile: z.infer<typeof Profile>;
+};
+export default function AvailabilityPage({
+  initialProfile,
+}: AvailabilityProps) {
   const [available, setAvailable] = useState(false);
   const [notManual, setNotManual] = useState(true);
+  const [profile, setProfile] = useState(initialProfile);
+  const [now, setNow] = useState(nowEasternMs);
+
+  const supabase = createSupabaseComponentClient();
+
+  useEffect(() => {
+    const FIVE_SECONDS = 5_000;
+    const timedExecution = setInterval(() => {
+      setNow(nowEasternMs);
+    }, FIVE_SECONDS);
+
+    return () => clearInterval(timedExecution);
+  }, []);
+
+  useEffect(() => {
+    if (!notManual) return;
+
+    const isAvailable = (profile.availability ?? []).some((slot) => {
+      const start = timeStrToTodayDateNY(slot.starttime)?.getTime();
+      const end = timeStrToTodayDateNY(slot.endtime)?.getTime();
+      return start != null && end != null && start <= now && end >= now;
+    });
+    setAvailable(isAvailable);
+  }, [now, profile.availability, notManual]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`availability:${profile.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profile",
+        },
+        async () => {
+          const newProfile = await getProfile(supabase, profile.id);
+          setProfile(newProfile);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile.id, supabase]);
 
   return (
     <div className="w-full h-full flex justify-center items-center overflow-y-auto">
@@ -85,7 +141,7 @@ export default function AvailabilityPage() {
         </CardHeader>
 
         <CardContent className="w-full h-4/5 overflow-y-scroll">
-          <TimeInput />
+          <TimeInput profile={profile} />
         </CardContent>
 
         <CardFooter className="flex flex-col items-end mt-auto">
@@ -103,23 +159,43 @@ export default function AvailabilityPage() {
   );
 }
 
-// export async function getServerSideProps(context: GetServerSidePropsContext) {
-//   const supabase = createClient(context);
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const supabase = createSupabaseServerClient(context);
+  const { data: userData, error: userError } = await supabase.auth.getUser();
 
-//   const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
-//   if (userError || !userData) {
-//     return {
-//       redirect: {
-//         destination: "/login",
-//         permanent: false,
-//       },
-//     };
-//   }
+  const profile = await getProfile(supabase, userData.user.id);
 
-//   return {
-//     props: {
-//       user: userData.user,
-//     },
-//   };
-// }
+  return {
+    props: {
+      initialProfile: profile,
+    },
+  };
+}
+
+function nowEasternMs(): number {
+  return DateTime.now().setZone("America/New_York").toMillis();
+}
+
+function timeStrToTodayDateNY(timeStr: string): Date | null {
+  const m = timeStr.match(/^(\d{1,2}):(\d{2})([ap])$/i);
+  if (!m) return null;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, h, mm, ampm] = m;
+  let hour = +h % 12;
+  if (ampm.toLowerCase() === "p") hour += 12;
+
+  const dt = DateTime.now()
+    .setZone("America/New_York")
+    .set({ hour, minute: +mm, second: 0, millisecond: 0 });
+  return dt.toJSDate();
+}

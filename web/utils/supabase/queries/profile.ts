@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Profile } from "../models/profile";
 import { z } from "zod";
+import { Timeslot } from "@/components/ui/availability/availability";
 
 /*export const getProfile = async (
   supabase: SupabaseClient,
@@ -72,7 +73,6 @@ export const changeProfileDisplayName = async (
   supabase: SupabaseClient,
   newDisplayName: string
 ): Promise<void> => {
-    
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError || !userData) throw Error("Error loading current user.");
@@ -86,6 +86,23 @@ export const changeProfileDisplayName = async (
 
   if (updateError) {
     throw new Error(`Error updating profile: ${updateError.message}`);
+  }
+};
+
+export const updateAvailability = async (
+  supabase: SupabaseClient,
+  availability: Timeslot[]
+): Promise<void> => {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData) throw Error("Error loading current user.");
+
+  const { error: updateError } = await supabase
+    .from("profile")
+    .update({ availability: availability })
+    .eq("id", userData.user.id);
+
+  if (updateError) {
+    console.error(new Error(`Error updating profile: ${updateError.message}`));
   }
 };
 
@@ -116,3 +133,4 @@ export const setFlexibility = async(
       console.log(data);
       if(error){throw new Error(error.message);}
     }
+
