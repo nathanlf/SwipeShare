@@ -69,7 +69,7 @@ export function AppSidebar() {
     },
     {
       title: "Settings",
-      url: "/settings",
+      url: data ? `/settings/${data.id}` : "/settings",
       icon: Settings,
     },
   ];
@@ -119,14 +119,14 @@ export function AppSidebar() {
                           .getPublicUrl(data.avatar_url ?? "").data.publicUrl
                       }
                     />
-                    <AvatarFallback className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
+                    <AvatarFallback className="w-8 h-8 rounded-full bg-secondary1 flex items-center justify-center text-white">
                       <UserRound />
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                    onClick={() => router.push(`/profile/${data.id}`)}
+                    onClick={() => router.push(`/settings/${data.id}`)}
                   >
                     <UserRound /> My Profile
                   </DropdownMenuItem>
