@@ -264,9 +264,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
   return (
     <div className="flex flex-col mt-4 w-full gap-y-10">
       <div className="mx-auto w-full flex flex-row gap-x-2 pl-14 pr-5">
-        <div className=" flex flex-row h-9 rounded-md border border-input shadow-none  flex-4 px-1">
+        <div className=" flex flex-row h-9 rounded-md border border-input shadow-none bg-muted flex-4 px-1">
           <Search size={16} className="self-center text-accent1" />
-          <Input type="default" placeholder="Search Posts" className="!bg-transparent  focus-visible:rounded-md rounded-none py-0 !border-none" />
+          <Input type="default" placeholder="Search Posts" className="!bg-transparent focus-visible:rounded-md shadow-none rounded-none py-0 !border-none" />
         </div>
         <div className="flex-1 flex justify-center  relative">
           <Collapsible
@@ -396,7 +396,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
         </TabsList>
 
         <TabsContent value="donations">
-          <ScrollArea className="h-170 w-full rounded-md">
+          <ScrollArea className="h-150 w-full rounded-md ">
             <div className="mx-4">
               <div className="flex flex-col overflow-y-auto">
                 {donationsStatus === "pending" ? (
