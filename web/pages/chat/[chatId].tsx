@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
-import { getChatById, getUsersInChat } from "@/utils/supabase/queries/chat";
+import { editChat, getChatById, getUsersInChat } from "@/utils/supabase/queries/chat";
 import { getMessages, sendMessage } from "@/utils/supabase/queries/message";
 import {
   addMessageToCacheFn,
@@ -204,6 +204,23 @@ export default function DirectMessagePage({
       setDraftMessageText("");
       setSelectedFile(null);
 
+      // Update chat's last_activity timestamp
+      if (chat) {
+        const updatedChat = {
+          ...chat,
+          last_activity: new Date()
+        };
+        
+        // Update chat's last_activity in the database
+        editChat(supabase, updatedChat)
+          .catch((error) => {
+            console.error("Failed to update chat last_activity:", error);
+          });
+          
+        // Update chat in the cache
+        queryUtils.setQueryData(["chat", chatId], updatedChat);
+      }
+
       sendMessage(supabase, draftMessage, selectedFile)
         .then((postedMessage) => {
           updateMessageInCache(postedMessage);
@@ -242,6 +259,17 @@ export default function DirectMessagePage({
           const newMessage = DraftMessage.parse(payload.new);
           if (newMessage.author_id !== user?.id) {
             addMessageToCache(newMessage);
+            
+            // Also update the chat's last_activity when receiving a new message
+            if (chat) {
+              const updatedChat = {
+                ...chat,
+                last_activity: new Date()
+              };
+              
+              // Update chat in the cache
+              queryUtils.setQueryData(["chat", chatId], updatedChat);
+            }
           }
         },
       )
@@ -280,10 +308,12 @@ export default function DirectMessagePage({
     addMessageToCache,
     updateMessageInCache,
     deleteMessageFromCache,
-    chat?.id,
+    chat,
+    chatId,
     supabase,
     user?.id,
     messages?.pages,
+    queryUtils,
   ]);
 
   const isParticipant = users?.some((u) => u.id === authUser.id);

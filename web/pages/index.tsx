@@ -27,6 +27,7 @@ import { createSupabaseComponentClient } from "@/utils/supabase/clients/componen
 import { getAllDonations } from "@/utils/supabase/queries/donation";
 import { getAllRequests } from "@/utils/supabase/queries/request";
 import { useState, useEffect, useRef, useMemo } from "react";
+
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,10 @@ import {
 import { cn } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Checkbox } from "@/components/ui/checkbox";
+
+import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
+import { useRouter } from "next/router";
+
 
 export type Timeslot = {
   starttime: string;
@@ -76,6 +81,7 @@ export const columns: ColumnDef<Timeslot>[] = [
 type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 
 export default function HomePage({ user, profile }: HomePageProps) {
+  const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const [activeTab, setActiveTab] = useState<string>(profile.is_donator ? "requests" : "donations");
   const [authorProfiles, setAuthorProfiles] = useState<Record<string, z.infer<typeof Profile>>>({});
@@ -218,6 +224,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
     }
   };
 
+
   //const [showChaseBar, setShowChaseBar] = React.useState<Checked>(true)
   //const [showLBar, setShowLBar] = React.useState<Checked>(true)
   const [isOpen, setIsOpen] = React.useState(false);
@@ -258,6 +265,20 @@ export default function HomePage({ user, profile }: HomePageProps) {
     }
     else if (value == false) {
       setSelectedTimes(selectedTimes.filter(a => a != name))
+    }
+  }
+
+
+  const handleMessageClick = async (authorId: string) => {
+    try {
+      if(user.id !== authorId){
+        const chat = await getOrCreateChatByUsers(supabase, user.id, authorId)
+        router.push(`/chat/${chat.id}`)
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    catch (error: any){
+      console.error("Error creating or getting chat: ", error.message)
     }
   }
 
@@ -391,8 +412,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
         onValueChange={setActiveTab}
       >
         <TabsList className="grid w-full grid-cols-2 mb-12">
-          <TabsTrigger value="donations">Donations</TabsTrigger>
-          <TabsTrigger value="requests">Requests</TabsTrigger>
+          <TabsTrigger value="donations" className="hover:cursor-pointer">Donations</TabsTrigger>
+          <TabsTrigger value="requests" className="hover:cursor-pointer">Requests</TabsTrigger>
         </TabsList>
 
         <TabsContent value="donations">
@@ -411,14 +432,14 @@ export default function HomePage({ user, profile }: HomePageProps) {
                     return (
                       <PostCard
                         key={donation.id}
-                        username={authorProfile?.handle || "unknown"}
+                        authorProfile={authorProfile}
                         time_since_post={formatTimeSince(donation.created_at)}
                         dining_halls={["Chase", "Lenoir"]} // todo: add this to post model
                         times={timeslots} // todo: add this to post model?
                         is_request={false}
-                        isflexible={authorProfile?.is_flexible || false}
                         caption={donation.content}
                         imgsrc={donation.attachment_url || undefined}
+                        handleMessageClick={() => handleMessageClick(donation.author_id)}
                       />
                     );
                   })
@@ -449,14 +470,14 @@ export default function HomePage({ user, profile }: HomePageProps) {
                   return (
                     <PostCard
                       key={request.id}
-                      username={authorProfile?.handle || "unknown"}
+                      authorProfile={authorProfile}
                       time_since_post={formatTimeSince(request.created_at)}
                       dining_halls={["Chase", "Lenoir"]} // todo: add this to post model
                       times={timeslots} // todo: add this to post model
                       is_request={true}
-                      isflexible={authorProfile?.is_flexible || false}
                       caption={request.content}
                       imgsrc={request.attachment_url || undefined}
+                      handleMessageClick={() => handleMessageClick(request.author_id)}
                     />
                   );
                 })
@@ -477,26 +498,31 @@ export default function HomePage({ user, profile }: HomePageProps) {
 }
 
 type props = {
-  username: string;
+  authorProfile: z.infer<typeof Profile>;
   time_since_post: string;
-  dining_halls: string[];
-  times: Timeslot[];
+  dining_halls: string[]; // from user
+  times: Timeslot[]; // from user
   is_request: boolean;
   imgsrc?: string;
   caption?: string;
-  isflexible: boolean;
+  handleMessageClick: () => void; // Changed to a function with no parameters that returns void
 };
 
 function PostCard({
-  username,
+  authorProfile,
   time_since_post,
   dining_halls,
   times,
   is_request,
   imgsrc,
   caption,
-  isflexible,
+  handleMessageClick,
 }: props) {
+  const handle = authorProfile?.handle || 'unknown';
+  const name = authorProfile?.name || 'unknown';
+
+  const isFlexible = authorProfile?.is_flexible || false
+
   const listitems = dining_halls.map((hall) => {
     return (
       <div className="flex flex-row gap-0.5" key={hall}>
@@ -514,16 +540,16 @@ function PostCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-row gap-x-6">
-        <div className="space-y-4 flex-3">
+        <div className="space-y-4 flex-3z">
           <div className="flex flex-col gap-y-2">
             <div className="flex flex-row gap-x-3 items-start">
               <CardDescription className="flex flex-row gap-x-1 pt-0.5">
                 <CalendarDays size={16} />
                 <p className="text-xs ">
-                  {time_since_post} ~ @{username}
+                  {time_since_post} ~ @{handle}
                 </p>
               </CardDescription>
-              {isflexible ? <Badge variant="default" className="bg-[#ff9000] ">flexible</Badge> : null}
+              {isFlexible ? <Badge variant="default" className="bg-[#ff9000] ">flexible</Badge> : null}
             </div>
             <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
               {listitems}
@@ -547,9 +573,13 @@ function PostCard({
           {imgsrc ? (<Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image>) :
             (<div className="mb-8"></div> // Reserve image height when missing
             )}
-          <Button variant="secondary1" size="default" className="rounded-sm">{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
-          <Button variant="outline" className="rounded-sm text-muted-foreground">
-            <MessagesSquare size={30} />Message @{username}
+          <Button variant="secondary1" size="default" className="rounded-sm hover:cursor-pointer">{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
+          <Button 
+            variant="outline" 
+            className="rounded-sm text-slate-300 hover:cursor-pointer"
+            onClick={handleMessageClick}
+          >
+            <MessagesSquare size={30} />Message {name}
           </Button>
         </div>
       </CardContent>

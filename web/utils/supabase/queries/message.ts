@@ -128,3 +128,37 @@ export const sendMessage = async (
 
   return DraftMessage.parse(message);
 };
+
+/**
+ * Fetches the last message for a specific chat.
+ */
+export const getLastMessage = async (
+  supabase: SupabaseClient,
+  chatId: string
+): Promise<z.infer<typeof Message> | null> => {
+  const { data: messages, error: messagesError } = await supabase
+    .from("message")
+    .select(
+      `
+      id,
+      content,
+      created_at,
+      attachment_url,
+      author:profile!author_id ( id, name, handle, avatar_url ),
+      reactions:reaction!message_id ( id, reaction, author_id )
+    `
+    )
+    .eq("chat_id", chatId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (messagesError) {
+    throw new Error(`Error fetching last message: ${messagesError.message}`);
+  }
+
+  if (messages && messages.length > 0) {
+    return Message.parse(messages[0]);
+  }
+  
+  return null;
+};
