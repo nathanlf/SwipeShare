@@ -114,9 +114,7 @@ export function AppSidebar() {
                   <Avatar className="mt-1">
                     <AvatarImage
                       src={
-                        supabase.storage
-                          .from("avatars")
-                          .getPublicUrl(data.avatar_url ?? "").data.publicUrl
+                        data.avatar_url || undefined
                       }
                     />
                     <AvatarFallback className="w-8 h-8 rounded-full bg-secondary1 flex items-center justify-center text-white">

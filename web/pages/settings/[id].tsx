@@ -1,5 +1,3 @@
-//todo rn:
-
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { Profile } from "@/utils/supabase/models/profile";
 import { changeProfileImage, getProfile, setFlexibility, setPersona } from "@/utils/supabase/queries/profile";
@@ -7,7 +5,6 @@ import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { User } from "@supabase/supabase-js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetServerSidePropsContext } from "next";
-import { useRouter } from "next/router";
 import { z } from "zod";
 import {
     Card,
@@ -25,25 +22,17 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { setHandleDB } from "@/utils/supabase/queries/profile";
-import { ImageUp, UserRound, X } from "lucide-react";
+import { ImageUp, UserRound} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 //get the base backend functionality set up to display the users current choices
 type SettingsPageProps = { user: User; profile: z.infer<typeof Profile> };
 
-export default function SettingsPage({ user, profile }: SettingsPageProps) {
-    const router = useRouter();
-    const profileId = router.query.id as string;
+export default function SettingsPage({ user }: SettingsPageProps) {
     const supabase = createSupabaseComponentClient();
     const queryClient = useQueryClient();
     const originalProfile = useRef<z.infer<typeof Profile> | null>(null);
 
-    /*const { data: profile1 } = useQuery({
-        queryKey: ["profile", profileId],
-        queryFn: async () => {
-            return await getProfile(supabase, profileId);
-        },
-    });*/
     const { data: profile1 } = useQuery({
         queryKey: ["user_profile"],
         queryFn: async () => {
@@ -61,17 +50,13 @@ export default function SettingsPage({ user, profile }: SettingsPageProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     useEffect(() => {
-        if (selectedFile) {
-            changeProfileImage(supabase, selectedFile).then(() => {
+        if (selectedFile && profile1) {
+            changeProfileImage(supabase, profile1 , selectedFile).then(() => {
                 setSelectedFile(null);
                 queryClient.resetQueries();
             });
-            //  updateProfilePicture(supabase, user, selectedFile).then(() => {
-            //  setSelectedFile(null);
-            //queryClient.resetQueries();
-            // });
         }
-    }, [queryClient, selectedFile, supabase, user]);
+    }, [queryClient, selectedFile, supabase, user, profile1]);
 
     useEffect(() => {
         const p = originalProfile.current;
@@ -101,8 +86,7 @@ export default function SettingsPage({ user, profile }: SettingsPageProps) {
         if (value == "donating") {
             setIsDonator(true)
         }
-        else if (value == "requesting") { setIsDonator(false) }
-        else { setIsDonator(null); }
+        else { setIsDonator(false) }
         //have to fill this out
         //also have to set default for toggle group based on profile.isdonator
     }

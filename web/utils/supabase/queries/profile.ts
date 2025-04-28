@@ -44,11 +44,13 @@ export const getProfile = async (
 
 export const changeProfileImage = async (
   supabase: SupabaseClient,
-  file: File,
+  user: z.infer<typeof Profile> | undefined,
+  file: File
 ): Promise<void> => {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !userData) throw Error("Error loading current user.");
+  // Check if user exists at the beginning of the function
+  if (!user || !user.id) {
+    throw new Error("User is undefined or missing ID");
+  }
 
   const { data: fileData, error: uploadError } = await supabase.storage
     .from("avatars")
@@ -66,7 +68,7 @@ export const changeProfileImage = async (
         },
       }).data.publicUrl,
     })
-    .eq("id", userData.user.id);
+    .eq("id", user.id);
 
   if (updateError) {
     throw new Error(`Error updating profile image: ${updateError.message}`);
