@@ -22,7 +22,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { setHandleDB } from "@/utils/supabase/queries/profile";
-import { ImageUp, UserRound} from "lucide-react";
+import { ImageUp, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 //get the base backend functionality set up to display the users current choices
@@ -51,7 +51,7 @@ export default function SettingsPage({ user }: SettingsPageProps) {
 
     useEffect(() => {
         if (selectedFile && profile1) {
-            changeProfileImage(supabase, profile1 , selectedFile).then(() => {
+            changeProfileImage(supabase, profile1, selectedFile).then(() => {
                 setSelectedFile(null);
                 queryClient.resetQueries();
             });
@@ -136,53 +136,11 @@ export default function SettingsPage({ user }: SettingsPageProps) {
 
 
     return (
-        <div className="w-full h-full flex justify-center items-center overflow-y-auto">
-            <Card className="h-[80vh] w-7/10 bg-white">
-                <CardHeader className="px-10">
-                    <div className="flex flex-row justify-between">
-                        <CardTitle className="text-4xl font-light">
-                            My Profile
-                        </CardTitle>
-                    </div>
-                    <CardDescription>
-                        To change your settings, press &quot;save changes&quot; after making edits.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="w-full h-4/5 overflow-y-scroll flex flex-col gap-y-10 px-20">
+        <div className="w-full h-full flex flex-col gap-y-6 justify-center items-center overflow-y-auto">
+            <Card className="w-7/10 py-5">
+                <CardContent>
                     <div className="flex flex-row items-center justify-between">
-                        <p>Name:</p>
-                        <Input disabled type="name" placeholder={profile1 ? profile1.name : "name"} className="w-2/3 border-secondary1" />
-                    </div>
-                    <div className="flex flex-row items-center justify-between">
-                        <p>Handle:</p>
-                        <Input type="handle" className="w-2/3 border-secondary1" value={handle} onChange={(e) => setHandle(e.target.value)} />
-                    </div>
-                    <div className="flex flex-row items-center justify-between">
-                        <p>Meal Schedule:</p>
-                        <div className="w-2/3 flex flex-row gap-x-2 items-center">
-                            <Checkbox id="terms" checked={checked ? checked : false} onCheckedChange={checkedchange} className="border-secondary1" />
-                            <label
-                                htmlFor="terms"
-                                className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Flexible
-                            </label>
-                        </div>
-                    </div>
-                    <div className="flex flex-row items-center justify-between">
-                        <p>Primary Persona:</p>
-                        <ToggleGroup value={isDonator ? "donating" : "requesting"} type="single" variant="outline" size="sm" className="w-2/3" onValueChange={(value) => updatePersona(value)}>
-                            <ToggleGroupItem value="donating" aria-label="Toggle bold" className="font-bold font-hubot text-sm  p-8 py-5 shadow-sm">
-                                Donating Meal Swipes
-                            </ToggleGroupItem>
-                            <ToggleGroupItem value="requesting" aria-label="Toggle italic" className="font-bold font-hubot text-sm p-8 py-5 shadow-sm">
-                                Receiving Meal Swipes
-                            </ToggleGroupItem>
-
-                        </ToggleGroup>
-                    </div>
-                    <div className="flex flex-row items-center justify-between">
-                        <p>Profile Picture:</p>
+                        <p className="font-bold text-primary1">Profile Picture:</p>
                         {profile1 && (
                             <div className="flex items-center gap-8 w-2/3">
                                 <Avatar className="mt-1">
@@ -221,8 +179,52 @@ export default function SettingsPage({ user }: SettingsPageProps) {
                             </div>
                         )}
                     </div>
+                </CardContent>
+            </Card>
+            <Card className="h-[65vh] w-7/10 bg-white">
+                <CardHeader className="px-10">
+                    <div className="flex flex-row justify-between">
+                        <CardTitle className="text-4xl font-light">
+                            My Profile
+                        </CardTitle>
+                    </div>
+                    <CardDescription>
+                        To change your settings, press &quot;save changes&quot; after making edits.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="w-full  overflow-y-scroll flex flex-col gap-y-10 px-20">
+                    <div className="flex flex-row items-center justify-between">
+                        <p>Name:</p>
+                        <Input disabled type="name" placeholder={profile1 ? profile1.name : "name"} className="w-2/3 border-secondary1" />
+                    </div>
+                    <div className="flex flex-row items-center justify-between">
+                        <p>Handle:</p>
+                        <Input type="handle" className="w-2/3 border-secondary1" value={handle} onChange={(e) => setHandle(e.target.value)} />
+                    </div>
+                    <div className="flex flex-row items-center justify-between">
+                        <p>Meal Schedule:</p>
+                        <div className="w-2/3 flex flex-row gap-x-2 items-center">
+                            <Checkbox id="terms" checked={checked ? checked : false} onCheckedChange={checkedchange} className="border-secondary1" />
+                            <label
+                                htmlFor="terms"
+                                className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                Flexible
+                            </label>
+                        </div>
+                    </div>
+                    <div className="flex flex-row items-center justify-between">
+                        <p>Primary Persona:</p>
+                        <ToggleGroup value={isDonator ? "donating" : "requesting"} type="single" variant="outline" size="sm" className="w-2/3" onValueChange={(value) => updatePersona(value)}>
+                            <ToggleGroupItem value="donating" aria-label="Toggle bold" className="font-bold font-hubot text-sm  p-8 py-5 shadow-sm">
+                                Donating Meal Swipes
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="requesting" aria-label="Toggle italic" className="font-bold font-hubot text-sm p-8 py-5 shadow-sm">
+                                Receiving Meal Swipes
+                            </ToggleGroupItem>
 
-
+                        </ToggleGroup>
+                    </div>
 
                 </CardContent>
                 <CardFooter className="flex flex-row justify-between gap-x-10">
