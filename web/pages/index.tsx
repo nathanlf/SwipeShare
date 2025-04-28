@@ -5,11 +5,12 @@ import {
   CardDescription,
   CardTitle,
   CardContent,
+  CardFooter,
 } from "@/components/ui/card";
 import Image from "next/image";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
+import { CalendarDays, MapPin, MessagesSquare, Search, ChevronDown } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
@@ -26,6 +27,17 @@ import { createSupabaseComponentClient } from "@/utils/supabase/clients/componen
 import { getAllDonations } from "@/utils/supabase/queries/donation";
 import { getAllRequests } from "@/utils/supabase/queries/request";
 import { useState, useEffect, useRef, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import React from "react";
+import { Label } from "@/components/ui/label";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { cn } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type Timeslot = {
   starttime: string;
@@ -67,7 +79,6 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const supabase = createSupabaseComponentClient();
   const [activeTab, setActiveTab] = useState<string>(profile.is_donator ? "requests" : "donations");
   const [authorProfiles, setAuthorProfiles] = useState<Record<string, z.infer<typeof Profile>>>({});
-  
   // Load donations with infinite query
   const {
     data: donationsData,
@@ -116,18 +127,20 @@ export default function HomePage({ user, profile }: HomePageProps) {
     return requestsData?.pages.flat() || [];
   }, [requestsData]);
 
+  //memoized requests for filtered post results:
+
   // Load author profiles for all posts when data changes
   useEffect(() => {
     const allPosts = [...donations, ...requests];
     const authorIds = [...new Set(allPosts.map(post => post.author_id))];
-    
+
     // Fetch profiles for any authors we don't already have
     const newAuthorIds = authorIds.filter(id => !authorProfiles[id]);
-    
+
     if (newAuthorIds.length > 0) {
       const fetchProfiles = async () => {
-        const profiles: Record<string, z.infer<typeof Profile>> = {...authorProfiles};
-        
+        const profiles: Record<string, z.infer<typeof Profile>> = { ...authorProfiles };
+
         for (const id of newAuthorIds) {
           try {
             const authorProfile = await getProfile(supabase, id);
@@ -136,10 +149,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
             console.error(`Failed to fetch profile for author ${id}:`, error);
           }
         }
-        
+
         setAuthorProfiles(profiles);
       };
-      
+
       fetchProfiles();
     }
   }, [donations, requests, authorProfiles, supabase]);
@@ -147,7 +160,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
   // Set up intersection observer for infinite scrolling
   const donationsEndRef = useRef<HTMLDivElement>(null);
   const requestsEndRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (requestsEndRef.current && !isLoadingMoreRequests) {
       const observer = new IntersectionObserver(
@@ -175,9 +188,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
         },
         { threshold: 0.5 }
       );
-  
+
       observer.observe(donationsEndRef.current);
-  
+
       return () => observer.disconnect();
     }
   }, [donationsEndRef, isLoadingMoreDonations, hasMoreDonations, fetchNextDonations]);
@@ -185,12 +198,12 @@ export default function HomePage({ user, profile }: HomePageProps) {
   // Format time since post
   const formatTimeSince = (dateString: string | null | undefined) => {
     if (!dateString) return "";
-    
+
     const postDate = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - postDate.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
+
     if (diffMins < 60) {
       return `${diffMins}m`;
     } else {
@@ -201,13 +214,179 @@ export default function HomePage({ user, profile }: HomePageProps) {
         const diffDays = Math.floor(diffHours / 24);
         return `${diffDays}d`;
       }
+
     }
   };
 
+  //const [showChaseBar, setShowChaseBar] = React.useState<Checked>(true)
+  //const [showLBar, setShowLBar] = React.useState<Checked>(true)
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedDiningHalls, setSelectedDiningHalls] = useState<string[]>([]);
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+
+  /*
+  const filteredDonations = useMemo(() => {
+    if (selectedDiningHalls.length === 0) return donations; // No filter applied
+
+    return donations.filter(donation =>
+      donation.dining_halls.some(hall =>
+        selectedDiningHalls.includes(hall)
+      )
+    );
+  }, [donations, selectedDiningHalls]);
+
+  const filteredRequests = useMemo(() => {
+    if (selectedDiningHalls.length === 0) return requests; // No filter applied
+
+    return requests.filter(request =>
+      request.dining_halls.some(hall =>
+        selectedDiningHalls.includes(hall)
+      )
+    );
+  }, [requests, selectedDiningHalls]);
+*/
+
+  const test = () => {
+    console.log(selectedDiningHalls);
+    console.log(selectedTimes);
+    setIsOpen(false);
+  }
+
+  const modifySelectedTimes = (name: string, value) => {
+    if (value == true) {
+      setSelectedTimes([...selectedTimes, name])
+    }
+    else if (value == false) {
+      setSelectedTimes(selectedTimes.filter(a => a != name))
+    }
+  }
+
   return (
-    <div className="flex flex-col mt-14">
-      <Tabs 
-        defaultValue={profile.is_donator ? "requests" : "donations"} 
+    <div className="flex flex-col mt-4 w-full gap-y-10">
+      <div className="mx-auto w-full flex flex-row gap-x-2 pl-14 pr-5">
+        <div className=" flex flex-row h-9 rounded-md border border-input shadow-none  flex-4 px-1">
+          <Search size={16} className="self-center text-accent1" />
+          <Input type="default" placeholder="Search Posts" className="!bg-transparent  focus-visible:rounded-md rounded-none py-0 !border-none" />
+        </div>
+        <div className="flex-1 flex justify-center  relative">
+          <Collapsible
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            className="w-full"
+          >
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="flex items-center justify-between space-x-4 mx-auto bg-muted border-accent1">
+                <h4 className="text-sm font-semibold">
+                  Filter Results
+                </h4>
+                <ChevronDown className="h-4 w-4" />
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </CollapsibleTrigger>
+
+
+            <CollapsibleContent
+              className={cn(
+                "absolute left-0 mt-2 w-full rounded-md z-20",
+                // nice slide/fade animation that shadcn expects:
+                "data-[state=open]:animate-collapsible-down",
+                "data-[state=closed]:animate-collapsible-up"
+              )}>
+              <Card className="bg-muted border-accent1">
+                <CardContent>
+
+                  <form>
+                    <div className="grid w-full items-center gap-4">
+                      <div className="flex flex-col gap-y-1">
+                        <Label htmlFor="dining_hall" className="text-secondary1 font-semibold">Dining Halls:</Label>
+                        <ToggleGroup type="multiple"
+                          value={selectedDiningHalls}
+                          onValueChange={setSelectedDiningHalls}
+                          className="gap-x-1" >
+                          <ToggleGroupItem value="Chase" aria-label="Chase" size="sm" className="data-[state=on]:bg-accent1-muted hover:bg-accent1-muted data-[state=on]:text-popover-foreground rounded-md">
+                            Chase
+                          </ToggleGroupItem>
+                          <ToggleGroupItem value="Lenoir" aria-label="Lenoir" size="sm" className="data-[state=on]:bg-accent1-muted hover:bg-accent1-muted data-[state=on]:text-popover-foreground rounded-md">
+                            Lenoir
+                          </ToggleGroupItem>
+
+                        </ToggleGroup>
+                      </div>
+
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="framework" className="text-secondary1">Timing:</Label>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="breakfast" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
+                            checked={selectedTimes.includes("breakfast")}
+                            onCheckedChange={(value) => { modifySelectedTimes("breakfast", value) }} />
+                          <label
+                            htmlFor="breakfast"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Breakfast (7a-10:45a)
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="lunch" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
+                            checked={selectedTimes.includes("lunch")}
+                            onCheckedChange={(value) => { modifySelectedTimes("lunch", value) }} />
+                          <label
+                            htmlFor="lunch"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Lunch (11a-3p)
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="lite-lunch" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
+                            checked={selectedTimes.includes("lite-lunch")}
+                            onCheckedChange={(value) => { modifySelectedTimes("lite-lunch", value) }} />
+                          <label
+                            htmlFor="lite-lunch"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Lite Lunch (3p-5p)
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="dinner" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
+                            checked={selectedTimes.includes("dinner")}
+                            onCheckedChange={(value) => { modifySelectedTimes("dinner", value) }} />
+                          <label
+                            htmlFor="dinner"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Dinner (5p-8p)
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="late-night" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
+                            checked={selectedTimes.includes("late-night")}
+                            onCheckedChange={(value) => { modifySelectedTimes("late-night", value) }} />
+                          <label
+                            htmlFor="late-night"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Late Dinner (8p-12a)
+                          </label>
+                        </div>
+
+                      </div>
+                    </div>
+                  </form>
+                </CardContent>
+                <CardFooter className="ml-auto">
+                  <Button onClick={test} size="sm">Search</Button>
+                </CardFooter>
+              </Card>
+
+            </CollapsibleContent>
+          </Collapsible>
+
+
+        </div>
+
+      </div>
+
+
+
+      <Tabs
+        defaultValue={profile.is_donator ? "requests" : "donations"}
         className="w-1/2 mx-auto"
         onValueChange={setActiveTab}
       >
@@ -220,12 +399,12 @@ export default function HomePage({ user, profile }: HomePageProps) {
           <ScrollArea className="h-170 w-full rounded-md">
             <div className="mx-4">
               <div className="flex flex-col overflow-y-auto">
-              {donationsStatus === "pending" ? (
-                <p className="text-center py-4">Loading donations...</p>
+                {donationsStatus === "pending" ? (
+                  <p className="text-center py-4">Loading donations...</p>
                 ) : donationsStatus === "error" ? (
-                <p className="text-center py-4 text-red-500">Error loading donations</p>
+                  <p className="text-center py-4 text-red-500">Error loading donations</p>
                 ) : donations.length === 0 ? (
-                <p className="text-center py-4">No donations available</p>
+                  <p className="text-center py-4">No donations available</p>
                 ) : (
                   donations.map((donation) => {
                     const authorProfile = authorProfiles[donation.author_id];
@@ -248,6 +427,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
                 {isLoadingMoreDonations && (
                   <p className="text-center py-4">Loading more donations...</p>
                 )}
+                <PostCard username="test123" time_since_post="0m" dining_halls={["Chase"]} times={timeslots} is_request={false} isflexible={true} />
+
               </div>
             </div>
           </ScrollArea>
@@ -324,7 +505,7 @@ function PostCard({
       </div>
     );
   });
-  
+
   return (
     <Card className="rounded-sm px-4 gap-3 mb-8">
       <CardHeader>
