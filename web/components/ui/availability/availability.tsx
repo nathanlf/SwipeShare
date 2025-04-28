@@ -24,7 +24,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { Profile } from "@/utils/supabase/models/profile";
-import { updateAvailability } from "@/utils/supabase/queries/profile";
+import {
+  getProfile,
+  updateAvailability,
+} from "@/utils/supabase/queries/profile";
+import { useQuery } from "@tanstack/react-query";
 
 export type Timeslot = {
   starttime: string;
@@ -32,7 +36,7 @@ export type Timeslot = {
 };
 
 export const columns = (
-  onDelete: (timeslot: Timeslot) => void,
+  onDelete: (timeslot: Timeslot) => void
 ): ColumnDef<Timeslot>[] => [
   {
     accessorKey: "starttime",
@@ -85,7 +89,7 @@ noonlist.push(
   { value: "12:00p", label: "12:00p" },
   { value: "12:15p", label: "12:15p" },
   { value: "12:30p", label: "12:30p" },
-  { value: "12:45p", label: "12:45p" },
+  { value: "12:45p", label: "12:45p" }
 );
 for (const item of noonlist) {
   timeslist.push(item);
@@ -124,7 +128,7 @@ noonlist2.push(
   { value: "12:00p", label: "12:00p" },
   { value: "12:15p", label: "12:15p" },
   { value: "12:30p", label: "12:30p" },
-  { value: "12:45p", label: "12:45p" },
+  { value: "12:45p", label: "12:45p" }
 );
 for (const item of noonlist2) {
   timeslist_to.push(item);
@@ -146,8 +150,19 @@ export default function TimeInput({ profile }: TimeInputProps) {
 
   const supabase = createSupabaseComponentClient();
 
+  const { data } = useQuery({
+    queryKey: ["availability", profile.id],
+    queryFn: async () => {
+      const { availability } = await getProfile(supabase, profile.id);
+      return availability as Timeslot[];
+    },
+    enabled: !!profile.id,
+  });
+
   useEffect(() => {
-    setTimeslots(profile.availability || []);
+    if (data && timeslots.length == 0) {
+      setTimeslots(data);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -183,7 +198,6 @@ export default function TimeInput({ profile }: TimeInputProps) {
 
   function mergeAndSortSlots(slots: Timeslot[]): Timeslot[] {
     if (slots.length === 0) return [];
-
     const sorted = [...slots].sort((a, b) => {
       const aStart = convertTimeToMinutes(a.starttime)!;
       const bStart = convertTimeToMinutes(b.starttime)!;
@@ -210,8 +224,10 @@ export default function TimeInput({ profile }: TimeInputProps) {
   }
 
   useEffect(() => {
-    updateAvailability(supabase, timeslots);
-  }, [supabase, timeslots]);
+    if (data) {
+      updateAvailability(supabase, timeslots);
+    }
+  }, [data, supabase, timeslots]);
 
   function convertTimeToMinutes(timeStr: string): number | null {
     const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})([ap])$/i);
@@ -241,8 +257,8 @@ export default function TimeInput({ profile }: TimeInputProps) {
           !(
             slot.starttime === timeslot.starttime &&
             slot.endtime === timeslot.endtime
-          ),
-      ),
+          )
+      )
     );
     toast("Timeslot deleted.");
   };
@@ -284,7 +300,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
                         value={entry.value}
                         onSelect={(currentValue) => {
                           setValueFrom(
-                            currentValue === valueFrom ? "" : currentValue,
+                            currentValue === valueFrom ? "" : currentValue
                           );
                           setOpenFrom(false);
                         }}
@@ -296,7 +312,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
                             "ml-auto",
                             valueFrom === entry.value
                               ? "opacity-100"
-                              : "opacity-0",
+                              : "opacity-0"
                           )}
                         />
                       </CommandItem>
@@ -340,7 +356,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
                         value={entry.value}
                         onSelect={(currentValue) => {
                           setValueTo(
-                            currentValue === valueTo ? "" : currentValue,
+                            currentValue === valueTo ? "" : currentValue
                           );
                           setOpenTo(false);
                         }}
@@ -352,7 +368,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
                             "ml-auto",
                             valueTo === entry.value
                               ? "opacity-100"
-                              : "opacity-0",
+                              : "opacity-0"
                           )}
                         />
                       </CommandItem>
@@ -374,11 +390,11 @@ export default function TimeInput({ profile }: TimeInputProps) {
       </div>
 
       <div className="flex flex-col gap-y-8">
-        <div className="flex flex-row justify-between">
-          <Label className="text-[#484349] text-2xl font-bold underline ml-[10%]">
+        <div className="flex flex-col justify-between">
+          <Label className="text-[#484349] text-2xl font-bold underline justify-center">
             Your Available Timeslots
           </Label>
-          <Label className="text-gray text-muted-foreground text-sm mr-[10%]">
+          <Label className="text-gray text-muted-foreground text-xs justify-center">
             *Click timeslots to delete.
           </Label>
         </div>
