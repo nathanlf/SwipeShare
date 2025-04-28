@@ -24,11 +24,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { Profile } from "@/utils/supabase/models/profile";
-import {
-  getProfile,
-  updateAvailability,
-} from "@/utils/supabase/queries/profile";
-import { useQuery } from "@tanstack/react-query";
+import { updateAvailability } from "@/utils/supabase/queries/profile";
 
 export type Timeslot = {
   starttime: string;
@@ -146,22 +142,15 @@ export default function TimeInput({ profile }: TimeInputProps) {
   const [valueFrom, setValueFrom] = React.useState("");
   const [valueTo, setValueTo] = React.useState("");
   const [buttonClicked, setButtonClicked] = React.useState(false);
-  const [timeslots, setTimeslots] = React.useState<Timeslot[]>([]);
+  const [timeslots, setTimeslots] = React.useState<Timeslot[]>(
+    profile.availability ?? []
+  );
 
   const supabase = createSupabaseComponentClient();
 
-  const { data } = useQuery({
-    queryKey: ["availability", profile.id],
-    queryFn: async () => {
-      const { availability } = await getProfile(supabase, profile.id);
-      return availability as Timeslot[];
-    },
-    enabled: !!profile.id,
-  });
-
   useEffect(() => {
-    if (data && timeslots.length == 0) {
-      setTimeslots(data);
+    if (profile.availability != null) {
+      setTimeslots(profile.availability);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -224,10 +213,10 @@ export default function TimeInput({ profile }: TimeInputProps) {
   }
 
   useEffect(() => {
-    if (data) {
+    if (profile.availability != null) {
       updateAvailability(supabase, timeslots);
     }
-  }, [data, supabase, timeslots]);
+  }, [profile.availability, supabase, timeslots]);
 
   function convertTimeToMinutes(timeStr: string): number | null {
     const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})([ap])$/i);
