@@ -14,15 +14,73 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { Info, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import TimeInput from "../../components/ui/availability/availability";
-// import { GetServerSidePropsContext } from "next";
-// import { createClient } from "@/utils/supabase/server-props";
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";
+import { getProfile } from "@/utils/supabase/queries/profile";
+import { GetServerSidePropsContext } from "next";
+import { z } from "zod";
+import { Profile } from "@/utils/supabase/models/profile";
+import { DateTime } from "luxon";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
+import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card";
+import { HoverCardContent } from "@radix-ui/react-hover-card";
 
-export default function AvailabilityPage() {
+type AvailabilityProps = {
+  initialProfile: z.infer<typeof Profile>;
+};
+export default function AvailabilityPage({
+  initialProfile,
+}: AvailabilityProps) {
   const [available, setAvailable] = useState(false);
   const [notManual, setNotManual] = useState(true);
+  const [profile, setProfile] = useState(initialProfile);
+  const [now, setNow] = useState(nowEasternMs);
+
+  const supabase = createSupabaseComponentClient();
+
+  useEffect(() => {
+    const FIVE_SECONDS = 5_000;
+    const timedExecution = setInterval(() => {
+      setNow(nowEasternMs);
+    }, FIVE_SECONDS);
+
+    return () => clearInterval(timedExecution);
+  }, []);
+
+  useEffect(() => {
+    if (!notManual) return;
+
+    const isAvailable = (profile.availability ?? []).some((slot) => {
+      const start = timeStrToTodayDateNY(slot.starttime)?.getTime();
+      const end = timeStrToTodayDateNY(slot.endtime)?.getTime();
+      return start != null && end != null && start <= now && end >= now;
+    });
+    setAvailable(isAvailable);
+  }, [now, profile.availability, notManual]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`availability:${profile.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profile",
+        },
+        async () => {
+          const newProfile = await getProfile(supabase, profile.id);
+          setProfile(newProfile);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile.id, supabase]);
 
   return (
     <div className="w-full h-full flex justify-center items-center overflow-y-auto">
@@ -85,41 +143,79 @@ export default function AvailabilityPage() {
         </CardHeader>
 
         <CardContent className="w-full h-4/5 overflow-y-scroll">
-          <TimeInput />
+          <TimeInput profile={profile} />
         </CardContent>
 
         <CardFooter className="flex flex-col items-end mt-auto">
-          <div className="w-full flex justify-end items-center gap-5 mt-15 mb-5 pr-10">
-            <Switch
-              checked={notManual}
-              onCheckedChange={setNotManual}
-              className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent1 [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
-            />
-            <Label className="text-base">Sync status with your schedule.</Label>
-          </div>
+          <HoverCard openDelay={300}>
+            <HoverCardTrigger asChild>
+              <div className="w-full flex justify-end items-center gap-5 mt-15 mb-5 pr-10">
+                <Switch
+                  checked={notManual}
+                  onCheckedChange={setNotManual}
+                  className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent1 [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
+                />
+                <Label className="text-base">
+                  Sync status with your schedule.
+                </Label>
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80 flex flex-col justify-end border border-[#484349] p-4 text-sm leading-relaxed rounded-lg bg-primary1 text-white font-medium text-center shadow-md">
+              <div className="flex flex-row gap-3 justify-center items-center mb-2">
+                <Info className="text-[#484349]" />
+                <h4 className="text-lg font-semibold text-[#484349]">
+                  Auto-Sync Availability
+                </h4>
+              </div>
+              <p>
+                Toggling this will update your availability status to reflect
+                your provided timeslots.
+              </p>
+            </HoverCardContent>
+          </HoverCard>
         </CardFooter>
       </Card>
     </div>
   );
 }
 
-// export async function getServerSideProps(context: GetServerSidePropsContext) {
-//   const supabase = createClient(context);
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const supabase = createSupabaseServerClient(context);
+  const { data: userData, error: userError } = await supabase.auth.getUser();
 
-//   const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
-//   if (userError || !userData) {
-//     return {
-//       redirect: {
-//         destination: "/login",
-//         permanent: false,
-//       },
-//     };
-//   }
+  const profile = await getProfile(supabase, userData.user.id);
 
-//   return {
-//     props: {
-//       user: userData.user,
-//     },
-//   };
-// }
+  return {
+    props: {
+      initialProfile: profile,
+    },
+  };
+}
+
+function nowEasternMs(): number {
+  return DateTime.now().setZone("America/New_York").toMillis();
+}
+
+function timeStrToTodayDateNY(timeStr: string): Date | null {
+  const m = timeStr.match(/^(\d{1,2}):(\d{2})([ap])$/i);
+  if (!m) return null;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, h, mm, ampm] = m;
+  let hour = +h % 12;
+  if (ampm.toLowerCase() === "p") hour += 12;
+
+  const dt = DateTime.now()
+    .setZone("America/New_York")
+    .set({ hour, minute: +mm, second: 0, millisecond: 0 });
+  return dt.toJSDate();
+}

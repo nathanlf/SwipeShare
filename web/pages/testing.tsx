@@ -29,7 +29,7 @@ export default function TestingPage({ user }: TestingPageProps) {
         // Fetch chat data
         const chat = await getChatById(
           supabase,
-          "5210cc44-9e27-451a-9867-9921a6ca6d13"
+          "5210cc44-9e27-451a-9867-9921a6ca6d13",
         );
         console.log("Fetched chat:", chat);
         setChatData(chat);

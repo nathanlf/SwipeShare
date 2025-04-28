@@ -29,7 +29,7 @@ import { CornerDownLeft, Image as ImageIcon } from "lucide-react";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
-
+import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
 interface DirectMessagePageProps {
   authUser: User;
 }
@@ -40,6 +40,9 @@ export default function DirectMessagePage({
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
   const queryUtils = useQueryClient();
+
+  // Use the online users context
+  const { isUserOnline } = useOnlineUsersContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
@@ -108,7 +111,7 @@ export default function DirectMessagePage({
 
     const container = scrollContainerRef.current;
     const messageElement = container.querySelector(
-      `[data-message-id="${messageId}"]`
+      `[data-message-id="${messageId}"]`,
     );
 
     if (messageElement) {
@@ -157,23 +160,23 @@ export default function DirectMessagePage({
   const addMessageToCache = useCallback(
     (newMessage: z.infer<typeof DraftMessage>) =>
       addMessageToCacheFn(queryUtils, chatId as string, [user!, otherUser!])(
-        newMessage
+        newMessage,
       ),
-    [chatId, otherUser, queryUtils, user]
+    [chatId, otherUser, queryUtils, user],
   );
 
   const updateMessageInCache = useCallback(
     (updatedMessage: z.infer<typeof DraftMessage>) =>
       updateMessageInCacheFn(queryUtils, chatId as string, [user!, otherUser!])(
-        updatedMessage
+        updatedMessage,
       ),
-    [chatId, otherUser, queryUtils, user]
+    [chatId, otherUser, queryUtils, user],
   );
 
   const deleteMessageFromCache = useCallback(
     (messageId: string) =>
       deleteMessageFromCacheFn(queryUtils, chatId as string)(messageId),
-    [chatId, queryUtils]
+    [chatId, queryUtils],
   );
 
   const handleLoadMoreMessages = useCallback(() => {
@@ -240,7 +243,7 @@ export default function DirectMessagePage({
           if (newMessage.author_id !== user?.id) {
             addMessageToCache(newMessage);
           }
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -253,7 +256,7 @@ export default function DirectMessagePage({
         (payload) => {
           const updatedMessage = DraftMessage.parse(payload.new);
           updateMessageInCache(updatedMessage);
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -266,7 +269,7 @@ export default function DirectMessagePage({
         (payload) => {
           const messageToDeleteID = payload.old.id;
           deleteMessageFromCache(messageToDeleteID);
-        }
+        },
       )
       .subscribe();
 
@@ -285,7 +288,11 @@ export default function DirectMessagePage({
 
   const isParticipant = users?.some((u) => u.id === authUser.id);
   if (!isParticipant)
-    return <div className="text-center">You are not authorized to view this chat.</div>;
+    return (
+      <div className="text-center">
+        You are not authorized to view this chat.
+      </div>
+    );
   if (!chat || !otherUser || !user) return <div>Loading chat...</div>;
 
   const allMessages = messages?.pages.flatMap((page) => page).reverse() || [];
@@ -294,7 +301,7 @@ export default function DirectMessagePage({
     <div className="bg-[#DCDEE5] min-h-screen w-full flex items-center justify-center flex-col">
       <DirectMessageHeader
         name={otherUser.name || "Loading..."}
-        online={true}
+        online={isUserOnline(otherUser.id)}
       />
       <Card className="bg-[#EFEAF6] h-[75vh] w-full sm:w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
         <div
@@ -310,7 +317,7 @@ export default function DirectMessagePage({
           <ChatMessageList>
             {hasNextPage && (
               <div
-                className="h-8 flex items-center justify-center cursor-pointer text-sm text-blue-500 hover:text-blue-700 mb-4"
+                className="h-8 flex items-center justify-center cursor-pointer text-sm text-primary1 hover:text-accent1 mb-4"
                 onClick={handleLoadMoreMessages}
               >
                 {isFetchingNextPage
@@ -331,6 +338,7 @@ export default function DirectMessagePage({
                 >
                   <Message
                     type={isSent ? MessageType.Sent : MessageType.Received}
+                    name={isSent ? user.name : otherUser.name}
                   >
                     {message.content}
                   </Message>
@@ -383,7 +391,6 @@ export default function DirectMessagePage({
             <div className="flex items-center p-3 pt-0">
               <Button
                 type="button"
-                variant="ghost"
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -393,7 +400,7 @@ export default function DirectMessagePage({
               <Button
                 type="submit"
                 size="sm"
-                className="ml-auto gap-1.5 text-black bg-primary1"
+                className="ml-auto gap-1.5 text-white bg-primary1"
               >
                 Send Message
                 <CornerDownLeft className="size-3.5" />

@@ -7,7 +7,6 @@ import {
   Soup,
   LogOut,
   UserRound,
-  CalendarCog,
   CalendarFold,
 } from "lucide-react";
 import {
@@ -32,35 +31,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-
-// Menu items
-const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Conversations",
-    url: "/conversations",
-    icon: MessageSquare,
-  },
-  {
-    title: "Past Transactions",
-    url: "/transactions",
-    icon: Clock,
-  },
-  {
-    title: "My Availability",
-    url: "/",
-    icon: CalendarFold
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-  },
-];
 
 export function AppSidebar() {
   const queryClient = useQueryClient();
@@ -95,7 +65,7 @@ export function AppSidebar() {
     {
       title: "My Availability",
       url: data ? `/availability/${data.id}` : "/",
-      icon: CalendarFold
+      icon: CalendarFold,
     },
     {
       title: "Settings",
@@ -103,7 +73,6 @@ export function AppSidebar() {
       icon: Settings,
     },
   ];
-
 
   return (
     <Sidebar className="border-r-0 max-w-[260px]">

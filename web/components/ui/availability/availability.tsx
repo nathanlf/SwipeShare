@@ -16,14 +16,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DataTable } from "@/components/ui/datatable";
-import { Timeslot } from "../../../pages";
 import { useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
+import { z } from "zod";
+import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
+import { Profile } from "@/utils/supabase/models/profile";
+import { updateAvailability } from "@/utils/supabase/queries/profile";
+
+export type Timeslot = {
+  starttime: string;
+  endtime: string;
+};
 
 export const columns = (
-  onDelete: (timeslot: Timeslot) => void
+  onDelete: (timeslot: Timeslot) => void,
 ): ColumnDef<Timeslot>[] => [
   {
     accessorKey: "starttime",
@@ -76,7 +85,7 @@ noonlist.push(
   { value: "12:00p", label: "12:00p" },
   { value: "12:15p", label: "12:15p" },
   { value: "12:30p", label: "12:30p" },
-  { value: "12:45p", label: "12:45p" }
+  { value: "12:45p", label: "12:45p" },
 );
 for (const item of noonlist) {
   timeslist.push(item);
@@ -102,6 +111,7 @@ const fifteenMinuteStepsto2 = Array.from({ length: 11 * 4 }, (_, i) => {
 const validTimes2 = new Set(fifteenMinuteStepsto);
 const validTimespm2 = new Set(fifteenMinuteStepsto2);
 
+timeslist_to.push({ value: "8:15a", label: "8:15a" });
 timeslist_to.push({ value: "8:30a", label: "8:30a" });
 timeslist_to.push({ value: "8:45a", label: "8:45a" });
 
@@ -114,7 +124,7 @@ noonlist2.push(
   { value: "12:00p", label: "12:00p" },
   { value: "12:15p", label: "12:15p" },
   { value: "12:30p", label: "12:30p" },
-  { value: "12:45p", label: "12:45p" }
+  { value: "12:45p", label: "12:45p" },
 );
 for (const item of noonlist2) {
   timeslist_to.push(item);
@@ -124,7 +134,8 @@ for (const item of validTimespm2) {
   timeslist_to.push(newitem);
 }
 
-export default function TimeInput() {
+type TimeInputProps = { profile: z.infer<typeof Profile> };
+export default function TimeInput({ profile }: TimeInputProps) {
   const [openFrom, setOpenFrom] = React.useState(false);
   const [openTo, setOpenTo] = React.useState(false);
 
@@ -133,33 +144,74 @@ export default function TimeInput() {
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [timeslots, setTimeslots] = React.useState<Timeslot[]>([]);
 
+  const supabase = createSupabaseComponentClient();
+
   useEffect(() => {
-    if (buttonClicked) {
-      if (valueFrom != "" && valueTo != "") {
-        const str_timefrom = convertTimeToMinutes(valueFrom);
-        const str_timeto = convertTimeToMinutes(valueTo);
-        if (str_timeto && str_timefrom) {
-          if (str_timeto <= str_timefrom) {
-            toast("Please enter a valid time range!");
-          } else if (
-            timeslots.some(
-              (slot) => slot.starttime === valueFrom && slot.endtime === valueTo
-            )
-          ) {
-            toast("Timeslot has already been entered.");
-          } else {
-            setTimeslots((prev: Timeslot[]) => [
-              ...prev,
-              { starttime: valueFrom, endtime: valueTo },
-            ]);
-            setValueFrom("");
-            setValueTo("");
-          }
-        }
-      }
-      setButtonClicked(false);
+    setTimeslots(profile.availability || []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!buttonClicked) return;
+    setButtonClicked(false);
+
+    if (!valueFrom || !valueTo) return;
+
+    const fromMin = convertTimeToMinutes(valueFrom)!;
+    const toMin = convertTimeToMinutes(valueTo)!;
+
+    if (toMin <= fromMin) {
+      toast("Please enter a valid time range!");
+      return;
     }
-  }, [buttonClicked, valueFrom, valueTo, timeslots]);
+    if (
+      timeslots.some((s) => s.starttime === valueFrom && s.endtime === valueTo)
+    ) {
+      toast("Timeslot has already been entered.");
+      return;
+    }
+
+    setTimeslots((prev) => {
+      const raw = [...prev, { starttime: valueFrom, endtime: valueTo }];
+      return mergeAndSortSlots(raw);
+    });
+
+    setValueFrom("");
+    setValueTo("");
+    // eslint-disable-next-line
+  }, [buttonClicked, timeslots, valueFrom, valueTo]);
+
+  function mergeAndSortSlots(slots: Timeslot[]): Timeslot[] {
+    if (slots.length === 0) return [];
+
+    const sorted = [...slots].sort((a, b) => {
+      const aStart = convertTimeToMinutes(a.starttime)!;
+      const bStart = convertTimeToMinutes(b.starttime)!;
+      return aStart - bStart;
+    });
+
+    const merged: Timeslot[] = [{ ...sorted[0] }];
+    for (const slot of sorted.slice(1)) {
+      const last: Timeslot = merged[merged.length - 1];
+      const lastEnd: number = convertTimeToMinutes(last.endtime)!;
+      const currStart: number = convertTimeToMinutes(slot.starttime)!;
+      const currEnd: number = convertTimeToMinutes(slot.endtime)!;
+
+      if (currStart <= lastEnd) {
+        if (currEnd > lastEnd) {
+          last.endtime = slot.endtime;
+        }
+      } else {
+        merged.push({ ...slot });
+      }
+    }
+
+    return merged;
+  }
+
+  useEffect(() => {
+    updateAvailability(supabase, timeslots);
+  }, [supabase, timeslots]);
 
   function convertTimeToMinutes(timeStr: string): number | null {
     const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})([ap])$/i);
@@ -189,8 +241,8 @@ export default function TimeInput() {
           !(
             slot.starttime === timeslot.starttime &&
             slot.endtime === timeslot.endtime
-          )
-      )
+          ),
+      ),
     );
     toast("Timeslot deleted.");
   };
@@ -232,7 +284,7 @@ export default function TimeInput() {
                         value={entry.value}
                         onSelect={(currentValue) => {
                           setValueFrom(
-                            currentValue === valueFrom ? "" : currentValue
+                            currentValue === valueFrom ? "" : currentValue,
                           );
                           setOpenFrom(false);
                         }}
@@ -244,7 +296,7 @@ export default function TimeInput() {
                             "ml-auto",
                             valueFrom === entry.value
                               ? "opacity-100"
-                              : "opacity-0"
+                              : "opacity-0",
                           )}
                         />
                       </CommandItem>
@@ -288,7 +340,7 @@ export default function TimeInput() {
                         value={entry.value}
                         onSelect={(currentValue) => {
                           setValueTo(
-                            currentValue === valueTo ? "" : currentValue
+                            currentValue === valueTo ? "" : currentValue,
                           );
                           setOpenTo(false);
                         }}
@@ -300,7 +352,7 @@ export default function TimeInput() {
                             "ml-auto",
                             valueTo === entry.value
                               ? "opacity-100"
-                              : "opacity-0"
+                              : "opacity-0",
                           )}
                         />
                       </CommandItem>
@@ -320,8 +372,20 @@ export default function TimeInput() {
           </Button>
         </div>
       </div>
-      <div className="w-full px-40">
-        <DataTable columns={tableColumns} data={timeslots} />
+
+      <div className="flex flex-col gap-y-8">
+        <div className="flex flex-row justify-between">
+          <Label className="text-[#484349] text-2xl font-bold underline ml-[10%]">
+            Your Available Timeslots
+          </Label>
+          <Label className="text-gray text-muted-foreground text-sm mr-[10%]">
+            *Click timeslots to delete.
+          </Label>
+        </div>
+
+        <div className="w-full px-40">
+          <DataTable columns={tableColumns} data={timeslots} />
+        </div>
       </div>
     </div>
   );
