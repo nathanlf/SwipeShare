@@ -9,7 +9,6 @@ const chatSelectFragment = `
   user_1(id, name, handle, avatar_url, availability, is_flexible),
   user_2(id, name, handle, avatar_url, availability, is_flexible)
   last_activity,
-  last_message_preview,
 `;
 
 /**
@@ -104,7 +103,7 @@ export const getOrCreateChatByUsers = async (
 };
 
 /**
- * Update chat fields like last message preview and activity
+ * Update chat field: activity
  */
 export const editChat = async (
   supabase: SupabaseClient,
@@ -112,7 +111,6 @@ export const editChat = async (
 ): Promise<void> => {
   const updatableFields = {
     last_activity: chat.last_activity,
-    last_message_preview: chat.last_message_preview,
   };
 
   const { error } = await supabase
