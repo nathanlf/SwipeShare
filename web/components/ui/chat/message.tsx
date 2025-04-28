@@ -22,7 +22,7 @@ export default function Message({ type, children, name }: MessageProps) {
   return (
     <ChatBubble variant={type}>
       <ChatBubbleAvatar fallback={fallback} />
-      <ChatBubbleMessage className={messageClasses}>
+      <ChatBubbleMessage className={`${messageClasses} break-all overflow-wrap-anywhere max-w-full`}>
         {children}
       </ChatBubbleMessage>
     </ChatBubble>

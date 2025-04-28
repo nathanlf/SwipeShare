@@ -10,11 +10,18 @@ import { GetServerSidePropsContext } from "next/dist/types";
 import { useRouter } from "next/router";
 import { Chat } from "@/utils/supabase/models/chat";
 import { z } from "zod";
-import { DiningHall } from "@/components/chat-pages/conversation-card";
 import { useState } from "react";
 import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
+import { getLastMessage } from "@/utils/supabase/queries/message";
+import { Message } from "@/utils/supabase/models/message";
+
 type ConversationPageProps = {
   user: User;
+};
+
+// Define a new type that includes the last message
+type ConversationWithLastMessage = z.infer<typeof Chat> & {
+  lastMessage: z.infer<typeof Message> | null;
 };
 
 export default function ConversationsPage({ user }: ConversationPageProps) {
@@ -28,7 +35,21 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ["conversations", user.id],
     queryFn: async () => {
-      return await getConversations(supabase, user.id);
+      // Get all conversations
+      const convos = await getConversations(supabase, user.id);
+      
+      // For each conversation, fetch the last message
+      const withLastMessages = await Promise.all(
+        convos.map(async (convo) => {
+          const lastMessage = await getLastMessage(supabase, convo.id);
+          return {
+            ...convo,
+            lastMessage
+          } as ConversationWithLastMessage;
+        })
+      );
+      
+      return withLastMessages;
     },
     enabled: !!user.id,
   });
@@ -37,15 +58,10 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
     router.push(`/chat/${chatId}`);
   };
 
-  const getOtherUser = (conversation: z.infer<typeof Chat>) => {
+  const getOtherUser = (conversation: ConversationWithLastMessage) => {
     return conversation.user_1.id === user.id
       ? conversation.user_2
       : conversation.user_1;
-  };
-
-  const getLastDiningHall = () => {
-    const halls = [DiningHall.Chase, DiningHall.Lenoir];
-    return halls[Math.floor(Math.random() * halls.length)];
   };
 
   const filteredConversations = conversations.filter((conversation) => {
@@ -86,8 +102,8 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
                 <ConversationCard
                   name={otherUser.name}
                   online={isUserOnline(otherUser.id)}
-                  lastSeen={getLastDiningHall()}
                   avatarUrl={otherUser.avatar_url}
+                  lastMessage={conversation.lastMessage}
                 />
               </div>
             );
