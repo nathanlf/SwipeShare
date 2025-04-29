@@ -57,11 +57,14 @@ export default function UserPostsPage({
       isDonation
         ? getDonationsByAuthor(supabase, initialProfile.id)
         : getRequestsByAuthor(supabase, initialProfile.id),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
     (isDonation ? setCurrentDonations : setCurrentRequests)(freshPost);
-  }, [freshPost, isDonation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [freshPost]);
 
   if (deleting) {
     return (
@@ -70,8 +73,9 @@ export default function UserPostsPage({
           <h1 className="text-black text-4xl font-semibold mt-10 text-center">
             Your Posts
           </h1>
-          <p className="text-gray-500 text-center max-w-lg mx-auto mb-6">
-            Track and manage all that you currently have posted.
+          <p className="text-gray-500 text-sm text-center max-w-lg mx-auto mb-6">
+            Track and manage all requests and donations that you currently have
+            posted.
           </p>
 
           <div className="flex-1 flex flex-col overflow-hidden">
@@ -98,7 +102,7 @@ export default function UserPostsPage({
                   value="donations"
                   className="h-full flex flex-col overflow-hidden"
                 >
-                  <div className="flex-1 overflow-y-auto pb-4 mx-auto p-20">
+                  <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                     <div className="gap-10 grid grid-cols-1">
                       {currentDonations.map((donation) => (
                         <div
@@ -128,7 +132,7 @@ export default function UserPostsPage({
                   value="requests"
                   className="h-full flex flex-col overflow-hidden"
                 >
-                  <div className="flex-1 overflow-y-auto pb-4 px-4">
+                  <div className="flex-1 overflow-y-auto mx-auto p-5">
                     <div className="gap-5 grid grid-cols-1">
                       {currentRequests.map((request) => (
                         <div
@@ -182,8 +186,9 @@ export default function UserPostsPage({
         <h1 className="text-black text-4xl font-semibold mt-10 text-center">
           Your Posts
         </h1>
-        <p className="text-gray-500 text-center max-w-lg mx-auto mb-6">
-          Track and manage all that you currently have posted.
+        <p className="text-gray-500 text-sm text-center max-w-lg mx-auto mb-6">
+          Track and manage all requests and donations that you currently have
+          posted.
         </p>
 
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -208,7 +213,7 @@ export default function UserPostsPage({
                 value="donations"
                 className="h-full flex flex-col overflow-hidden"
               >
-                <div className="flex-1 overflow-y-auto pb-4 mx-auto p-20">
+                <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                   <div className="gap-10 grid grid-cols-1">
                     {currentDonations.map((donation) => (
                       <PostCard
@@ -231,7 +236,7 @@ export default function UserPostsPage({
                 value="requests"
                 className="h-full flex flex-col overflow-hidden"
               >
-                <div className="flex-1 overflow-y-auto pb-4 px-4">
+                <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                   <div className="gap-5 grid grid-cols-1">
                     {currentRequests.map((request) => (
                       <PostCard
