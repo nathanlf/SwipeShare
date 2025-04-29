@@ -586,7 +586,7 @@ type props = {
   handleMessageClick: () => void; // Changed to a function with no parameters that returns void
 };
 
-function PostCard({
+export function PostCard({
   authorProfile,
   time_since_post,
   dining_halls,

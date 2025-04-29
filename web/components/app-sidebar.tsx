@@ -59,7 +59,7 @@ export function AppSidebar() {
     },
     {
       title: "Past Transactions",
-      url: "/transactions",
+      url: "/user-posts",
       icon: Clock,
     },
     {
@@ -112,11 +112,7 @@ export function AppSidebar() {
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <Avatar className="mt-1">
-                    <AvatarImage
-                      src={
-                        data.avatar_url || undefined
-                      }
-                    />
+                    <AvatarImage src={data.avatar_url || undefined} />
                     <AvatarFallback className="w-8 h-8 rounded-full bg-secondary1 flex items-center justify-center text-white">
                       <UserRound />
                     </AvatarFallback>
