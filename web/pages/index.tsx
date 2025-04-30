@@ -784,10 +784,8 @@ interface PostCardProps {
 
 export function PostCard({
   authorProfile,
-  postid,
   time_since_post,
   dining_halls,
-  times,
   is_request,
   imgsrc,
   caption,
@@ -795,7 +793,6 @@ export function PostCard({
   handleRequestClick
 }: PostCardProps) {
   // State for fullscreen image
-  const supabase = createSupabaseComponentClient();
 
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
@@ -870,7 +867,7 @@ export function PostCard({
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>{name}'s availability</DialogTitle>
+                  <DialogTitle>{name}&apos;s availability</DialogTitle>
                 </DialogHeader>
                 <div className="w-full">
                   <DataTable columns={columns} data={avail} />

@@ -80,9 +80,9 @@ export function PostCard({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="bg-blue-100 hover:bg-blue-300 !hover:shadow-lg p-0 text-xs"
+                  className="bg-accent1-muted hover:bg-accent1 !hover:shadow-lg p-0 text-xs"
                 >
-                  <Users className="text-blue-600 w-4 h-4" />
+                  <Users className="text-accent2 w-4 h-4" />
                 </Button>
               </PopoverTrigger>
 
