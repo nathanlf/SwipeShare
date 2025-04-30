@@ -108,8 +108,13 @@ export default function UserPostsPage({
                   value="donations"
                   className="h-full flex flex-col overflow-hidden"
                 >
-                  <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
-                    <div className="gap-10 grid grid-cols-1">
+                  <div className="flex h-full overflow-y-auto pb-4 mx-auto p-5">
+                    <div className="h-full gap-10 grid grid-cols-1">
+                      {currentDonations.length === 0 && (
+                        <p className="flex w-full h-full text-center items-center justify-center text-black">
+                          You do not have any currently posted swipe donations.
+                        </p>
+                      )}
                       {currentDonations.map((donation) => (
                         <Dialog key={donation.id}>
                           <DialogTrigger>
@@ -169,7 +174,12 @@ export default function UserPostsPage({
                   className="h-full flex flex-col overflow-hidden"
                 >
                   <div className="flex-1 overflow-y-auto mx-auto p-5">
-                    <div className="gap-10 grid grid-cols-1">
+                    <div className="h-full gap-10 grid grid-cols-1">
+                      {currentRequests.length === 0 && (
+                        <p className="flex w-full h-full text-center items-center justify-center text-black">
+                          You do not have any currently posted swipe requests.
+                        </p>
+                      )}
                       {currentRequests.map((request) => (
                         <Dialog key={request.id}>
                           <DialogTrigger>
@@ -278,7 +288,12 @@ export default function UserPostsPage({
                 className="h-full flex flex-col overflow-hidden"
               >
                 <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
-                  <div className="gap-10 grid grid-cols-1">
+                  <div className="h-full gap-10 grid grid-cols-1">
+                    {currentDonations.length === 0 && (
+                      <p className="flex w-full h-full text-center items-center justify-center text-black">
+                        You do not have any currently posted swipe donations.
+                      </p>
+                    )}
                     {currentDonations.map((donation) => (
                       <PostCard
                         key={donation.id}
@@ -301,7 +316,12 @@ export default function UserPostsPage({
                 className="h-full flex flex-col overflow-hidden"
               >
                 <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
-                  <div className="gap-10 grid grid-cols-1">
+                  <div className="h-full gap-10 grid grid-cols-1">
+                    {currentRequests.length === 0 && (
+                      <p className="flex w-full h-full text-center items-center justify-center text-black">
+                        You do not have any currently posted swipe requests.
+                      </p>
+                    )}
                     {currentRequests.map((request) => (
                       <PostCard
                         key={request.id}
