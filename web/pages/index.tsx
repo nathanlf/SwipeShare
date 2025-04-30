@@ -178,9 +178,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const observer = new IntersectionObserver(
         (entries) => {
           if (
-            entries[0].isIntersecting && 
-            hasMoreDonations && 
-            activeTab === "donations" && 
+            entries[0].isIntersecting &&
+            hasMoreDonations &&
+            activeTab === "donations" &&
             !isLoadingMoreDonations
           ) {
             console.log("Loading more donations...");  // Add debug logging
@@ -286,42 +286,42 @@ export default function HomePage({ user, profile }: HomePageProps) {
 
   const filteredDonations = useMemo(() => {
     if (!searchTerm.trim()) return donations;
-    
+
     return donations.filter(donation => {
       const authorProfile = authorProfiles[donation.author_id];
       const authorName = authorProfile?.name?.toLowerCase() || "";
       const authorHandle = authorProfile?.handle?.toLowerCase() || "";
       const content = donation.content?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
-      
-      return authorName.includes(search) || 
-             authorHandle.includes(search) || 
-             content.includes(search);
+
+      return authorName.includes(search) ||
+        authorHandle.includes(search) ||
+        content.includes(search);
     });
   }, [donations, authorProfiles, searchTerm]);
 
   const filteredRequests = useMemo(() => {
     if (!searchTerm.trim()) return requests;
-    
+
     return requests.filter(request => {
       const authorProfile = authorProfiles[request.author_id];
       const authorName = authorProfile?.name?.toLowerCase() || "";
       const authorHandle = authorProfile?.handle?.toLowerCase() || "";
       const content = request.content?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
-      
-      return authorName.includes(search) || 
-             authorHandle.includes(search) || 
-             content.includes(search);
+
+      return authorName.includes(search) ||
+        authorHandle.includes(search) ||
+        content.includes(search);
     });
   }, [requests, authorProfiles, searchTerm]);
 
   // Checkbox item component for consistency
-  const CheckboxItem = ({ id, label, checked, onCheckedChange }: { 
-    id: string, 
-    label: string, 
-    checked: boolean, 
-    onCheckedChange: (value: boolean) => void 
+  const CheckboxItem = ({ id, label, checked, onCheckedChange }: {
+    id: string,
+    label: string,
+    checked: boolean,
+    onCheckedChange: (value: boolean) => void
   }) => {
     return (
       <div className="flex items-center space-x-2 rounded-md p-1.5 hover:bg-gray-50">
@@ -371,9 +371,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                 )}
               </Button>
             </PopoverTrigger>
-            
-            <PopoverContent 
-              className="w-full h-1/2 p-0 bg-white border border-grey-200 rounded-lg shadow-lg" 
+
+            <PopoverContent
+              className="w-full h-1/2 p-0 bg-white border border-grey-200 rounded-lg shadow-lg"
               align="end"
             >
               <Card className="border-0 shadow-none">
@@ -382,9 +382,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                     Filter Options
                   </CardTitle>
                 </CardHeader>
-                
+
                 <Separator />
-                
+
                 <CardContent className="pt-4 px-4 pb-2 mt-[-25px]">
                   <form>
                     <div className="grid w-full items-center gap-4">
@@ -405,7 +405,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                             value="Chase"
                             aria-label="Chase"
                             size="sm"
-                            className="h-8 px-3 rounded-full text-sm border border-gray-200 data-[state=on]:bg-accent1 data-[state=on]:text-white hover:bg-gray-100 data-[state=on]:hover:bg-accent1/90"
+                            className="h-8 px-3 !rounded-md text-sm border border-gray-200 data-[state=on]:bg-accent1 data-[state=on]:text-white hover:bg-gray-100 data-[state=on]:hover:bg-accent1/90"
                           >
                             Chase
                           </ToggleGroupItem>
@@ -413,7 +413,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                             value="Lenoir"
                             aria-label="Lenoir"
                             size="sm"
-                            className="h-8 px-3 rounded-full text-sm border border-gray-200 data-[state=on]:bg-accent1 data-[state=on]:text-white hover:bg-gray-100 data-[state=on]:hover:bg-accent1/90"
+                            className="h-8 px-3 !rounded-md text-sm border border-gray-200 data-[state=on]:bg-accent1 data-[state=on]:text-white hover:bg-gray-100 data-[state=on]:hover:bg-accent1/90"
                           >
                             Lenoir
                           </ToggleGroupItem>
@@ -427,31 +427,31 @@ export default function HomePage({ user, profile }: HomePageProps) {
                           Meal Times
                         </Label>
                         <div className="grid grid-cols-1 gap-y-2">
-                          <CheckboxItem 
+                          <CheckboxItem
                             id="breakfast"
                             label="Breakfast (7a-10:45a)"
                             checked={selectedTimes.includes("breakfast")}
                             onCheckedChange={(value) => modifySelectedTimes("breakfast", value)}
                           />
-                          <CheckboxItem 
+                          <CheckboxItem
                             id="lunch"
                             label="Lunch (11a-3p)"
                             checked={selectedTimes.includes("lunch")}
                             onCheckedChange={(value) => modifySelectedTimes("lunch", value)}
                           />
-                          <CheckboxItem 
+                          <CheckboxItem
                             id="lite-lunch"
                             label="Lite Lunch (3p-5p)"
                             checked={selectedTimes.includes("lite-lunch")}
                             onCheckedChange={(value) => modifySelectedTimes("lite-lunch", value)}
                           />
-                          <CheckboxItem 
+                          <CheckboxItem
                             id="dinner"
                             label="Dinner (5p-8p)"
                             checked={selectedTimes.includes("dinner")}
                             onCheckedChange={(value) => modifySelectedTimes("dinner", value)}
                           />
-                          <CheckboxItem 
+                          <CheckboxItem
                             id="late-night"
                             label="Late Dinner (8p-12a)"
                             checked={selectedTimes.includes("late-night")}
@@ -462,20 +462,20 @@ export default function HomePage({ user, profile }: HomePageProps) {
                     </div>
                   </form>
                 </CardContent>
-                
+
                 <Separator />
-                
+
                 <CardFooter className="flex justify-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 px-2 text-xs text-gray-500 hover:bg-gray-100"
-                      onClick={clearFilters}
-                    >
-                      Clear all
-                    </Button>
-                  <Button 
-                    onClick={handleSearch} 
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-xs text-gray-500 hover:bg-gray-100"
+                    onClick={clearFilters}
+                  >
+                    Clear all
+                  </Button>
+                  <Button
+                    onClick={handleSearch}
                     className="bg-accent1 hover:bg-accent1/90 text-white"
                   >
                     Apply Filters
@@ -489,7 +489,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
 
       <Tabs
         defaultValue={profile.is_donator ? "requests" : "donations"}
-        className="w-5/6 mx-auto mt-[-20px]"
+        className="w-4/6 mx-auto mt-[-20px]"
         onValueChange={setActiveTab}
       >
         <TabsList className="flex w-full mb-2">
@@ -525,7 +525,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                         key={donation.id}
                         authorProfile={authorProfile}
                         time_since_post={formatTimeSince(donation.created_at)}
-                        dining_halls={["Chase", "Lenoir"]} 
+                        dining_halls={["Chase", "Lenoir"]}
                         times={timeslots}
                         is_request={false}
                         caption={donation.content}
@@ -619,7 +619,7 @@ export function PostCard({
 }: PostCardProps) {
   // State for fullscreen image
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  
+
   const handle = authorProfile?.handle || "unknown";
   const name = authorProfile?.name || "unknown";
   const isFlexible = authorProfile?.is_flexible || false;
@@ -686,7 +686,7 @@ export function PostCard({
           </div>
           <div className="flex-2 flex flex-col gap-y-6 mx-16">
             {imgsrc ? (
-              <button 
+              <button
                 onClick={() => setFullscreenImage(imgsrc)}
                 className="bg-transparent border-0 p-0 cursor-pointer hover:opacity-90 transition-opacity"
               >
