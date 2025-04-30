@@ -7,6 +7,7 @@ export const Post = z.object({
   created_at: z.string().nullable().optional(),
   attachment_url: z.string().nullable().optional(),
   dining_halls: z.array(z.string()).default([]),
+  interested_users:z.array(z.any()).nullable().optional()
 });
 
 export type PostType = z.infer<typeof Post>;

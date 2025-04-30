@@ -204,3 +204,42 @@ export const deleteRequest = async (
 
   return true;
 };
+
+export const add_interested_user_request = async(
+  supabase:SupabaseClient,
+  requestId:string,
+  interested_user_id:string
+):Promise<boolean> =>{
+  const{data,error} =  await supabase
+  .from("request")
+  .select('interested_users')
+  .eq('id',requestId)
+  .single();
+  if(error){ throw new Error(error.message);}
+  let not_yet_added:boolean = true;
+  let newarr:string[] = []
+  //console.log("this is for a REQUEST")
+  if(data.interested_users != null){
+     newarr = data.interested_users;
+     if(!(newarr.includes(interested_user_id))) {
+      newarr.push(interested_user_id);
+      console.log(newarr);
+     }
+     else{not_yet_added = false;}
+  }
+  else{
+    newarr.push(interested_user_id);
+    console.log(newarr);
+  }
+  const{data2,error2} = await supabase
+  .from("request")
+  .update({interested_users:newarr})
+  .eq('id',requestId);
+  if(error2){throw new Error(error2.message);}
+  return not_yet_added;
+
+  //console.log(data.interested_users.length);
+  //let newarr:string[] = data.interested_users;
+  //newarr.push("12345");
+//  console.log(newarr);  
+}

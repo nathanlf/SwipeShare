@@ -54,6 +54,36 @@ export default function UserPostsPage({
     await (isDonation ? deleteDonation : deleteRequest)(supabase, post_id);
     await refetch();
   };
+  const [interestedProfilesMap, setInterestedProfilesMap] = useState<Record<string, z.infer<typeof Profile>>>({});
+  const [interestedUserMap, setInterestedUserMap] = useState<
+    Record<string, { userId: string; name: string }[]>
+  >({});
+
+  useEffect(() => {
+    const fetchInterestedProfiles = async () => {
+      const map: Record<string, { userId: string; name: string }[]> = {};
+
+      for (const donation of currentDonations) {
+        const userIds = donation.interested_users || [];
+        const entries: { userId: string; name: string }[] = [];
+
+        for (const uid of userIds) {
+          try {
+            const prof = await getProfile(supabase, uid);
+            entries.push({ userId: uid, name: prof.name });
+          } catch (err) {
+            console.error(`Failed to fetch profile for ${uid}`, err);
+          }
+        }
+
+        map[donation.id] = entries;
+      }
+
+      setInterestedUserMap(map);
+    };
+
+    fetchInterestedProfiles();
+  }, [currentDonations]);
 
   const queryType = isDonation ? currentDonations : currentRequests;
   const queryTypeKey = isDonation ? "donations" : "requests";
@@ -127,6 +157,7 @@ export default function UserPostsPage({
                         showx={true}
                         handleMessageClick={() => { }}
                         handledelete={() => deleteDonationPost(donation.id)}
+                        interestedUsers={interestedUserMap[donation.id] || []}
 
 
                       />

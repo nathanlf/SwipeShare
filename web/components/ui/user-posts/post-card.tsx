@@ -1,6 +1,6 @@
 import { columns, Timeslot } from "@/pages";
 import { Profile } from "@/utils/supabase/models/profile";
-import { CalendarDays, MapPin, MessagesSquare, Trash2, X } from "lucide-react";
+import { CalendarDays, MapPin, MessagesSquare, Trash2, Users, X } from "lucide-react";
 import { z } from "zod";
 import {
   Card,
@@ -20,6 +20,7 @@ import router from "next/router";
 import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 
 
 type props = {
@@ -31,6 +32,7 @@ type props = {
   imgsrc?: string;
   caption?: string;
   showx: boolean;
+  interestedUsers?: { userId: string; name: string }[];
   handledelete?: () => Promise<void>;
   handleMessageClick: () => void; // Changed to a function with no parameters that returns void
 };
@@ -44,6 +46,7 @@ export function PostCard({
   caption,
   handleMessageClick,
   handledelete,
+  interestedUsers,
   showx
 }: props) {
   const handle = authorProfile?.handle || "unknown";
@@ -67,43 +70,78 @@ export function PostCard({
       <CardHeader>
         <CardTitle className="text-xl font-sans font-bold w-full text-center">
           {is_request ? "Swipe Requested" : "Swipe Available"}
+
         </CardTitle>
-        {showx ?
+        <div className="absolute top-2 right-2 flex flex-row gap-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
 
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="icon" className="absolute top-2 right-2  bg-red-100 hover:bg-red-300 !hover:shadow-lg   opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs p-0"
-                onClick={() => { setIsOpen(true) }}>
-                <Trash2 className="text-red-600 " />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+          {interestedUsers && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-blue-100 hover:bg-blue-300 !hover:shadow-lg p-0 text-xs"
+                >
+                  <Users className="text-blue-600 w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
 
-              <div className="text-center">
-                Are you sure you want to delete this post?
+              {interestedUsers.length > 0 ?
+                <PopoverContent className="w-56 p-3">
+                  <p className="text-sm font-semibold mb-2 text-accent1">Interested Users</p>
+                  <ul className="space-y-1">
+                    {interestedUsers.map(user => (
+                      <li key={user.userId} className="text-muted-foreground text-sm">
+                        {user.name}
+                      </li>
+                    ))}
+                  </ul>
+                </PopoverContent>
+                : <PopoverContent className="w-56 p-3">
+                  <p className="text-sm font-semibold mb-2 text-accent1">No Interested Users</p></PopoverContent>}
 
-              </div>
-              <div className="flex flex-row space-x-4 text-center mx-auto">
-                <DialogFooter>
-                  <Button type="submit" variant="destructive" onClick={
-                    async () => {
-                      if (handledelete) {
-                        await handledelete();   // call directly — already bound
-                        setIsOpen(false);       // close modal
-                        console.log("hello")
-                        toast("Post deleted.")
-                      }
-                    }} >Delete</Button>
-                </DialogFooter>
-                <DialogFooter>
-                  <Button variant="secondary" onClick={() => { setIsOpen(false) }}>Cancel</Button>
-                </DialogFooter>
-              </div>
+            </Popover>
+          )}
 
-            </DialogContent>
-          </Dialog>
 
-          : null}
+
+          {showx ?
+
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className=" bg-red-100 hover:bg-red-300 !hover:shadow-lg shadow-md group-hover:opacity-100 transition-opacity duration-200 text-xs p-0"
+                  onClick={() => { setIsOpen(true) }}>
+                  <Trash2 className="text-red-600 " />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+
+                <div className="text-center">
+                  Are you sure you want to delete this post?
+
+                </div>
+                <div className="flex flex-row space-x-4 text-center mx-auto">
+                  <DialogFooter>
+                    <Button type="submit" variant="destructive" onClick={
+                      async () => {
+                        if (handledelete) {
+                          await handledelete();   // call directly — already bound
+                          setIsOpen(false);       // close modal
+                          console.log("hello")
+                          toast("Post deleted.")
+                        }
+                      }} >Delete</Button>
+                  </DialogFooter>
+                  <DialogFooter>
+                    <Button variant="secondary" onClick={() => { setIsOpen(false) }}>Cancel</Button>
+                  </DialogFooter>
+                </div>
+
+              </DialogContent>
+            </Dialog>
+
+            : null}
+        </div>
 
       </CardHeader>
       <CardContent className="flex flex-row gap-x-6">

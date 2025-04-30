@@ -29,8 +29,8 @@ import CreatePostButton from "@/components/post";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
-import { getAllDonations } from "@/utils/supabase/queries/donation";
-import { getAllRequests } from "@/utils/supabase/queries/request";
+import { add_interested_user, getAllDonations } from "@/utils/supabase/queries/donation";
+import { getAllRequests, add_interested_user_request } from "@/utils/supabase/queries/request";
 import { useState, useEffect, useRef, useMemo } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,7 @@ import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 import { useRouter } from "next/router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export type Timeslot = {
   starttime: string;
@@ -328,6 +329,25 @@ export default function HomePage({ user, profile }: HomePageProps) {
       console.error("Error creating or getting chat: ", error.message);
     }
   };
+  const handleRequestClick = async (postId: string) => {
+    const newlyadded = await add_interested_user(supabase, postId, profile.id);
+    if (newlyadded == true) {
+      toast("Meal Request Sent!");
+    }
+    else {
+      toast("You have already requested this meal.")
+    }
+
+  }
+  const handleDonateClick = async (postId: string) => {
+    const newlyadded = await add_interested_user_request(supabase, postId, profile.id);
+    if (newlyadded == true) {
+      toast("Donation Request Sent!");
+    }
+    else {
+      toast("You have already requested this meal.");
+    }
+  }
 
   const filteredDonations = useMemo(() => {
 
@@ -352,10 +372,6 @@ export default function HomePage({ user, profile }: HomePageProps) {
       matchestimes = availability.some(slot => {
         const slotstart = getMilitary(slot.starttime);
         const slotend = getMilitary(slot.endtime);
-        console.log(slot.starttime);
-        console.log(slotstart);
-        console.log(slot.endtime);
-        console.log(slotend);
         if (selectedTimes.includes("breakfast")) {
           if (slotstart <= 645 && slotstart > 420) {
             return true;
@@ -423,10 +439,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
       matchestimes = availability.some(slot => {
         const slotstart = getMilitary(slot.starttime);
         const slotend = getMilitary(slot.endtime);
-        console.log(slot.starttime);
-        console.log(slotstart);
-        console.log(slot.endtime);
-        console.log(slotend);
+
         if (selectedTimes.includes("breakfast")) {
           if (slotstart <= 645 && slotstart > 420) {
             return true;
@@ -674,6 +687,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                     return (
                       <PostCard
                         key={donation.id}
+                        postid={donation.id}
                         authorProfile={authorProfile}
                         time_since_post={formatTimeSince(donation.created_at)}
                         dining_halls={halls}
@@ -683,6 +697,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                         imgsrc={donation.attachment_url || undefined}
                         handleMessageClick={() =>
                           handleMessageClick(donation.author_id)
+                        }
+                        handleRequestClick={() =>
+                          handleRequestClick(donation.id)
                         }
                       />
                     );
@@ -719,6 +736,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                   return (
                     <PostCard
                       key={request.id}
+                      postid={request.id}
                       authorProfile={authorProfile}
                       time_since_post={formatTimeSince(request.created_at)}
                       dining_halls={halls}
@@ -728,6 +746,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       imgsrc={request.attachment_url || undefined}
                       handleMessageClick={() =>
                         handleMessageClick(request.author_id)
+                      }
+                      handleRequestClick={() =>
+                        handleDonateClick(request.id)
                       }
                     />
                   );
@@ -750,6 +771,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
 
 interface PostCardProps {
   authorProfile: z.infer<typeof Profile>
+  postid: string;
   time_since_post: string;
   dining_halls: string[];
   times: Timeslot[]; // Define a more specific type if possible
@@ -757,19 +779,24 @@ interface PostCardProps {
   imgsrc?: string;
   caption?: string;
   handleMessageClick: () => void;
+  handleRequestClick: () => void;
 }
 
 export function PostCard({
   authorProfile,
+  postid,
   time_since_post,
   dining_halls,
   times,
   is_request,
   imgsrc,
   caption,
-  handleMessageClick
+  handleMessageClick,
+  handleRequestClick
 }: PostCardProps) {
   // State for fullscreen image
+  const supabase = createSupabaseComponentClient();
+
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   const handle = authorProfile?.handle || "unknown";
@@ -874,6 +901,7 @@ export function PostCard({
               variant="secondary1"
               size="default"
               className="rounded-sm hover:cursor-pointer"
+              onClick={handleRequestClick}
             >
               {is_request ? "Donate Swipe" : "Request Swipe"}
             </Button>
