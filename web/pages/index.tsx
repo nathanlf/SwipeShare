@@ -607,7 +607,7 @@ interface PostCardProps {
   handleMessageClick: () => void;
 }
 
-function PostCard({
+export function PostCard({
   authorProfile,
   time_since_post,
   dining_halls,

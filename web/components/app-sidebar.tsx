@@ -58,7 +58,7 @@ export function AppSidebar() {
       icon: MessageSquare,
     },
     {
-      title: "Past Transactions",
+      title: "Transactions",
       url: "/transactions",
       icon: Clock,
     },
@@ -110,13 +110,9 @@ export function AppSidebar() {
               {/* Dark mode / light mode toggle. */}
               {/* Dropdown menu for the user, if it exists. */}
               <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger className="cursor-pointer">
                   <Avatar className="mt-1">
-                    <AvatarImage
-                      src={
-                        data.avatar_url || undefined
-                      }
-                    />
+                    <AvatarImage src={data.avatar_url || undefined} />
                     <AvatarFallback className="w-8 h-8 rounded-full bg-secondary1 flex items-center justify-center text-white">
                       <UserRound />
                     </AvatarFallback>
@@ -125,6 +121,7 @@ export function AppSidebar() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => router.push(`/settings/${data.id}`)}
+                    className="cursor-pointer"
                   >
                     <UserRound /> My Profile
                   </DropdownMenuItem>
@@ -139,6 +136,7 @@ export function AppSidebar() {
                       queryClient.resetQueries({ queryKey: ["user_profile"] });
                       router.push("/");
                     }}
+                    className="cursor-pointer"
                   >
                     <LogOut /> Sign Out
                   </DropdownMenuItem>
