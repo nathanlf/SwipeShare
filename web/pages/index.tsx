@@ -861,9 +861,13 @@ export function PostCard({
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-                  View all Time Slots
-                </CardDescription>
+                <Button variant="ghost" className="p-0">
+                  <CardDescription className="text-accent2 underline transition-colors hover:text-accent1 ">
+
+                    View all Time Slots
+
+                  </CardDescription>
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -904,7 +908,7 @@ export function PostCard({
             </Button>
             <Button
               variant="outline"
-              className="rounded-sm text-slate-300 hover:cursor-pointer"
+              className="rounded-sm text-slate-500 hover:cursor-pointer"
               onClick={handleMessageClick}
             >
               <MessagesSquare size={30} />

@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
 
 export function AppSidebar() {
   const queryClient = useQueryClient();
@@ -110,15 +111,15 @@ export function AppSidebar() {
               {/* Dark mode / light mode toggle. */}
               {/* Dropdown menu for the user, if it exists. */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="cursor-pointer">
+                <DropdownMenuTrigger className="cursor-pointer aria-la" name="profile-options" id="profile-options">
                   <Avatar className="mt-1">
-                    <AvatarImage src={data.avatar_url || undefined} />
+                    <AvatarImage src={data.avatar_url || undefined} alt="image" />
                     <AvatarFallback className="w-8 h-8 rounded-full bg-secondary1 flex items-center justify-center text-white">
                       <UserRound />
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" aria-expanded="true">
                   <DropdownMenuItem
                     onClick={() => router.push(`/settings/${data.id}`)}
                     className="cursor-pointer"
