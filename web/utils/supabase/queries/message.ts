@@ -9,7 +9,7 @@ export const getMessages = async (
   supabase: SupabaseClient,
   chatId: string,
   cursor: number,
-  textSearch?: string,
+  textSearch?: string
 ): Promise<z.infer<typeof Message>[]> => {
   const query = supabase
     .from("message")
@@ -19,9 +19,8 @@ export const getMessages = async (
       content,
       created_at,
       attachment_url,
-      author:profile!author_id ( id, name, handle, avatar_url ),
-      reactions:reaction!message_id ( id, reaction, author_id )
-    `,
+      author:profile!author_id ( id, name, handle, avatar_url )
+    `
     )
     .eq("chat_id", chatId)
     .order("created_at", { ascending: false })
@@ -50,7 +49,7 @@ export const getMessages = async (
 export const sendMessage = async (
   supabase: SupabaseClient,
   draftMessage: z.infer<typeof DraftMessage>,
-  file: File | null,
+  file: File | null
 ): Promise<z.infer<typeof DraftMessage>> => {
   const { data: message, error } = await supabase
     .from("message")
@@ -62,10 +61,9 @@ export const sendMessage = async (
       created_at,
       attachment_url,
       author:profile!message_author_id_fkey ( id, name, handle, avatar_url ),
-      reactions:reaction!reaction_message_id_fkey ( id, reaction, author_id ),
       author_id,
       chat_id
-    `,
+    `
     )
     .single();
 
@@ -109,16 +107,15 @@ export const sendMessage = async (
           created_at,
           attachment_url,
           author:profile!message_author_id_fkey ( id, name, handle, avatar_url ),
-          reactions:reaction!reaction_message_id_fkey ( id, reaction, author_id ),
           author_id,
           chat_id
-        `,
+        `
         )
         .single();
 
       if (updateError) {
         throw new Error(
-          `Failed to update message with file: ${updateError.message}`,
+          `Failed to update message with file: ${updateError.message}`
         );
       }
 
@@ -144,8 +141,7 @@ export const getLastMessage = async (
       content,
       created_at,
       attachment_url,
-      author:profile!author_id ( id, name, handle, avatar_url ),
-      reactions:reaction!message_id ( id, reaction, author_id )
+      author:profile!author_id ( id, name, handle, avatar_url )
     `
     )
     .eq("chat_id", chatId)
@@ -159,6 +155,6 @@ export const getLastMessage = async (
   if (messages && messages.length > 0) {
     return Message.parse(messages[0]);
   }
-  
+
   return null;
 };
