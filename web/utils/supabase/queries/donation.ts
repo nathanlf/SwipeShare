@@ -131,3 +131,45 @@ export const deleteDonation = async (
 
   return true;
 };
+
+export const add_interested_user = async(
+  supabase:SupabaseClient,
+  donationId:string,
+  interested_user_id:string
+):Promise<boolean> =>{
+  const{data,error} =  await supabase
+  .from("donation")
+  .select('interested_users')
+  .eq('id',donationId)
+  .single();
+  if(error){ throw new Error(error.message);}
+  let not_yet_added:boolean = true;
+  let newarr:string[] = []
+  if(data.interested_users != null){
+     newarr = data.interested_users;
+     if(!(newarr.includes(interested_user_id))) { //if user wasan't alr added, return 1
+      newarr.push(interested_user_id);
+      console.log(newarr);
+     }
+     else{not_yet_added = false;}
+  }
+  else{
+    newarr.push(interested_user_id);
+    console.log(newarr);
+  }
+  const{data2,error2} = await supabase
+  .from("donation")
+  .update({interested_users:newarr})
+  .eq('id',donationId);
+  if(error2){throw new Error(error2.message);}
+  return not_yet_added;
+  //console.log(data.interested_users.length);
+  //let newarr:string[] = data.interested_users;
+  //newarr.push("12345");
+//  console.log(newarr);  
+}
+
+//added col to DB table
+//on click of 'request swipe' will add to this list for owner of post
+//console.log to test
+
