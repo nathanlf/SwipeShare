@@ -64,7 +64,6 @@ export default function UserPostsPage({
       isDonation
         ? getDonationsByAuthor(supabase, initialProfile.id)
         : getRequestsByAuthor(supabase, initialProfile.id),
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
