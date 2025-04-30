@@ -132,12 +132,14 @@ export default function UserPostsPage({
                             </div>
                           </DialogTrigger>
                           <DialogContent className="w-3/5 bg-white border-accent1">
-                            <Label className="text-xl font-bold text-accent1">
-                              Are you Sure?
-                            </Label>
-                            <Label className="text-zinc-400 text-sm mb-8">
-                              This change cannot be undone.
-                            </Label>
+                            <div>
+                              <h1 className="text-xl font-bold text-accent1">
+                                Are you Sure?
+                              </h1>
+                              <h1 className="text-zinc-400 text-sm mb-8">
+                                This change cannot be undone.
+                              </h1>
+                            </div>
 
                             <p className="font-semibold text-center text-black mb-3">
                               Would you like to proceed with deleting this post?
