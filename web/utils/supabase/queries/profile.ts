@@ -155,3 +155,18 @@ export const setFlexibility = async (
         console.log(data);
         if(error){throw new Error(error.message);}
     }
+
+    export const getAvailability = async(
+      supabase:SupabaseClient,
+      profileId:string
+    ):Promise<Timeslot[]>=>{
+      const{data, error} = await supabase
+      .from('profile')
+      .select('availability')
+      .eq('id',profileId)
+      .single();
+      if(error) {throw new Error(error.message);
+      }
+      console.log(data);
+      return data.availability;
+    }
