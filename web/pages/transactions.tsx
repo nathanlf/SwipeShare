@@ -55,26 +55,31 @@ export default function UserPostsPage({
     await refetch();
   };
   const [interestedProfilesMap, setInterestedProfilesMap] = useState<Record<string, z.infer<typeof Profile>>>({});
+  const [interestedUserMap, setInterestedUserMap] = useState<
+    Record<string, { userId: string; name: string }[]>
+  >({});
 
   useEffect(() => {
     const fetchInterestedProfiles = async () => {
-      const allUserIds = currentDonations.flatMap(d => d.interested_users || []);
-      const uniqueIds = [...new Set(allUserIds)];
+      const map: Record<string, { userId: string; name: string }[]> = {};
 
-      const newProfiles: Record<string, z.infer<typeof Profile>> = {};
+      for (const donation of currentDonations) {
+        const userIds = donation.interested_users || [];
+        const entries: { userId: string; name: string }[] = [];
 
-      for (const id of uniqueIds) {
-        if (!interestedProfilesMap[id]) {
+        for (const uid of userIds) {
           try {
-            const prof = await getProfile(supabase, id);
-            newProfiles[id] = prof;
+            const prof = await getProfile(supabase, uid);
+            entries.push({ userId: uid, name: prof.name });
           } catch (err) {
-            console.error("Error fetching profile for interested user:", id, err);
+            console.error(`Failed to fetch profile for ${uid}`, err);
           }
         }
+
+        map[donation.id] = entries;
       }
 
-      setInterestedProfilesMap(prev => ({ ...prev, ...newProfiles }));
+      setInterestedUserMap(map);
     };
 
     fetchInterestedProfiles();
@@ -152,6 +157,7 @@ export default function UserPostsPage({
                         showx={true}
                         handleMessageClick={() => { }}
                         handledelete={() => deleteDonationPost(donation.id)}
+                        interestedUsers={interestedUserMap[donation.id] || []}
 
 
                       />
