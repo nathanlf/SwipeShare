@@ -115,6 +115,7 @@ export function PostCard({
             variant="secondary1"
             size="default"
             className="rounded-sm hover:cursor-pointer"
+            disabled={true}
           >
             {is_request ? "Donate Swipe" : "Request Swipe"}
           </Button>
@@ -122,6 +123,7 @@ export function PostCard({
             variant="outline"
             className="rounded-sm text-slate-300 hover:cursor-pointer"
             onClick={handleMessageClick}
+            disabled={true}
           >
             <MessagesSquare size={30} />
             Message {name}
