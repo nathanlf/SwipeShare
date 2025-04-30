@@ -830,7 +830,7 @@ export function PostCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-row gap-x-6">
-          <div className="space-y-4 flex-3z">
+          <div className="space-y-4 flex-3">
             <div className="flex flex-col gap-y-2">
               <div className="flex flex-row gap-x-3 items-start">
                 <CardDescription className="flex flex-row gap-x-1 pt-0.5">
