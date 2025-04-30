@@ -21,7 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
-import { getProfile } from "@/utils/supabase/queries/profile";
+import { getAvailability, getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
 import { z } from "zod";
 import { Profile } from "@/utils/supabase/models/profile";
@@ -251,6 +251,29 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const [selectedDiningHalls, setSelectedDiningHalls] = useState<string[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
+  const [availabilityMap, setAvailabilityMap] = useState<Record<string, Timeslot[]>>({});
+
+
+  useEffect(() => {
+    const loadAvailability = async () => {
+      const newMap: Record<string, Timeslot[]> = { ...availabilityMap };
+      for (const donation of donations) {
+        const authorId = donation.author_id;
+        if (!newMap[authorId]) {
+          try {
+            const availability = await getAvailability(supabase, authorId);
+            newMap[authorId] = availability;
+          } catch (err) {
+            console.error(`Failed to get availability for ${authorId}`, err);
+            newMap[authorId] = []; // Prevent retry loops
+          }
+        }
+      }
+      setAvailabilityMap(newMap);
+    }
+    loadAvailability();
+  }, [donations]);
+
 
   const modifySelectedTimes = (name: string, value: string | boolean) => {
     if (value == true) {
@@ -260,9 +283,27 @@ export default function HomePage({ user, profile }: HomePageProps) {
     }
   };
 
+  const getMilitary = (time: string): number => {
+    const regex = /^(\d{1,2})(?::(\d{2}))?(a|p)$/i;
+    const match = time.trim().toLowerCase().match(regex);
+
+    if (!match) throw new Error(`Invalid time format: ${time}`);
+
+    let hour = parseInt(match[1], 10);
+    const minute = match[2] ? parseInt(match[2], 10) : 0;
+    const meridiem = match[3];
+
+    if (meridiem === 'p' && hour !== 12) hour += 12;
+    if (meridiem === 'a' && hour === 12) hour = 0;
+
+    return hour * 60 + minute;
+  }
+
   const handleSearch = () => {
     // Your search functionality here
     console.log("Searching with filters:", { selectedDiningHalls, selectedTimes });
+
+    //console.log(availabilityMap);
     setFiltersApplied(!(filtersApplied));
     setFilterPopoverOpen(false); // Close popover when search is clicked
   };
@@ -270,6 +311,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const clearFilters = () => {
     setSelectedDiningHalls([]);
     setSelectedTimes([]);
+    setFiltersApplied(!filtersApplied);
   };
 
   // Count total selected filters
@@ -288,8 +330,6 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   const filteredDonations = useMemo(() => {
-    //  if (!searchTerm.trim()) { console.log("hello"); }
-    //if (!searchTerm.trim()) return donations;
 
     return donations.filter(donation => {
       const authorProfile = authorProfiles[donation.author_id];
@@ -298,6 +338,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const content = donation.content?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
       const dininghalls = donation.dining_halls || "";
+      const availability = availabilityMap[donation.author_id] || [];
 
       let includes_dininghalls = false;
       if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
@@ -307,15 +348,55 @@ export default function HomePage({ user, profile }: HomePageProps) {
           break;
         }
       }
+      let matchestimes = false;
+      matchestimes = availability.some(slot => {
+        const slotstart = getMilitary(slot.starttime);
+        const slotend = getMilitary(slot.endtime);
+        console.log(slot.starttime);
+        console.log(slotstart);
+        console.log(slot.endtime);
+        console.log(slotend);
+        if (selectedTimes.includes("breakfast")) {
+          if (slotstart <= 645 && slotstart > 420) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lunch")) {
+          if (slotstart <= 900 && slotend > 660) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lite-lunch")) {
+          if (slotstart <= 1020 && slotend > 900) { //checks if the slot starts within the time range. also have to check if it end sin the time range
+            return true;
+          }
+        }
+        if (selectedTimes.includes("dinner")) {
+          if (slotstart <= 1200 && slotend > 1020) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("late-night")) {
+          if (slotstart <= 1440 && slotend > 1200) {
+            return true;
+          }
+        }
+        return false;
 
-      console.log(includes_dininghalls);
+      });
+      if (selectedTimes.length == 0) { matchestimes = true; }
+
       return ((authorName.includes(search) ||
         authorHandle.includes(search) ||
         content.includes(search)) &&
         includes_dininghalls
+        && matchestimes
       );
     });
   }, [donations, authorProfiles, searchTerm, filtersApplied]);
+
+
+
 
   const filteredRequests = useMemo(() => {
     // if (!searchTerm.trim()) return requests;
@@ -327,6 +408,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const content = request.content?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
       const dininghalls = request.dining_halls || "";
+      const availability = availabilityMap[request.author_id] || [];
+
 
       let includes_dininghalls = false;
       if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
@@ -336,11 +419,49 @@ export default function HomePage({ user, profile }: HomePageProps) {
           break;
         }
       }
+      let matchestimes = false;
+      matchestimes = availability.some(slot => {
+        const slotstart = getMilitary(slot.starttime);
+        const slotend = getMilitary(slot.endtime);
+        console.log(slot.starttime);
+        console.log(slotstart);
+        console.log(slot.endtime);
+        console.log(slotend);
+        if (selectedTimes.includes("breakfast")) {
+          if (slotstart <= 645 && slotstart > 420) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lunch")) {
+          if (slotstart <= 900 && slotend > 660) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lite-lunch")) {
+          if (slotstart <= 1020 && slotend > 900) { //checks if the slot starts within the time range. also have to check if it end sin the time range
+            return true;
+          }
+        }
+        if (selectedTimes.includes("dinner")) {
+          if (slotstart <= 1200 && slotend > 1020) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("late-night")) {
+          if (slotstart <= 1440 && slotend > 1200) {
+            return true;
+          }
+        }
+        return false;
+
+      });
+      if (selectedTimes.length == 0) { matchestimes = true; }
+
 
       return ((authorName.includes(search) ||
         authorHandle.includes(search) ||
         content.includes(search)) &&
-        includes_dininghalls
+        includes_dininghalls && matchestimes
       );
     });
   }, [requests, authorProfiles, searchTerm, filtersApplied]);
