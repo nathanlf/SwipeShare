@@ -1,0 +1,94 @@
+[1mdiff --git a/web/pages/index.tsx b/web/pages/index.tsx[m
+[1mindex d6e5189..1a28139 100644[m
+[1m--- a/web/pages/index.tsx[m
+[1m+++ b/web/pages/index.tsx[m
+[36m@@ -16,6 +16,7 @@[m [mimport { GetServerSidePropsContext } from "next";[m
+import { DataTable } from "@/components/ui/datatable";[m
+import { createSupabaseServerClient } from "@/utils/supabase/server-props";[m
+import { getProfile } from "@/utils/supabase/queries/profile";[m
+[32mimport { Badge } from "@/components/ui/badge";[m
+
+export type Timeslot = {[m
+  starttime: string;[m
+[36m@@ -64,7 +65,7 @@[m [mexport default function Home() {[m
+          <TabsTrigger value="password">Requests</TabsTrigger>[m
+        </TabsList>[m
+        <TabsContent value="account">[m
+          <ScrollArea [31mclassName="h-150[m[32mclassName="h-170[m  w-full rounded-md">
+            <div className="mx-4">[m
+              <div className="flex flex-col overflow-y-auto">[m
+                <PostCard[m
+[36m@@ -73,6 +74,7 @@[m [mexport default function Home() {[m
+                  dining_halls={["Chase", "Lenoir"]}[m
+                  times={timeslots}[m
+                  is_request={false}[m
+                  [32misflexible={true}[m
+                />[m
+                <PostCard[m
+                  username="user456"[m
+[36m@@ -80,6 +82,7 @@[m [mexport default function Home() {[m
+                  dining_halls={["Chase"]}[m
+                  times={timeslots}[m
+                  is_request={false}[m
+                  [32misflexible={false}[m
+                />[m
+                <PostCard[m
+                  username="user456"[m
+[36m@@ -87,6 +90,7 @@[m [mexport default function Home() {[m
+                  dining_halls={["Chase"]}[m
+                  times={timeslots}[m
+                  is_request={false}[m
+                  [32misflexible={true}[m
+                />[m
+              </div>[m
+            </div>[m
+[36m@@ -130,6 +134,7 @@[m [mtype props = {[m
+  is_request: boolean;[m
+  imgsrc?: string;[m
+  caption?: string;[m
+  [32misflexible: boolean;[m
+};[m
+function PostCard({[m
+  username,[m
+[36m@@ -139,6 +144,7 @@[m [mfunction PostCard({[m
+  is_request,[m
+  imgsrc,[m
+  caption,[m
+  [32misflexible[m
+}: props) {[m
+
+  const listitems = dining_halls.map((hall) => {[m
+[36m@@ -158,17 +164,23 @@[m [mfunction PostCard({[m
+      </CardHeader>[m
+      <CardContent className="flex flex-row gap-x-6">[m
+        <div className="space-y-4 flex-3">[m
+
+          <div className="flex flex-col gap-y-2">[m
+            [32m<div className="flex flex-row gap-x-3 items-start">[m
+              <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+                <CalendarDays size={16} />
+                <p className="text-xs ">
+                  {time_since_post} ~ @{username}
+                </p>
+              </CardDescription>
+              [32m{isflexible ? <Badge variant="default" className="bg-[#ff9000]  " >flexible</Badge> : null}[m
+[32m            </div>[m
+            <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">[m
+              {listitems}[m
+            </CardDescription>[m
+          </div>[m
+
+
+          {caption ? ([m
+            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">[m
+              {caption}[m
+[36m@@ -184,6 +196,9 @@[m [mfunction PostCard({[m
+          </CardDescription>[m
+        </div>[m
+        <div className="flex-2 flex flex-col gap-y-6 mx-16">[m
+
+
+
+          {imgsrc ? ([m
+            <Image[m
+              width={100}[m

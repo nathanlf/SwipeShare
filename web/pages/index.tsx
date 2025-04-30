@@ -10,13 +10,18 @@ import {
 import Image from "next/image";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, MapPin, MessagesSquare, Search, ChevronDown } from "lucide-react";
+import {
+  CalendarDays,
+  MapPin,
+  MessagesSquare,
+  Funnel,
+} from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
 import { DataTable } from "@/components/ui/datatable";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
-import { getProfile } from "@/utils/supabase/queries/profile";
+import { getAvailability, getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
 import { z } from "zod";
 import { Profile } from "@/utils/supabase/models/profile";
@@ -31,18 +36,14 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import React from "react";
 import { Label } from "@/components/ui/label";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { cn } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 
 import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 import { useRouter } from "next/router";
-
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export type Timeslot = {
   starttime: string;
@@ -83,15 +84,21 @@ type HomePageProps = { user: User; profile: z.infer<typeof Profile> };
 export default function HomePage({ user, profile }: HomePageProps) {
   const router = useRouter();
   const supabase = createSupabaseComponentClient();
-  const [activeTab, setActiveTab] = useState<string>(profile.is_donator ? "requests" : "donations");
-  const [authorProfiles, setAuthorProfiles] = useState<Record<string, z.infer<typeof Profile>>>({});
+  const [activeTab, setActiveTab] = useState<string>(
+    profile.is_donator ? "requests" : "donations"
+  );
+  const [authorProfiles, setAuthorProfiles] = useState<
+    Record<string, z.infer<typeof Profile>>
+  >({});
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
   // Load donations with infinite query
   const {
     data: donationsData,
     fetchNextPage: fetchNextDonations,
     hasNextPage: hasMoreDonations,
     isFetchingNextPage: isLoadingMoreDonations,
-    status: donationsStatus
+    status: donationsStatus,
   } = useInfiniteQuery({
     queryKey: ["donations"],
     queryFn: async ({ pageParam = 0 }) => {
@@ -102,16 +109,14 @@ export default function HomePage({ user, profile }: HomePageProps) {
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === 10 ? allPages.length * 10 : undefined;
-    }
+    },
   });
 
   // Load requests with infinite query
   const {
     data: requestsData,
-    fetchNextPage: fetchNextRequests,
-    hasNextPage: hasMoreRequests,
     isFetchingNextPage: isLoadingMoreRequests,
-    status: requestsStatus
+    status: requestsStatus,
   } = useInfiniteQuery({
     queryKey: ["requests"],
     queryFn: async ({ pageParam = 0 }) => {
@@ -122,7 +127,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === 10 ? allPages.length * 10 : undefined;
-    }
+    },
   });
 
   // Flatten & memoize the pages into a single array
@@ -138,14 +143,16 @@ export default function HomePage({ user, profile }: HomePageProps) {
   // Load author profiles for all posts when data changes
   useEffect(() => {
     const allPosts = [...donations, ...requests];
-    const authorIds = [...new Set(allPosts.map(post => post.author_id))];
+    const authorIds = [...new Set(allPosts.map((post) => post.author_id))];
 
     // Fetch profiles for any authors we don't already have
-    const newAuthorIds = authorIds.filter(id => !authorProfiles[id]);
+    const newAuthorIds = authorIds.filter((id) => !authorProfiles[id]);
 
     if (newAuthorIds.length > 0) {
       const fetchProfiles = async () => {
-        const profiles: Record<string, z.infer<typeof Profile>> = { ...authorProfiles };
+        const profiles: Record<string, z.infer<typeof Profile>> = {
+          ...authorProfiles,
+        };
 
         for (const id of newAuthorIds) {
           try {
@@ -168,21 +175,32 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const requestsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (requestsEndRef.current && !isLoadingMoreRequests) {
+    if (donationsEndRef.current) {
       const observer = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && hasMoreRequests && activeTab === "requests") {
-            fetchNextRequests();
+          if (
+            entries[0].isIntersecting &&
+            hasMoreDonations &&
+            activeTab === "donations" &&
+            !isLoadingMoreDonations
+          ) {
+            console.log("Loading more donations...");  // Add debug logging
+            fetchNextDonations();
           }
         },
-        { threshold: 0.5 }
+        { threshold: 0.1 }  // Lower threshold for better detection
       );
 
-      observer.observe(requestsEndRef.current);
-
-      return () => observer.disconnect(); // Clean up observer on unmount
+      observer.observe(donationsEndRef.current);
+      return () => observer.disconnect();
     }
-  }, [requestsEndRef, isLoadingMoreRequests, hasMoreRequests, activeTab, fetchNextRequests]);
+  }, [
+    donationsEndRef,
+    isLoadingMoreDonations,
+    hasMoreDonations,
+    activeTab,
+    fetchNextDonations,
+  ]);
 
   useEffect(() => {
     if (donationsEndRef.current && !isLoadingMoreDonations) {
@@ -199,7 +217,12 @@ export default function HomePage({ user, profile }: HomePageProps) {
 
       return () => observer.disconnect();
     }
-  }, [donationsEndRef, isLoadingMoreDonations, hasMoreDonations, fetchNextDonations]);
+  }, [
+    donationsEndRef,
+    isLoadingMoreDonations,
+    hasMoreDonations,
+    fetchNextDonations,
+  ]);
 
   // Format time since post
   const formatTimeSince = (dateString: string | null | undefined) => {
@@ -220,214 +243,432 @@ export default function HomePage({ user, profile }: HomePageProps) {
         const diffDays = Math.floor(diffHours / 24);
         return `${diffDays}d`;
       }
-
     }
   };
 
-
-  //const [showChaseBar, setShowChaseBar] = React.useState<Checked>(true)
-  //const [showLBar, setShowLBar] = React.useState<Checked>(true)
-  const [isOpen, setIsOpen] = React.useState(false);
+  // Filter popover state
+  const [filterPopoverOpen, setFilterPopoverOpen] = useState<boolean>(false);
   const [selectedDiningHalls, setSelectedDiningHalls] = useState<string[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
+  const [availabilityMap, setAvailabilityMap] = useState<Record<string, Timeslot[]>>({});
 
-  /*
-  const filteredDonations = useMemo(() => {
-    if (selectedDiningHalls.length === 0) return donations; // No filter applied
 
-    return donations.filter(donation =>
-      donation.dining_halls.some(hall =>
-        selectedDiningHalls.includes(hall)
-      )
-    );
-  }, [donations, selectedDiningHalls]);
+  useEffect(() => {
+    const loadAvailability = async () => {
+      const newMap: Record<string, Timeslot[]> = { ...availabilityMap };
+      for (const donation of donations) {
+        const authorId = donation.author_id;
+        if (!newMap[authorId]) {
+          try {
+            const availability = await getAvailability(supabase, authorId);
+            newMap[authorId] = availability;
+          } catch (err) {
+            console.error(`Failed to get availability for ${authorId}`, err);
+            newMap[authorId] = []; // Prevent retry loops
+          }
+        }
+      }
+      setAvailabilityMap(newMap);
+    }
+    loadAvailability();
+  }, [donations]);
 
-  const filteredRequests = useMemo(() => {
-    if (selectedDiningHalls.length === 0) return requests; // No filter applied
 
-    return requests.filter(request =>
-      request.dining_halls.some(hall =>
-        selectedDiningHalls.includes(hall)
-      )
-    );
-  }, [requests, selectedDiningHalls]);
-*/
-
-  const test = () => {
-    console.log(selectedDiningHalls);
-    console.log(selectedTimes);
-    setIsOpen(false);
-  }
-
-  const modifySelectedTimes = (name: string, value) => {
+  const modifySelectedTimes = (name: string, value: string | boolean) => {
     if (value == true) {
-      setSelectedTimes([...selectedTimes, name])
+      setSelectedTimes([...selectedTimes, name]);
+    } else if (value == false) {
+      setSelectedTimes(selectedTimes.filter((a) => a != name));
     }
-    else if (value == false) {
-      setSelectedTimes(selectedTimes.filter(a => a != name))
-    }
+  };
+
+  const getMilitary = (time: string): number => {
+    const regex = /^(\d{1,2})(?::(\d{2}))?(a|p)$/i;
+    const match = time.trim().toLowerCase().match(regex);
+
+    if (!match) throw new Error(`Invalid time format: ${time}`);
+
+    let hour = parseInt(match[1], 10);
+    const minute = match[2] ? parseInt(match[2], 10) : 0;
+    const meridiem = match[3];
+
+    if (meridiem === 'p' && hour !== 12) hour += 12;
+    if (meridiem === 'a' && hour === 12) hour = 0;
+
+    return hour * 60 + minute;
   }
 
+  const handleSearch = () => {
+    // Your search functionality here
+    console.log("Searching with filters:", { selectedDiningHalls, selectedTimes });
+
+    //console.log(availabilityMap);
+    setFiltersApplied(!(filtersApplied));
+    setFilterPopoverOpen(false); // Close popover when search is clicked
+  };
+
+  const clearFilters = () => {
+    setSelectedDiningHalls([]);
+    setSelectedTimes([]);
+    setFiltersApplied(!filtersApplied);
+  };
+
+  // Count total selected filters
+  const totalFiltersSelected = selectedDiningHalls.length + selectedTimes.length;
 
   const handleMessageClick = async (authorId: string) => {
     try {
-      if(user.id !== authorId){
-        const chat = await getOrCreateChatByUsers(supabase, user.id, authorId)
-        router.push(`/chat/${chat.id}`)
+      if (user.id !== authorId) {
+        const chat = await getOrCreateChatByUsers(supabase, user.id, authorId);
+        router.push(`/chat/${chat.id}`);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error creating or getting chat: ", error.message);
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    catch (error: any){
-      console.error("Error creating or getting chat: ", error.message)
-    }
-  }
+  };
+
+  const filteredDonations = useMemo(() => {
+
+    return donations.filter(donation => {
+      const authorProfile = authorProfiles[donation.author_id];
+      const authorName = authorProfile?.name?.toLowerCase() || "";
+      const authorHandle = authorProfile?.handle?.toLowerCase() || "";
+      const content = donation.content?.toLowerCase() || "";
+      const search = searchTerm.toLowerCase();
+      const dininghalls = donation.dining_halls || "";
+      const availability = availabilityMap[donation.author_id] || [];
+
+      let includes_dininghalls = false;
+      if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
+      for (const hall of selectedDiningHalls) {
+        if (dininghalls.includes(hall.toLowerCase())) {
+          includes_dininghalls = true;
+          break;
+        }
+      }
+      let matchestimes = false;
+      matchestimes = availability.some(slot => {
+        const slotstart = getMilitary(slot.starttime);
+        const slotend = getMilitary(slot.endtime);
+        console.log(slot.starttime);
+        console.log(slotstart);
+        console.log(slot.endtime);
+        console.log(slotend);
+        if (selectedTimes.includes("breakfast")) {
+          if (slotstart <= 645 && slotstart > 420) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lunch")) {
+          if (slotstart <= 900 && slotend > 660) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lite-lunch")) {
+          if (slotstart <= 1020 && slotend > 900) { //checks if the slot starts within the time range. also have to check if it end sin the time range
+            return true;
+          }
+        }
+        if (selectedTimes.includes("dinner")) {
+          if (slotstart <= 1200 && slotend > 1020) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("late-night")) {
+          if (slotstart <= 1440 && slotend > 1200) {
+            return true;
+          }
+        }
+        return false;
+
+      });
+      if (selectedTimes.length == 0) { matchestimes = true; }
+
+      return ((authorName.includes(search) ||
+        authorHandle.includes(search) ||
+        content.includes(search)) &&
+        includes_dininghalls
+        && matchestimes
+      );
+    });
+  }, [donations, authorProfiles, searchTerm, filtersApplied]);
+
+
+
+
+  const filteredRequests = useMemo(() => {
+    // if (!searchTerm.trim()) return requests;
+
+    return requests.filter(request => {
+      const authorProfile = authorProfiles[request.author_id];
+      const authorName = authorProfile?.name?.toLowerCase() || "";
+      const authorHandle = authorProfile?.handle?.toLowerCase() || "";
+      const content = request.content?.toLowerCase() || "";
+      const search = searchTerm.toLowerCase();
+      const dininghalls = request.dining_halls || "";
+      const availability = availabilityMap[request.author_id] || [];
+
+
+      let includes_dininghalls = false;
+      if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
+      for (const hall of selectedDiningHalls) {
+        if (dininghalls.includes(hall.toLowerCase())) {
+          includes_dininghalls = true;
+          break;
+        }
+      }
+      let matchestimes = false;
+      matchestimes = availability.some(slot => {
+        const slotstart = getMilitary(slot.starttime);
+        const slotend = getMilitary(slot.endtime);
+        console.log(slot.starttime);
+        console.log(slotstart);
+        console.log(slot.endtime);
+        console.log(slotend);
+        if (selectedTimes.includes("breakfast")) {
+          if (slotstart <= 645 && slotstart > 420) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lunch")) {
+          if (slotstart <= 900 && slotend > 660) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("lite-lunch")) {
+          if (slotstart <= 1020 && slotend > 900) { //checks if the slot starts within the time range. also have to check if it end sin the time range
+            return true;
+          }
+        }
+        if (selectedTimes.includes("dinner")) {
+          if (slotstart <= 1200 && slotend > 1020) {
+            return true;
+          }
+        }
+        if (selectedTimes.includes("late-night")) {
+          if (slotstart <= 1440 && slotend > 1200) {
+            return true;
+          }
+        }
+        return false;
+
+      });
+      if (selectedTimes.length == 0) { matchestimes = true; }
+
+
+      return ((authorName.includes(search) ||
+        authorHandle.includes(search) ||
+        content.includes(search)) &&
+        includes_dininghalls && matchestimes
+      );
+    });
+  }, [requests, authorProfiles, searchTerm, filtersApplied]);
+
+  // Checkbox item component for consistency
+  const CheckboxItem = ({ id, label, checked, onCheckedChange }: {
+    id: string,
+    label: string,
+    checked: boolean,
+    onCheckedChange: (value: boolean) => void
+  }) => {
+    return (
+      <div className="flex items-center space-x-2 rounded-md p-1.5 hover:bg-gray-50">
+        <Checkbox
+          id={id}
+          className="data-[state=checked]:bg-accent1 data-[state=checked]:border-accent1 border-gray-300"
+          checked={checked}
+          onCheckedChange={onCheckedChange}
+        />
+        <label
+          htmlFor={id}
+          className="text-sm font-medium text-gray-700 cursor-pointer"
+        >
+          {label}
+        </label>
+      </div>
+    );
+  };
 
   return (
-    <div className="flex flex-col mt-4 w-full gap-y-10">
-      <div className="mx-auto w-full flex flex-row gap-x-2 pl-14 pr-5">
-        <div className=" flex flex-row h-9 rounded-md border border-input shadow-none bg-muted flex-4 px-1">
-          <Search size={16} className="self-center text-accent1" />
-          <Input type="default" placeholder="Search Posts" className="!bg-transparent focus-visible:rounded-md shadow-none rounded-none py-0 !border-none" />
+    <div className="flex flex-col mt-5 w-full gap-y-10">
+      {/* this div below is the both the search bar and the filter button */}
+      <div className="flex flex-row gap-x-2 pl-14 pr-5 justify-center items-center w-full">
+        {/* this div below is the input at the top*/}
+        <div className=" flex flex-row h-9 rounded-md shadow-none bg-muted flex-4 px-1 ml-6">
+          <Input
+            type="text"
+            placeholder="Search by name or keywords..."
+            className="!bg-transparent focus-visible:rounded-md shadow-none rounded-none py-0 !border-none text-black"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <div className="flex-1 flex justify-center  relative">
-          <Collapsible
-            open={isOpen}
-            onOpenChange={setIsOpen}
-            className="w-full"
-          >
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" className="flex items-center justify-between space-x-4 mx-auto bg-muted border-accent1">
-                <h4 className="text-sm font-semibold">
-                  Filter Results
-                </h4>
-                <ChevronDown className="h-4 w-4" />
-                <span className="sr-only">Toggle</span>
+        <div className="flex justify-center">
+          <Popover open={filterPopoverOpen} onOpenChange={setFilterPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 bg-muted border-accent1 relative hover:bg-accent1/10 transition-colors"
+              >
+                <Funnel className="h-4 w-4 text-black" />
+                <span className="text-sm font-medium sr-only md:not-sr-only text-black">Filter</span>
+                {totalFiltersSelected > 0 && (
+                  <Badge className="h-5 w-5 p-0 flex items-center justify-center bg-accent1 text-white text-xs rounded-full absolute -top-2 -right-2">
+                    {totalFiltersSelected}
+                  </Badge>
+                )}
               </Button>
-            </CollapsibleTrigger>
+            </PopoverTrigger>
 
+            <PopoverContent
+              className="w-full h-1/2 p-0 bg-white border border-grey-200 rounded-lg shadow-lg"
+              align="end"
+            >
+              <Card className="border-0 shadow-none">
+                <CardHeader className="flex flex-col items-center justify-between">
+                  <CardTitle className="text-md font-semibold text-gray-800">
+                    Filter Options
+                  </CardTitle>
+                </CardHeader>
 
-            <CollapsibleContent
-              className={cn(
-                "absolute left-0 mt-2 w-full rounded-md z-20",
-                // nice slide/fade animation that shadcn expects:
-                "data-[state=open]:animate-collapsible-down",
-                "data-[state=closed]:animate-collapsible-up"
-              )}>
-              <Card className="bg-muted border-accent1">
-                <CardContent>
+                <Separator />
 
+                <CardContent className="pt-4 px-4 pb-2 mt-[-25px]">
                   <form>
                     <div className="grid w-full items-center gap-4">
-                      <div className="flex flex-col gap-y-1">
-                        <Label htmlFor="dining_hall" className="text-secondary1 font-semibold">Dining Halls:</Label>
-                        <ToggleGroup type="multiple"
+                      <div className="flex flex-col gap-y-2">
+                        <Label
+                          htmlFor="dining_hall"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Dining Halls
+                        </Label>
+                        <ToggleGroup
+                          type="multiple"
                           value={selectedDiningHalls}
                           onValueChange={setSelectedDiningHalls}
-                          className="gap-x-1" >
-                          <ToggleGroupItem value="Chase" aria-label="Chase" size="sm" className="data-[state=on]:bg-accent1-muted hover:bg-accent1-muted data-[state=on]:text-popover-foreground rounded-md">
+                          className="flex flex-wrap gap-2"
+                        >
+                          <ToggleGroupItem
+                            value="Chase"
+                            aria-label="Chase"
+                            size="sm"
+                            className="h-8 px-3 !rounded-md text-sm border border-gray-200 data-[state=on]:bg-accent1 data-[state=on]:text-white hover:bg-gray-100 data-[state=on]:hover:bg-accent1/90"
+                          >
                             Chase
                           </ToggleGroupItem>
-                          <ToggleGroupItem value="Lenoir" aria-label="Lenoir" size="sm" className="data-[state=on]:bg-accent1-muted hover:bg-accent1-muted data-[state=on]:text-popover-foreground rounded-md">
+                          <ToggleGroupItem
+                            value="Lenoir"
+                            aria-label="Lenoir"
+                            size="sm"
+                            className="h-8 px-3 !rounded-md text-sm border border-gray-200 data-[state=on]:bg-accent1 data-[state=on]:text-white hover:bg-gray-100 data-[state=on]:hover:bg-accent1/90"
+                          >
                             Lenoir
                           </ToggleGroupItem>
-
                         </ToggleGroup>
                       </div>
 
-                      <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="framework" className="text-secondary1">Timing:</Label>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="breakfast" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
-                            checked={selectedTimes.includes("breakfast")}
-                            onCheckedChange={(value) => { modifySelectedTimes("breakfast", value) }} />
-                          <label
-                            htmlFor="breakfast"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Breakfast (7a-10:45a)
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="lunch" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
-                            checked={selectedTimes.includes("lunch")}
-                            onCheckedChange={(value) => { modifySelectedTimes("lunch", value) }} />
-                          <label
-                            htmlFor="lunch"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Lunch (11a-3p)
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="lite-lunch" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
-                            checked={selectedTimes.includes("lite-lunch")}
-                            onCheckedChange={(value) => { modifySelectedTimes("lite-lunch", value) }} />
-                          <label
-                            htmlFor="lite-lunch"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Lite Lunch (3p-5p)
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="dinner" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
-                            checked={selectedTimes.includes("dinner")}
-                            onCheckedChange={(value) => { modifySelectedTimes("dinner", value) }} />
-                          <label
-                            htmlFor="dinner"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Dinner (5p-8p)
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="late-night" className="data-[state=checked]:bg-secondary1 data-[state=checked]:border-secondary1 border-secondary1"
-                            checked={selectedTimes.includes("late-night")}
-                            onCheckedChange={(value) => { modifySelectedTimes("late-night", value) }} />
-                          <label
-                            htmlFor="late-night"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Late Dinner (8p-12a)
-                          </label>
-                        </div>
+                      <Separator className="my-1" />
 
+                      <div className="flex flex-col space-y-2">
+                        <Label htmlFor="timing" className="text-sm font-medium text-gray-700">
+                          Meal Times
+                        </Label>
+                        <div className="grid grid-cols-1 gap-y-2">
+                          <CheckboxItem
+                            id="breakfast"
+                            label="Breakfast (7a-10:45a)"
+                            checked={selectedTimes.includes("breakfast")}
+                            onCheckedChange={(value) => modifySelectedTimes("breakfast", value)}
+                          />
+                          <CheckboxItem
+                            id="lunch"
+                            label="Lunch (11a-3p)"
+                            checked={selectedTimes.includes("lunch")}
+                            onCheckedChange={(value) => modifySelectedTimes("lunch", value)}
+                          />
+                          <CheckboxItem
+                            id="lite-lunch"
+                            label="Lite Lunch (3p-5p)"
+                            checked={selectedTimes.includes("lite-lunch")}
+                            onCheckedChange={(value) => modifySelectedTimes("lite-lunch", value)}
+                          />
+                          <CheckboxItem
+                            id="dinner"
+                            label="Dinner (5p-8p)"
+                            checked={selectedTimes.includes("dinner")}
+                            onCheckedChange={(value) => modifySelectedTimes("dinner", value)}
+                          />
+                          <CheckboxItem
+                            id="late-night"
+                            label="Late Dinner (8p-12a)"
+                            checked={selectedTimes.includes("late-night")}
+                            onCheckedChange={(value) => modifySelectedTimes("late-night", value)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </form>
                 </CardContent>
-                <CardFooter className="ml-auto">
-                  <Button onClick={test} size="sm">Search</Button>
+
+                <Separator />
+
+                <CardFooter className="flex justify-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-xs text-gray-500 hover:bg-gray-100"
+                    onClick={clearFilters}
+                  >
+                    Clear all
+                  </Button>
+                  <Button
+                    onClick={handleSearch}
+                    className="bg-accent1 hover:bg-accent1/90 text-white"
+                  >
+                    Apply Filters
+                  </Button>
                 </CardFooter>
               </Card>
-
-            </CollapsibleContent>
-          </Collapsible>
-
-
+            </PopoverContent>
+          </Popover>
         </div>
-
       </div>
-
-
 
       <Tabs
         defaultValue={profile.is_donator ? "requests" : "donations"}
-        className="w-1/2 mx-auto"
+        className="w-4/6 mx-auto mt-[-20px]"
         onValueChange={setActiveTab}
       >
-        <TabsList className="grid w-full grid-cols-2 mb-12">
-          <TabsTrigger value="donations" className="hover:cursor-pointer">Donations</TabsTrigger>
-          <TabsTrigger value="requests" className="hover:cursor-pointer">Requests</TabsTrigger>
+        <TabsList className="flex w-full mb-2">
+          <TabsTrigger value="donations" className="hover:cursor-pointer">
+            Donations
+          </TabsTrigger>
+          <TabsTrigger value="requests" className="hover:cursor-pointer">
+            Requests
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="donations">
-          <ScrollArea className="h-150 w-full rounded-md ">
-            <div className="mx-4">
+          <ScrollArea className="h-[80vh] w-full rounded-md ">
+            <div className="">
               <div className="flex flex-col overflow-y-auto">
                 {donationsStatus === "pending" ? (
                   <p className="text-center py-4">Loading donations...</p>
                 ) : donationsStatus === "error" ? (
-                  <p className="text-center py-4 text-red-500">Error loading donations</p>
-                ) : donations.length === 0 ? (
-                  <p className="text-center py-4">No donations available</p>
+                  <p className="text-center py-4 text-red-500">
+                    Error loading donations
+                  </p>
+                ) : filteredDonations.length === 0 ? (
+                  searchTerm.trim() ? (
+                    <p className="text-center py-4">No matching donations found</p>
+                  ) : (
+                    <p className="text-center py-4">No donations available</p>
+                  )
                 ) : (
-                  donations.map((donation) => {
+                  filteredDonations.map((donation) => {
                     const authorProfile = authorProfiles[donation.author_id];
                     const halls = Array.isArray(donation.dining_halls) ? donation.dining_halls : [];
                     return (
@@ -440,7 +681,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                         is_request={false}
                         caption={donation.content}
                         imgsrc={donation.attachment_url || undefined}
-                        handleMessageClick={() => handleMessageClick(donation.author_id)}
+                        handleMessageClick={() =>
+                          handleMessageClick(donation.author_id)
+                        }
                       />
                     );
                   })
@@ -460,11 +703,17 @@ export default function HomePage({ user, profile }: HomePageProps) {
               {requestsStatus === "pending" ? (
                 <p className="text-center py-4">Loading requests...</p>
               ) : requestsStatus === "error" ? (
-                <p className="text-center py-4 text-red-500">Error loading requests</p>
-              ) : requests.length === 0 ? (
-                <p className="text-center py-4">No requests available</p>
+                <p className="text-center py-4 text-red-500">
+                  Error loading requests
+                </p>
+              ) : filteredRequests.length === 0 ? (
+                searchTerm.trim() ? (
+                  <p className="text-center py-4">No matching requests found</p>
+                ) : (
+                  <p className="text-center py-4">No requests available</p>
+                )
               ) : (
-                requests.map((request) => {
+                filteredRequests.map((request) => {
                   const authorProfile = authorProfiles[request.author_id];
                   const halls = Array.isArray(request.dining_halls) ? request.dining_halls : [];
                   return (
@@ -477,7 +726,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       is_request={true}
                       caption={request.content}
                       imgsrc={request.attachment_url || undefined}
-                      handleMessageClick={() => handleMessageClick(request.author_id)}
+                      handleMessageClick={() =>
+                        handleMessageClick(request.author_id)
+                      }
                     />
                   );
                 })
@@ -497,18 +748,18 @@ export default function HomePage({ user, profile }: HomePageProps) {
   );
 }
 
-type props = {
-  authorProfile: z.infer<typeof Profile>;
+interface PostCardProps {
+  authorProfile: z.infer<typeof Profile>
   time_since_post: string;
-  dining_halls: string[]; // from user
-  times: Timeslot[]; // from user
+  dining_halls: string[];
+  times: Timeslot[]; // Define a more specific type if possible
   is_request: boolean;
   imgsrc?: string;
   caption?: string;
-  handleMessageClick: () => void; // Changed to a function with no parameters that returns void
-};
+  handleMessageClick: () => void;
+}
 
-function PostCard({
+export function PostCard({
   authorProfile,
   time_since_post,
   dining_halls,
@@ -517,11 +768,23 @@ function PostCard({
   imgsrc,
   caption,
   handleMessageClick,
-}: props) {
-  const handle = authorProfile?.handle || 'unknown';
-  const name = authorProfile?.name || 'unknown';
+}: PostCardProps) {
+  // State for fullscreen image
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
-  const isFlexible = authorProfile?.is_flexible || false
+  const handle = authorProfile?.handle || "unknown";
+  const name = authorProfile?.name || "unknown";
+  const isFlexible = authorProfile?.is_flexible || false;
+  const avail: Timeslot[] = authorProfile?.availability || [];
+  const avail_small = avail.slice(0, 3);
+  // Add escape key handler for closing fullscreen image
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreenImage(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const halls = Array.isArray(dining_halls) ? dining_halls : [];
 
@@ -535,57 +798,113 @@ function PostCard({
   });
 
   return (
-    <Card className="rounded-sm px-4 gap-3 mb-8">
-      <CardHeader>
-        <CardTitle className="text-xl font-sans font-bold">
-          {is_request ? "Swipe Requested" : "Swipe Available"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-row gap-x-6">
-        <div className="space-y-4 flex-3z">
-          <div className="flex flex-col gap-y-2">
-            <div className="flex flex-row gap-x-3 items-start">
-              <CardDescription className="flex flex-row gap-x-1 pt-0.5">
-                <CalendarDays size={16} />
-                <p className="text-xs ">
-                  {time_since_post} ~ @{handle}
-                </p>
+    <>
+      <Card className="rounded-sm px-4 gap-3 mb-8">
+        <CardHeader>
+          <CardTitle className="text-xl font-sans font-bold">
+            {is_request ? "Swipe Requested" : "Swipe Available"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-row gap-x-6">
+          <div className="space-y-4 flex-3z">
+            <div className="flex flex-col gap-y-2">
+              <div className="flex flex-row gap-x-3 items-start">
+                <CardDescription className="flex flex-row gap-x-1 pt-0.5">
+                  <CalendarDays size={16} />
+                  <p className="text-xs ">
+                    {time_since_post} ~ @{handle}
+                  </p>
+                </CardDescription>
+                {isFlexible ? (
+                  <Badge variant="default" className="bg-[#ff9000] ">
+                    flexible
+                  </Badge>
+                ) : null}
+              </div>
+              <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
+                {listitems}
               </CardDescription>
-              {isFlexible ? <Badge variant="default" className="bg-[#ff9000] ">flexible</Badge> : null}
             </div>
-            <CardDescription className="flex flex-row gap-1.5 text-primary1 text-xs">
-              {listitems}
-            </CardDescription>
-          </div>
-          {caption ? (
-            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
-              {caption}
-            </p>
-          ) : null}
-          <div className="flex flex-row">
-            <div className="w-full">
-              <DataTable columns={columns} data={times} />
+            {caption ? (
+              <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
+                {caption}
+              </p>
+            ) : null}
+            <div className="flex flex-row">
+              <div className="w-full">
+                <DataTable columns={columns} data={avail_small} />
+              </div>
             </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
+                  View all Time Slots
+                </CardDescription>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>{name}'s availability</DialogTitle>
+                </DialogHeader>
+                <div className="w-full">
+                  <DataTable columns={columns} data={avail} />
+                </div>
+
+              </DialogContent>
+            </Dialog>
+
           </div>
-          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-            View all Time Slots
-          </CardDescription>
-        </div>
-        <div className="flex-2 flex flex-col gap-y-6 mx-16">
-          {imgsrc ? (<Image width={100} height={100} src={imgsrc} alt="image" className="object-cover mx-auto self-center w-full h-[120px]"></Image>) :
-            (<div className="mb-8"></div> // Reserve image height when missing
+          <div className="flex-2 flex flex-col gap-y-6 mx-16">
+            {imgsrc ? (
+              <button
+                onClick={() => setFullscreenImage(imgsrc)}
+                className="bg-transparent border-0 p-0 cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <Image
+                  width={100}
+                  height={100}
+                  src={imgsrc}
+                  alt="image"
+                  className="object-cover mx-auto self-center w-full h-[120px]"
+                />
+              </button>
+            ) : (
+              <div className="mb-8"></div> // Reserve image height when missing
             )}
-          <Button variant="secondary1" size="default" className="rounded-sm hover:cursor-pointer">{is_request ? "Donate Swipe" : "Request Swipe"}</Button>
-          <Button 
-            variant="outline" 
-            className="rounded-sm text-slate-300 hover:cursor-pointer"
-            onClick={handleMessageClick}
-          >
-            <MessagesSquare size={30} />Message {name}
-          </Button>
+            <Button
+              variant="secondary1"
+              size="default"
+              className="rounded-sm hover:cursor-pointer"
+            >
+              {is_request ? "Donate Swipe" : "Request Swipe"}
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-sm text-slate-300 hover:cursor-pointer"
+              onClick={handleMessageClick}
+            >
+              <MessagesSquare size={30} />
+              Message {name}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Fullscreen image overlay */}
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-black/60"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <Image
+            src={fullscreenImage}
+            alt="Fullscreen view"
+            width={1000}
+            height={1000}
+            className="max-w-[90vw] max-h-[90vh] object-contain rounded-2xl"
+          />
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </>
   );
 }
 
