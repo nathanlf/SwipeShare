@@ -1,6 +1,6 @@
 import { columns, Timeslot } from "@/pages";
 import { Profile } from "@/utils/supabase/models/profile";
-import { CalendarDays, MapPin, MessagesSquare } from "lucide-react";
+import { CalendarDays, MapPin, MessagesSquare, Trash2, X } from "lucide-react";
 import { z } from "zod";
 import {
   Card,
@@ -17,6 +17,10 @@ import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import Image from "next/image";
 import router from "next/router";
+import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
+import { toast } from "sonner";
+
 
 type props = {
   authorProfile: z.infer<typeof Profile>;
@@ -26,6 +30,8 @@ type props = {
   is_request: boolean;
   imgsrc?: string;
   caption?: string;
+  showx: boolean;
+  handledelete?: () => Promise<void>;
   handleMessageClick: () => void; // Changed to a function with no parameters that returns void
 };
 export function PostCard({
@@ -37,9 +43,13 @@ export function PostCard({
   imgsrc,
   caption,
   handleMessageClick,
+  handledelete,
+  showx
 }: props) {
   const handle = authorProfile?.handle || "unknown";
   const name = authorProfile?.name || "unknown";
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
 
   const isFlexible = authorProfile?.is_flexible || false;
 
@@ -53,11 +63,48 @@ export function PostCard({
   });
 
   return (
-    <Card className="rounded-sm px-4 gap-3">
+    <Card className="rounded-sm px-4 gap-3 relative group">
       <CardHeader>
         <CardTitle className="text-xl font-sans font-bold w-full text-center">
           {is_request ? "Swipe Requested" : "Swipe Available"}
         </CardTitle>
+        {showx ?
+
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon" className="absolute top-2 right-2  bg-red-100 hover:bg-red-300 !hover:shadow-lg   opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs p-0"
+                onClick={() => { setIsOpen(true) }}>
+                <Trash2 className="text-red-600 " />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+
+              <div className="text-center">
+                Are you sure you want to delete this post?
+
+              </div>
+              <div className="flex flex-row space-x-4 text-center mx-auto">
+                <DialogFooter>
+                  <Button type="submit" variant="destructive" onClick={
+                    async () => {
+                      if (handledelete) {
+                        await handledelete();   // call directly — already bound
+                        setIsOpen(false);       // close modal
+                        console.log("hello")
+                        toast("Post deleted.")
+                      }
+                    }} >Delete</Button>
+                </DialogFooter>
+                <DialogFooter>
+                  <Button variant="secondary" onClick={() => { setIsOpen(false) }}>Cancel</Button>
+                </DialogFooter>
+              </div>
+
+            </DialogContent>
+          </Dialog>
+
+          : null}
+
       </CardHeader>
       <CardContent className="flex flex-row gap-x-6">
         <div className="space-y-4 flex-3z">

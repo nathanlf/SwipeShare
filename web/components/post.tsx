@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { MapPin, ImageIcon, Plus, Loader2 } from "lucide-react";
+import { MapPin, ImageIcon, Plus, Loader2, Calendar } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { createRequest } from "@/utils/supabase/queries/request";
@@ -19,6 +19,7 @@ import { createSupabaseComponentClient } from "@/utils/supabase/clients/componen
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
+import Link from "next/link";
 
 interface CreatePostProps {
   user: User;
@@ -177,6 +178,25 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                   Request a Swipe
                 </Button>
               </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-b border-gray-200 py-3 px-1">
+              <div className="flex items-center gap-2">
+                <Calendar size={20} className="text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  Schedule your availability
+                </span>
+              </div>
+              <Link href={`/availability/${user.id}`} passHref>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="text-primary1 border-primary1 hover:bg-primary1/10"
+                  size="sm"
+                >
+                  Edit Availability
+                </Button>
+              </Link>
             </div>
 
             <div>
