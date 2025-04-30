@@ -59,7 +59,7 @@ export function AppSidebar() {
     },
     {
       title: "Transactions",
-      url: "/user-posts",
+      url: "/transactions",
       icon: Clock,
     },
     {

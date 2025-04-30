@@ -16,6 +16,7 @@ import { GetServerSidePropsContext } from "next";
 import { createSupabaseServerClient } from "@/utils/supabase/server-props";
 import { getProfile } from "@/utils/supabase/queries/profile";
 import Image from "next/image";
+import router from "next/router";
 
 type props = {
   authorProfile: z.infer<typeof Profile>;
@@ -54,7 +55,7 @@ export function PostCard({
   return (
     <Card className="rounded-sm px-4 gap-3">
       <CardHeader>
-        <CardTitle className="text-xl font-sans font-bold">
+        <CardTitle className="text-xl font-sans font-bold w-full text-center">
           {is_request ? "Swipe Requested" : "Swipe Available"}
         </CardTitle>
       </CardHeader>
@@ -88,8 +89,14 @@ export function PostCard({
               <DataTable columns={columns} data={times} />
             </div>
           </div>
-          <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-            View all Time Slots
+          <CardDescription className="flex w-full justify-center">
+            <Button
+              variant="ghost"
+              onClick={() => router.push(`/availability/${authorProfile.id}`)}
+              className="text-accent2 underline transition-colors hover:text-accent justify-center items-center cursor-pointer h-5"
+            >
+              View all Time Slots
+            </Button>
           </CardDescription>
         </div>
         <div className="flex-2 flex flex-col gap-y-6 mx-16">

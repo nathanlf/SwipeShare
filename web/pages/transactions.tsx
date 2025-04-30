@@ -20,6 +20,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 type UserPostsPageProps = {
   initialProfile: z.infer<typeof Profile>;
@@ -105,24 +112,52 @@ export default function UserPostsPage({
                   <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                     <div className="gap-10 grid grid-cols-1">
                       {currentDonations.map((donation) => (
-                        <div
-                          key={donation.id}
-                          onClick={() => deleteDonationPost(donation.id)}
-                          className="cursor-pointer rounded-lg overflow-hidden shadow-[0_0_10px_2px_rgba(239,68,68,0.6)] hover:shadow-[0_0_15px_4px_rgba(239,68,68,0.8)] transition"
-                        >
-                          <PostCard
-                            authorProfile={initialProfile}
-                            time_since_post={formatTimeSince(
-                              donation.created_at
-                            )}
-                            dining_halls={["Chase", "Lenoir"]}
-                            times={initialProfile.availability!}
-                            is_request={false}
-                            caption={donation.content}
-                            imgsrc={donation.attachment_url || undefined}
-                            handleMessageClick={() => {}}
-                          />
-                        </div>
+                        <Dialog key={donation.id}>
+                          <DialogTrigger>
+                            <div
+                              key={donation.id}
+                              className="cursor-pointer rounded-lg overflow-hidden shadow-[0_0_10px_2px_rgba(239,68,68,0.6)] hover:shadow-[0_0_15px_4px_rgba(239,68,68,0.8)] transition"
+                            >
+                              <PostCard
+                                authorProfile={initialProfile}
+                                time_since_post={formatTimeSince(
+                                  donation.created_at
+                                )}
+                                dining_halls={["Chase", "Lenoir"]}
+                                times={initialProfile.availability!.slice(0, 3)}
+                                is_request={false}
+                                caption={donation.content}
+                                imgsrc={donation.attachment_url || undefined}
+                                handleMessageClick={() => {}}
+                              />
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="w-3/5 bg-white border-accent1">
+                            <Label className="text-xl font-bold text-accent1">
+                              Are you Sure?
+                            </Label>
+                            <Label className="text-zinc-400 text-sm mb-8">
+                              This change cannot be undone.
+                            </Label>
+
+                            <p className="font-semibold text-center text-black mb-3">
+                              Would you like to proceed with deleting this post?
+                            </p>
+                            <div className="flex flex-row w-full justify-center gap-10">
+                              <DialogClose>
+                                <Button className="cursor-pointer bg-background">
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+                              <Button
+                                onClick={() => deleteDonationPost(donation.id)}
+                                className="cursor-pointer bg-accent1"
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       ))}
                     </div>
                   </div>
@@ -133,26 +168,54 @@ export default function UserPostsPage({
                   className="h-full flex flex-col overflow-hidden"
                 >
                   <div className="flex-1 overflow-y-auto mx-auto p-5">
-                    <div className="gap-5 grid grid-cols-1">
+                    <div className="gap-10 grid grid-cols-1">
                       {currentRequests.map((request) => (
-                        <div
-                          key={request.id}
-                          onClick={() => deleteDonationPost(request.id)}
-                          className="cursor-pointer rounded-lg overflow-hidden shadow-[0_0_10px_2px_rgba(239,68,68,0.6)] hover:shadow-[0_0_15px_4px_rgba(239,68,68,0.8)] transition"
-                        >
-                          <PostCard
-                            authorProfile={initialProfile}
-                            time_since_post={formatTimeSince(
-                              request.created_at
-                            )}
-                            dining_halls={["Chase", "Lenoir"]}
-                            times={initialProfile.availability!}
-                            is_request={false}
-                            caption={request.content}
-                            imgsrc={request.attachment_url || undefined}
-                            handleMessageClick={() => {}}
-                          />
-                        </div>
+                        <Dialog key={request.id}>
+                          <DialogTrigger>
+                            <div
+                              key={request.id}
+                              className="cursor-pointer rounded-lg overflow-hidden shadow-[0_0_10px_2px_rgba(239,68,68,0.6)] hover:shadow-[0_0_15px_4px_rgba(239,68,68,0.8)] transition"
+                            >
+                              <PostCard
+                                authorProfile={initialProfile}
+                                time_since_post={formatTimeSince(
+                                  request.created_at
+                                )}
+                                dining_halls={["Chase", "Lenoir"]}
+                                times={initialProfile.availability!.slice(0, 3)}
+                                is_request={true}
+                                caption={request.content}
+                                imgsrc={request.attachment_url || undefined}
+                                handleMessageClick={() => {}}
+                              />
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="w-3/5 bg-white border-accent1">
+                            <Label className="text-xl font-bold text-accent1">
+                              Are you Sure?
+                            </Label>
+                            <Label className="text-zinc-400 text-sm mb-8">
+                              This change cannot be undone.
+                            </Label>
+
+                            <p className="font-semibold text-center text-black mb-3">
+                              Would you like to proceed with deleting this post?
+                            </p>
+                            <div className="flex flex-row w-full justify-center gap-10">
+                              <DialogClose>
+                                <Button className="cursor-pointer bg-background">
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+                              <Button
+                                onClick={() => deleteDonationPost(request.id)}
+                                className="cursor-pointer bg-accent1"
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       ))}
                     </div>
                   </div>
@@ -221,7 +284,7 @@ export default function UserPostsPage({
                         authorProfile={initialProfile}
                         time_since_post={formatTimeSince(donation.created_at)}
                         dining_halls={["Chase", "Lenoir"]}
-                        times={initialProfile.availability!}
+                        times={initialProfile.availability!.slice(0, 3)}
                         is_request={false}
                         caption={donation.content}
                         imgsrc={donation.attachment_url || undefined}
@@ -237,15 +300,15 @@ export default function UserPostsPage({
                 className="h-full flex flex-col overflow-hidden"
               >
                 <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
-                  <div className="gap-5 grid grid-cols-1">
+                  <div className="gap-10 grid grid-cols-1">
                     {currentRequests.map((request) => (
                       <PostCard
                         key={request.id}
                         authorProfile={initialProfile}
                         time_since_post={formatTimeSince(request.created_at)}
                         dining_halls={["Chase", "Lenoir"]}
-                        times={initialProfile.availability!}
-                        is_request={false}
+                        times={initialProfile.availability!.slice(0, 3)}
+                        is_request={true}
                         caption={request.content}
                         imgsrc={request.attachment_url || undefined}
                         handleMessageClick={() => {}}
