@@ -170,18 +170,7 @@ export default function UserPostsPage({
         </div>
 
         <div className="p-6 mt-auto w-full flex justify-center">
-          <Button
-            onClick={() => {
-              setDeleting(!deleting);
-            }}
-            className={
-              deleting
-                ? "cursor-pointer size-12 bg-red-800 hover:bg-primary"
-                : "cursor-pointer size-12 bg-primary hover:bg-red-800"
-            }
-          >
-            <Trash2 size={12} />
-          </Button>
+
         </div>
       </div>
     </div>
