@@ -363,7 +363,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
       let includes_dininghalls = false;
       if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
       for (const hall of selectedDiningHalls) {
-        if (dininghalls.includes(hall.toLowerCase())) {
+        if (dininghalls.includes(hall)) {
           includes_dininghalls = true;
           break;
         }
