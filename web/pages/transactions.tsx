@@ -54,6 +54,31 @@ export default function UserPostsPage({
     await (isDonation ? deleteDonation : deleteRequest)(supabase, post_id);
     await refetch();
   };
+  const [interestedProfilesMap, setInterestedProfilesMap] = useState<Record<string, z.infer<typeof Profile>>>({});
+
+  useEffect(() => {
+    const fetchInterestedProfiles = async () => {
+      const allUserIds = currentDonations.flatMap(d => d.interested_users || []);
+      const uniqueIds = [...new Set(allUserIds)];
+
+      const newProfiles: Record<string, z.infer<typeof Profile>> = {};
+
+      for (const id of uniqueIds) {
+        if (!interestedProfilesMap[id]) {
+          try {
+            const prof = await getProfile(supabase, id);
+            newProfiles[id] = prof;
+          } catch (err) {
+            console.error("Error fetching profile for interested user:", id, err);
+          }
+        }
+      }
+
+      setInterestedProfilesMap(prev => ({ ...prev, ...newProfiles }));
+    };
+
+    fetchInterestedProfiles();
+  }, [currentDonations]);
 
   const queryType = isDonation ? currentDonations : currentRequests;
   const queryTypeKey = isDonation ? "donations" : "requests";
@@ -132,8 +157,9 @@ export default function UserPostsPage({
                                 is_request={false}
                                 caption={donation.content}
                                 imgsrc={donation.attachment_url || undefined}
-                                handleMessageClick={() => {}}
+                                handleMessageClick={() => { }}
                               />
+
                             </div>
                           </DialogTrigger>
                           <DialogContent className="w-3/5 bg-white border-accent1">
@@ -197,7 +223,7 @@ export default function UserPostsPage({
                                 is_request={true}
                                 caption={request.content}
                                 imgsrc={request.attachment_url || undefined}
-                                handleMessageClick={() => {}}
+                                handleMessageClick={() => { }}
                               />
                             </div>
                           </DialogTrigger>
@@ -294,19 +320,46 @@ export default function UserPostsPage({
                         You do not have any currently posted swipe donations.
                       </p>
                     )}
-                    {currentDonations.map((donation) => (
-                      <PostCard
-                        key={donation.id}
-                        authorProfile={initialProfile}
-                        time_since_post={formatTimeSince(donation.created_at)}
-                        dining_halls={["Chase", "Lenoir"]}
-                        times={initialProfile.availability!.slice(0, 3)}
-                        is_request={false}
-                        caption={donation.content}
-                        imgsrc={donation.attachment_url || undefined}
-                        handleMessageClick={() => {}}
-                      />
-                    ))}
+                    {currentDonations.map((donation) => {
+                      const interestedusers: string[] = donation.interested_users || [];
+                      const usernames = interestedusers.map((uid) => {
+                        const profile = interestedProfilesMap[uid];
+                        return profile ? profile.name : "Loading...";
+                      });
+                      return (
+                        <div key={donation.id} className="flex flex-row gap-x-2 justify-between">
+                          <div className="w-full">
+                            <PostCard
+                              authorProfile={initialProfile}
+                              time_since_post={formatTimeSince(donation.created_at)}
+                              dining_halls={["Chase", "Lenoir"]}
+                              times={initialProfile.availability!.slice(0, 3)}
+                              is_request={false}
+                              caption={donation.content}
+                              imgsrc={donation.attachment_url || undefined}
+                              handleMessageClick={() => { }}
+                            />
+                          </div>
+
+                          <div className="bg-card rounded-md w-1/4 flex flex-col gap-y-2 p-4 mx-auto text-center">
+                            <p className="text-accent1 font-semibold">Interested Users:</p>
+                            {usernames.length === 0 ? (
+                              <p className="text-muted-foreground text-sm">No interested users</p>
+                            ) : (
+                              usernames.map((name, idx) => (
+                                <p key={idx} className="text-muted-foreground text-sm">
+                                  {name}
+                                </p>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+
+
+
                   </div>
                 </div>
               </TabsContent>
@@ -332,7 +385,7 @@ export default function UserPostsPage({
                         is_request={true}
                         caption={request.content}
                         imgsrc={request.attachment_url || undefined}
-                        handleMessageClick={() => {}}
+                        handleMessageClick={() => { }}
                       />
                     ))}
                   </div>
