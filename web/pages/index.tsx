@@ -767,7 +767,7 @@ export function PostCard({
   is_request,
   imgsrc,
   caption,
-  handleMessageClick,
+  handleMessageClick
 }: PostCardProps) {
   // State for fullscreen image
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
