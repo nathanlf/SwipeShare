@@ -429,13 +429,14 @@ export default function HomePage({ user, profile }: HomePageProps) {
                 ) : (
                   donations.map((donation) => {
                     const authorProfile = authorProfiles[donation.author_id];
+                    const halls = Array.isArray(donation.dining_halls) ? donation.dining_halls : [];
                     return (
                       <PostCard
                         key={donation.id}
                         authorProfile={authorProfile}
                         time_since_post={formatTimeSince(donation.created_at)}
-                        dining_halls={["Chase", "Lenoir"]} // todo: add this to post model
-                        times={timeslots} // todo: add this to post model?
+                        dining_halls={halls}
+                        times={timeslots}
                         is_request={false}
                         caption={donation.content}
                         imgsrc={donation.attachment_url || undefined}
@@ -448,8 +449,6 @@ export default function HomePage({ user, profile }: HomePageProps) {
                 {isLoadingMoreDonations && (
                   <p className="text-center py-4">Loading more donations...</p>
                 )}
-                <PostCard username="test123" time_since_post="0m" dining_halls={["Chase"]} times={timeslots} is_request={false} isflexible={true} />
-
               </div>
             </div>
           </ScrollArea>
@@ -467,13 +466,14 @@ export default function HomePage({ user, profile }: HomePageProps) {
               ) : (
                 requests.map((request) => {
                   const authorProfile = authorProfiles[request.author_id];
+                  const halls = Array.isArray(request.dining_halls) ? request.dining_halls : [];
                   return (
                     <PostCard
                       key={request.id}
                       authorProfile={authorProfile}
                       time_since_post={formatTimeSince(request.created_at)}
-                      dining_halls={["Chase", "Lenoir"]} // todo: add this to post model
-                      times={timeslots} // todo: add this to post model
+                      dining_halls={halls}
+                      times={timeslots}
                       is_request={true}
                       caption={request.content}
                       imgsrc={request.attachment_url || undefined}
@@ -523,7 +523,9 @@ function PostCard({
 
   const isFlexible = authorProfile?.is_flexible || false
 
-  const listitems = dining_halls.map((hall) => {
+  const halls = Array.isArray(dining_halls) ? dining_halls : [];
+
+  const listitems = halls.map((hall) => {
     return (
       <div className="flex flex-row gap-0.5" key={hall}>
         <MapPin size={15} />
