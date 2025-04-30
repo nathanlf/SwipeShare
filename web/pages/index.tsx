@@ -43,6 +43,7 @@ import { Separator } from "@/components/ui/separator";
 import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 import { useRouter } from "next/router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export type Timeslot = {
   starttime: string;
@@ -249,6 +250,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const [filterPopoverOpen, setFilterPopoverOpen] = useState<boolean>(false);
   const [selectedDiningHalls, setSelectedDiningHalls] = useState<string[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
 
   const modifySelectedTimes = (name: string, value: string | boolean) => {
     if (value == true) {
@@ -261,6 +263,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const handleSearch = () => {
     // Your search functionality here
     console.log("Searching with filters:", { selectedDiningHalls, selectedTimes });
+    setFiltersApplied(!(filtersApplied));
     setFilterPopoverOpen(false); // Close popover when search is clicked
   };
 
@@ -285,7 +288,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   const filteredDonations = useMemo(() => {
-    if (!searchTerm.trim()) return donations;
+    //  if (!searchTerm.trim()) { console.log("hello"); }
+    //if (!searchTerm.trim()) return donations;
 
     return donations.filter(donation => {
       const authorProfile = authorProfiles[donation.author_id];
@@ -293,15 +297,28 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const authorHandle = authorProfile?.handle?.toLowerCase() || "";
       const content = donation.content?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
+      const dininghalls = donation.dining_halls || "";
 
-      return authorName.includes(search) ||
+      let includes_dininghalls = false;
+      if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
+      for (const hall of selectedDiningHalls) {
+        if (dininghalls.includes(hall.toLowerCase())) {
+          includes_dininghalls = true;
+          break;
+        }
+      }
+
+      console.log(includes_dininghalls);
+      return ((authorName.includes(search) ||
         authorHandle.includes(search) ||
-        content.includes(search);
+        content.includes(search)) &&
+        includes_dininghalls
+      );
     });
-  }, [donations, authorProfiles, searchTerm]);
+  }, [donations, authorProfiles, searchTerm, filtersApplied]);
 
   const filteredRequests = useMemo(() => {
-    if (!searchTerm.trim()) return requests;
+    // if (!searchTerm.trim()) return requests;
 
     return requests.filter(request => {
       const authorProfile = authorProfiles[request.author_id];
@@ -309,12 +326,24 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const authorHandle = authorProfile?.handle?.toLowerCase() || "";
       const content = request.content?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
+      const dininghalls = request.dining_halls || "";
 
-      return authorName.includes(search) ||
+      let includes_dininghalls = false;
+      if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
+      for (const hall of selectedDiningHalls) {
+        if (dininghalls.includes(hall.toLowerCase())) {
+          includes_dininghalls = true;
+          break;
+        }
+      }
+
+      return ((authorName.includes(search) ||
         authorHandle.includes(search) ||
-        content.includes(search);
+        content.includes(search)) &&
+        includes_dininghalls
+      );
     });
-  }, [requests, authorProfiles, searchTerm]);
+  }, [requests, authorProfiles, searchTerm, filtersApplied]);
 
   // Checkbox item component for consistency
   const CheckboxItem = ({ id, label, checked, onCheckedChange }: {
@@ -623,7 +652,8 @@ function PostCard({
   const handle = authorProfile?.handle || "unknown";
   const name = authorProfile?.name || "unknown";
   const isFlexible = authorProfile?.is_flexible || false;
-
+  const avail: Timeslot[] = authorProfile?.availability || [];
+  const avail_small = avail.slice(0, 3);
   // Add escape key handler for closing fullscreen image
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -677,12 +707,26 @@ function PostCard({
             ) : null}
             <div className="flex flex-row">
               <div className="w-full">
-                <DataTable columns={columns} data={times} />
+                <DataTable columns={columns} data={avail_small} />
               </div>
             </div>
-            <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-              View all Time Slots
-            </CardDescription>
+            <Dialog>
+              <DialogTrigger asChild>
+                <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
+                  View all Time Slots
+                </CardDescription>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>{name}'s availability</DialogTitle>
+                </DialogHeader>
+                <div className="w-full">
+                  <DataTable columns={columns} data={avail} />
+                </div>
+
+              </DialogContent>
+            </Dialog>
+
           </div>
           <div className="flex-2 flex flex-col gap-y-6 mx-16">
             {imgsrc ? (
