@@ -15,7 +15,6 @@ import {
   MapPin,
   MessagesSquare,
   Funnel,
-  X,
 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -772,7 +771,6 @@ export function PostCard({
 }: PostCardProps) {
   // State for fullscreen image
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handle = authorProfile?.handle || "unknown";
   const name = authorProfile?.name || "unknown";
