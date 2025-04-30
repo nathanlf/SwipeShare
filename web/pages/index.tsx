@@ -15,6 +15,7 @@ import {
   MapPin,
   MessagesSquare,
   Funnel,
+  X,
 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -43,6 +44,7 @@ import { Separator } from "@/components/ui/separator";
 import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 import { useRouter } from "next/router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 
 export type Timeslot = {
   starttime: string;
@@ -530,6 +532,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                         is_request={false}
                         caption={donation.content}
                         imgsrc={donation.attachment_url || undefined}
+                        showx={false}
                         handleMessageClick={() =>
                           handleMessageClick(donation.author_id)
                         }
@@ -574,6 +577,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       is_request={true}
                       caption={request.content}
                       imgsrc={request.attachment_url || undefined}
+                      showx={false}
                       handleMessageClick={() =>
                         handleMessageClick(request.author_id)
                       }
@@ -604,6 +608,7 @@ interface PostCardProps {
   is_request: boolean;
   imgsrc?: string;
   caption?: string;
+  showx: boolean;
   handleMessageClick: () => void;
 }
 
@@ -616,9 +621,11 @@ export function PostCard({
   imgsrc,
   caption,
   handleMessageClick,
+  showx
 }: PostCardProps) {
   // State for fullscreen image
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handle = authorProfile?.handle || "unknown";
   const name = authorProfile?.name || "unknown";
@@ -649,6 +656,33 @@ export function PostCard({
           <CardTitle className="text-xl font-sans font-bold">
             {is_request ? "Swipe Requested" : "Swipe Available"}
           </CardTitle>
+          {showx ?
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="absolute top-2 right-2  text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs p-0"
+                  onClick={() => { setIsOpen(true) }}>
+                  <X />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+
+                <div className="text-center">
+                  Are you sure you want to delete this note?
+
+                </div>
+                <div className="flex flex-row space-x-4 text-center mx-auto">
+                  <DialogFooter>
+                    <Button type="submit" variant="destructive" >Delete</Button>
+                  </DialogFooter>
+                  <DialogFooter>
+                    <Button variant="secondary" onClick={() => { setIsOpen(false) }}>Cancel</Button>
+                  </DialogFooter>
+                </div>
+
+              </DialogContent>
+            </Dialog>
+
+            : null}
         </CardHeader>
         <CardContent className="flex flex-row gap-x-6">
           <div className="space-y-4 flex-3z">
