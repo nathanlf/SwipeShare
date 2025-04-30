@@ -8,14 +8,31 @@ export const createDonation = async (
   supabase: SupabaseClient,
   content: string,
   author_id: string,
-  attachment_url?: string | null,
+  attachment_url?: string | null
 ): Promise<PostType> => {
+  // Parse content to extract dining halls
+  let textContent = content;
+  let diningHalls: string[] = [];
+
+  try {
+    const parsedContent = JSON.parse(content);
+    if (parsedContent.text !== undefined) {
+      textContent = parsedContent.text;
+    }
+    if (parsedContent.diningHalls && Array.isArray(parsedContent.diningHalls)) {
+      diningHalls = parsedContent.diningHalls;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
   const newDonation = {
     id: uuidv4(),
-    content,
+    content: textContent,
     author_id,
     attachment_url: attachment_url || null,
     created_at: new Date().toISOString(),
+    dining_halls: diningHalls,
   };
 
   const { data, error } = await supabase
@@ -35,7 +52,7 @@ export const createDonation = async (
 // Get a donation by ID
 export const getDonationById = async (
   supabase: SupabaseClient,
-  donationId: string,
+  donationId: string
 ): Promise<PostType> => {
   const { data, error } = await supabase
     .from("donation")
@@ -48,6 +65,11 @@ export const getDonationById = async (
     throw new Error(error.message);
   }
 
+  // Ensure dining_halls is an array
+  if (!data.dining_halls) {
+    data.dining_halls = [];
+  }
+
   return Post.parse(data);
 };
 
@@ -55,7 +77,7 @@ export const getDonationById = async (
 export const getAllDonations = async (
   supabase: SupabaseClient,
   limit: number = 50,
-  offset: number = 0,
+  offset: number = 0
 ): Promise<PostType[]> => {
   const { data, error } = await supabase
     .from("donation")
@@ -68,7 +90,32 @@ export const getAllDonations = async (
     throw new Error(error.message);
   }
 
-  return z.array(Post).parse(data);
+  // Ensure each donation has dining_halls as an array
+  const processedData = data.map((donation) => {
+    if (!donation.dining_halls) {
+      donation.dining_halls = [];
+    }
+
+    // For backwards compatibility with any existing items
+    // that might have dining halls info in JSON content
+    if (donation.dining_halls.length === 0) {
+      try {
+        const parsedContent = JSON.parse(donation.content);
+        if (
+          parsedContent.diningHalls &&
+          Array.isArray(parsedContent.diningHalls)
+        ) {
+          donation.dining_halls = parsedContent.diningHalls;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    return donation;
+  });
+
+  return z.array(Post).parse(processedData);
 };
 
 // Get donations by author
@@ -76,7 +123,7 @@ export const getDonationsByAuthor = async (
   supabase: SupabaseClient,
   authorId: string,
   limit: number = 50,
-  offset: number = 0,
+  offset: number = 0
 ): Promise<PostType[]> => {
   const { data, error } = await supabase
     .from("donation")
@@ -90,14 +137,38 @@ export const getDonationsByAuthor = async (
     throw new Error(error.message);
   }
 
-  return z.array(Post).parse(data);
+  // Ensure each donation has dining_halls as an array
+  const processedData = data.map((donation) => {
+    if (!donation.dining_halls) {
+      donation.dining_halls = [];
+    }
+
+    // For backwards compatibility
+    if (donation.dining_halls.length === 0) {
+      try {
+        const parsedContent = JSON.parse(donation.content);
+        if (
+          parsedContent.diningHalls &&
+          Array.isArray(parsedContent.diningHalls)
+        ) {
+          donation.dining_halls = parsedContent.diningHalls;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    return donation;
+  });
+
+  return z.array(Post).parse(processedData);
 };
 
 // Update a donation
 export const updateDonation = async (
   supabase: SupabaseClient,
   donationId: string,
-  updates: Partial<Omit<PostType, "id" | "created_at" | "author_id">>,
+  updates: Partial<Omit<PostType, "id" | "created_at" | "author_id">>
 ): Promise<PostType> => {
   const { data, error } = await supabase
     .from("donation")
@@ -111,13 +182,18 @@ export const updateDonation = async (
     throw new Error(error.message);
   }
 
+  // Ensure dining_halls is an array
+  if (!data.dining_halls) {
+    data.dining_halls = [];
+  }
+
   return Post.parse(data);
 };
 
 // Delete a donation
 export const deleteDonation = async (
   supabase: SupabaseClient,
-  donationId: string,
+  donationId: string
 ): Promise<boolean> => {
   const { error } = await supabase
     .from("donation")

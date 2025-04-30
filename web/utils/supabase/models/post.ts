@@ -6,6 +6,7 @@ export const Post = z.object({
   author_id: z.string().uuid(),
   created_at: z.string().nullable().optional(),
   attachment_url: z.string().nullable().optional(),
+  dining_halls: z.array(z.string()).default([]),
 });
 
 export type PostType = z.infer<typeof Post>;
