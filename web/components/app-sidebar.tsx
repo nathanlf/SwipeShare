@@ -92,7 +92,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild className="hover:bg-gray-100">
                     <Link
                       href={item.url}
-                      className="flex items-center gap-3 text-gray-700"
+                      className="flex items-center gap-3 text-gray-700 dark:text-primary1"
                     >
                       <item.icon size={18} />
                       <span>{item.title}</span>

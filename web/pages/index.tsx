@@ -505,7 +505,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   return (
-    <div className="flex flex-col mt-5 w-full gap-y-10">
+    <div className="flex flex-col mt-5 w-full gap-y-10 ">
       {/* this div below is the both the search bar and the filter button */}
       <div className="flex flex-row gap-x-2 pl-14 pr-5 justify-center items-center w-full">
         {/* this div below is the input at the top*/}
@@ -655,7 +655,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
         className="w-4/6 mx-auto mt-[-20px]"
         onValueChange={setActiveTab}
       >
-        <TabsList className="flex w-full mb-2">
+        <TabsList className="flex w-full mb-2 ">
           <TabsTrigger value="donations" className="hover:cursor-pointer">
             Donations
           </TabsTrigger>
@@ -823,7 +823,7 @@ export function PostCard({
 
   return (
     <>
-      <Card className="rounded-sm px-4 gap-3 mb-8">
+      <Card className="rounded-sm px-4 gap-3 mb-8 ">
         <CardHeader>
           <CardTitle className="text-xl font-sans font-bold">
             {is_request ? "Swipe Requested" : "Swipe Available"}
@@ -861,7 +861,7 @@ export function PostCard({
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" className="p-0">
+                <Button variant="ghost" className="p-0 !hover:none">
                   <CardDescription className="text-accent2 underline transition-colors hover:text-accent1 ">
 
                     View all Time Slots
