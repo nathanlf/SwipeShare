@@ -671,12 +671,13 @@ export default function HomePage({ user, profile }: HomePageProps) {
                 ) : (
                   filteredDonations.map((donation) => {
                     const authorProfile = authorProfiles[donation.author_id];
+                    const halls = Array.isArray(donation.dining_halls) ? donation.dining_halls : [];
                     return (
                       <PostCard
                         key={donation.id}
                         authorProfile={authorProfile}
                         time_since_post={formatTimeSince(donation.created_at)}
-                        dining_halls={["Chase", "Lenoir"]}
+                        dining_halls={halls}
                         times={timeslots}
                         is_request={false}
                         caption={donation.content}
@@ -716,12 +717,13 @@ export default function HomePage({ user, profile }: HomePageProps) {
               ) : (
                 filteredRequests.map((request) => {
                   const authorProfile = authorProfiles[request.author_id];
+                  const halls = Array.isArray(request.dining_halls) ? request.dining_halls : [];
                   return (
                     <PostCard
                       key={request.id}
                       authorProfile={authorProfile}
                       time_since_post={formatTimeSince(request.created_at)}
-                      dining_halls={["Chase", "Lenoir"]}
+                      dining_halls={halls}
                       times={timeslots}
                       is_request={true}
                       caption={request.content}
@@ -790,7 +792,9 @@ export function PostCard({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const listitems = dining_halls.map((hall) => {
+  const halls = Array.isArray(dining_halls) ? dining_halls : [];
+
+  const listitems = halls.map((hall) => {
     return (
       <div className="flex flex-row gap-0.5" key={hall}>
         <MapPin size={15} />
