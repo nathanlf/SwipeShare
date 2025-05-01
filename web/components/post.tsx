@@ -229,7 +229,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
       <DialogTrigger asChild>
         <Button
           variant="default"
-          className="bg-accent2 hover:bg-accent1 text-white rounded-lg shadow-lg gap-x-1"
+          className="bg-accent2 hover:bg-accent1 text-white rounded-lg shadow-lg gap-x-1 dark:bg-accent2/90 dark:hover:bg-accent1/90"
           onClick={() => setIsDialogOpen(true)}
         >
           Create Post
@@ -237,18 +237,18 @@ export default function CreatePostButton({ user }: CreatePostProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-white/90 backdrop-blur-md max-w-lg sm:max-w-md lg:max-w-2xl">
+      <DialogContent className="bg-white/90 backdrop-blur-md max-w-lg sm:max-w-md lg:max-w-2xl dark:bg-[#18181b] dark:text-white">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Create a New Post</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="dark:text-white">Create a New Post</DialogTitle>
+            <DialogDescription className="dark:text-gray-300">
               Share a meal swipe donation or request
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
                 What would you like to post?
               </label>
               <div className="flex gap-3">
@@ -257,7 +257,9 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                   variant={postType === "donation" ? "default" : "outline"}
                   onClick={() => setPostType("donation")}
                   className={
-                    postType === "donation" ? "bg-primary1 text-white" : ""
+                    postType === "donation" 
+                      ? "bg-primary1 text-white dark:bg-primary1/90" 
+                      : "dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800"
                   }
                   disabled={isSubmitting}
                 >
@@ -268,7 +270,9 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                   variant={postType === "request" ? "default" : "outline"}
                   onClick={() => setPostType("request")}
                   className={
-                    postType === "request" ? "bg-primary1 text-white" : ""
+                    postType === "request" 
+                      ? "bg-primary1 text-white dark:bg-primary1/90" 
+                      : "dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800"
                   }
                   disabled={isSubmitting}
                 >
@@ -277,10 +281,10 @@ export default function CreatePostButton({ user }: CreatePostProps) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-b border-gray-200 py-3 px-1">
+            <div className="flex items-center justify-between border-t border-b border-gray-200 dark:border-gray-700 py-3 px-1">
               <div className="flex items-center gap-2">
-                <Calendar size={20} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">
+                <Calendar size={20} className="text-gray-600 dark:text-gray-400" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Schedule your availability
                 </span>
               </div>
@@ -288,7 +292,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="text-primary1 border-primary1 hover:bg-primary1/10"
+                  className="text-primary1 border-primary1 hover:bg-primary1/10 dark:border-primary1/70 dark:hover:bg-primary1/20"
                   size="sm"
                 >
                   Edit Availability
@@ -297,7 +301,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-1">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2 flex items-center gap-1">
                 <MapPin size={16} />
                 Select Dining Halls
               </label>
@@ -310,7 +314,9 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                     size="sm"
                     onClick={() => handleDiningHallToggle(hall)}
                     className={
-                      diningHalls.includes(hall) ? "bg-primary1 text-white" : ""
+                      diningHalls.includes(hall) 
+                        ? "bg-primary1 text-white dark:bg-primary1/90" 
+                        : "dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800"
                     }
                     disabled={isSubmitting}
                   >
@@ -323,7 +329,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
             <div>
               <label
                 htmlFor="description"
-                className="text-sm font-medium text-gray-700 block mb-2"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2"
               >
                 Description (Optional)
               </label>
@@ -331,7 +337,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full border border-gray-300 rounded-md text-slate-700 break-all"
+                className="w-full border border-gray-300 rounded-md text-slate-700 break-all dark:border-gray-600 dark:bg-[#201f20] dark:text-gray-200"
                 placeholder="Add more details about your post..."
                 rows={3}
                 disabled={isSubmitting}
@@ -339,13 +345,13 @@ export default function CreatePostButton({ user }: CreatePostProps) {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-1">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2 flex items-center gap-1">
                 <ImageIcon size={16} />
                 Add an Image (Optional)
               </label>
               <div className="relative">
-                <label className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
-                  <span className="text-gray-700 font-medium">Choose File</span>
+                <label className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 dark:bg-[#201f20] dark:border-gray-600 dark:hover:bg-gray-700">
+                  <span className="text-gray-700 font-medium dark:text-gray-300">Choose File</span>
                   <Input
                     type="file"
                     accept="image/*"
@@ -354,7 +360,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                     disabled={isSubmitting}
                   />
                 </label>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   {selectedFile
                     ? `Selected: ${selectedFile.name}`
                     : "No file chosen"}
@@ -365,13 +371,18 @@ export default function CreatePostButton({ user }: CreatePostProps) {
 
           <DialogFooter className="mt-6">
             <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isSubmitting}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                disabled={isSubmitting}
+                className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
                 Cancel
               </Button>
             </DialogClose>
             <Button
               type="submit"
-              className="bg-primary1 text-white"
+              className="bg-primary1 text-white dark:bg-primary1/90 dark:hover:bg-primary1/70"
               disabled={!postType || diningHalls.length === 0 || isSubmitting}
             >
               {isSubmitting ? (
