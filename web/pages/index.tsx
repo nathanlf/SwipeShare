@@ -10,12 +10,7 @@ import {
 import Image from "next/image";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  CalendarDays,
-  MapPin,
-  MessagesSquare,
-  Funnel,
-} from "lucide-react";
+import { CalendarDays, MapPin, MessagesSquare, Funnel } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { GetServerSidePropsContext } from "next";
@@ -29,8 +24,14 @@ import CreatePostButton from "@/components/post";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
-import { add_interested_user, getAllDonations } from "@/utils/supabase/queries/donation";
-import { getAllRequests, add_interested_user_request } from "@/utils/supabase/queries/request";
+import {
+  add_interested_user,
+  getAllDonations,
+} from "@/utils/supabase/queries/donation";
+import {
+  getAllRequests,
+  add_interested_user_request,
+} from "@/utils/supabase/queries/request";
 import { useState, useEffect, useRef, useMemo } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -42,8 +43,18 @@ import { Separator } from "@/components/ui/separator";
 
 import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 import { useRouter } from "next/router";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import Head from "next/head";
 
@@ -186,11 +197,11 @@ export default function HomePage({ user, profile }: HomePageProps) {
             activeTab === "donations" &&
             !isLoadingMoreDonations
           ) {
-            console.log("Loading more donations...");  // Add debug logging
+            console.log("Loading more donations..."); // Add debug logging
             fetchNextDonations();
           }
         },
-        { threshold: 0.1 }  // Lower threshold for better detection
+        { threshold: 0.1 } // Lower threshold for better detection
       );
 
       observer.observe(donationsEndRef.current);
@@ -253,8 +264,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
   const [selectedDiningHalls, setSelectedDiningHalls] = useState<string[]>([]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
-  const [availabilityMap, setAvailabilityMap] = useState<Record<string, Timeslot[]>>({});
-
+  const [availabilityMap, setAvailabilityMap] = useState<
+    Record<string, Timeslot[]>
+  >({});
 
   useEffect(() => {
     const loadAvailability = async () => {
@@ -272,10 +284,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
         }
       }
       setAvailabilityMap(newMap);
-    }
+    };
     loadAvailability();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [donations]);
-
 
   const modifySelectedTimes = (name: string, value: string | boolean) => {
     if (value == true) {
@@ -295,18 +307,21 @@ export default function HomePage({ user, profile }: HomePageProps) {
     const minute = match[2] ? parseInt(match[2], 10) : 0;
     const meridiem = match[3];
 
-    if (meridiem === 'p' && hour !== 12) hour += 12;
-    if (meridiem === 'a' && hour === 12) hour = 0;
+    if (meridiem === "p" && hour !== 12) hour += 12;
+    if (meridiem === "a" && hour === 12) hour = 0;
 
     return hour * 60 + minute;
-  }
+  };
 
   const handleSearch = () => {
     // Your search functionality here
-    console.log("Searching with filters:", { selectedDiningHalls, selectedTimes });
+    console.log("Searching with filters:", {
+      selectedDiningHalls,
+      selectedTimes,
+    });
 
     //console.log(availabilityMap);
-    setFiltersApplied(!(filtersApplied));
+    setFiltersApplied(!filtersApplied);
     setFilterPopoverOpen(false); // Close popover when search is clicked
   };
 
@@ -317,7 +332,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   // Count total selected filters
-  const totalFiltersSelected = selectedDiningHalls.length + selectedTimes.length;
+  const totalFiltersSelected =
+    selectedDiningHalls.length + selectedTimes.length;
 
   const handleMessageClick = async (authorId: string) => {
     try {
@@ -334,25 +350,25 @@ export default function HomePage({ user, profile }: HomePageProps) {
     const newlyadded = await add_interested_user(supabase, postId, profile.id);
     if (newlyadded == true) {
       toast("Meal Request Sent!");
-    }
-    else {
-      toast("You have already requested this meal.")
-    }
-
-  }
-  const handleDonateClick = async (postId: string) => {
-    const newlyadded = await add_interested_user_request(supabase, postId, profile.id);
-    if (newlyadded == true) {
-      toast("Donation Request Sent!");
-    }
-    else {
+    } else {
       toast("You have already requested this meal.");
     }
-  }
+  };
+  const handleDonateClick = async (postId: string) => {
+    const newlyadded = await add_interested_user_request(
+      supabase,
+      postId,
+      profile.id
+    );
+    if (newlyadded == true) {
+      toast("Donation Request Sent!");
+    } else {
+      toast("You have already requested this meal.");
+    }
+  };
 
   const filteredDonations = useMemo(() => {
-
-    return donations.filter(donation => {
+    return donations.filter((donation) => {
       const authorProfile = authorProfiles[donation.author_id];
       const authorName = authorProfile?.name?.toLowerCase() || "";
       const authorHandle = authorProfile?.handle?.toLowerCase() || "";
@@ -362,7 +378,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const availability = availabilityMap[donation.author_id] || [];
 
       let includes_dininghalls = false;
-      if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
+      if (selectedDiningHalls.length == 0) {
+        includes_dininghalls = true;
+      }
       for (const hall of selectedDiningHalls) {
         if (dininghalls.includes(hall)) {
           includes_dininghalls = true;
@@ -370,7 +388,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
         }
       }
       let matchestimes = false;
-      matchestimes = availability.some(slot => {
+      matchestimes = availability.some((slot) => {
         const slotstart = getMilitary(slot.starttime);
         const slotend = getMilitary(slot.endtime);
         if (selectedTimes.includes("breakfast")) {
@@ -384,7 +402,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
           }
         }
         if (selectedTimes.includes("lite-lunch")) {
-          if (slotstart <= 1020 && slotend > 900) { //checks if the slot starts within the time range. also have to check if it end sin the time range
+          if (slotstart <= 1020 && slotend > 900) {
+            //checks if the slot starts within the time range. also have to check if it end sin the time range
             return true;
           }
         }
@@ -399,26 +418,26 @@ export default function HomePage({ user, profile }: HomePageProps) {
           }
         }
         return false;
-
       });
-      if (selectedTimes.length == 0) { matchestimes = true; }
+      if (selectedTimes.length == 0) {
+        matchestimes = true;
+      }
 
-      return ((authorName.includes(search) ||
-        authorHandle.includes(search) ||
-        content.includes(search)) &&
-        includes_dininghalls
-        && matchestimes
+      return (
+        (authorName.includes(search) ||
+          authorHandle.includes(search) ||
+          content.includes(search)) &&
+        includes_dininghalls &&
+        matchestimes
       );
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [donations, authorProfiles, searchTerm, filtersApplied]);
-
-
-
 
   const filteredRequests = useMemo(() => {
     // if (!searchTerm.trim()) return requests;
 
-    return requests.filter(request => {
+    return requests.filter((request) => {
       const authorProfile = authorProfiles[request.author_id];
       const authorName = authorProfile?.name?.toLowerCase() || "";
       const authorHandle = authorProfile?.handle?.toLowerCase() || "";
@@ -427,9 +446,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
       const dininghalls = request.dining_halls || "";
       const availability = availabilityMap[request.author_id] || [];
 
-
       let includes_dininghalls = false;
-      if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
+      if (selectedDiningHalls.length == 0) {
+        includes_dininghalls = true;
+      }
       for (const hall of selectedDiningHalls) {
         if (dininghalls.includes(hall.toLowerCase())) {
           includes_dininghalls = true;
@@ -437,7 +457,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
         }
       }
       let matchestimes = false;
-      matchestimes = availability.some(slot => {
+      matchestimes = availability.some((slot) => {
         const slotstart = getMilitary(slot.starttime);
         const slotend = getMilitary(slot.endtime);
 
@@ -452,7 +472,8 @@ export default function HomePage({ user, profile }: HomePageProps) {
           }
         }
         if (selectedTimes.includes("lite-lunch")) {
-          if (slotstart <= 1020 && slotend > 900) { //checks if the slot starts within the time range. also have to check if it end sin the time range
+          if (slotstart <= 1020 && slotend > 900) {
+            //checks if the slot starts within the time range. also have to check if it end sin the time range
             return true;
           }
         }
@@ -467,25 +488,33 @@ export default function HomePage({ user, profile }: HomePageProps) {
           }
         }
         return false;
-
       });
-      if (selectedTimes.length == 0) { matchestimes = true; }
+      if (selectedTimes.length == 0) {
+        matchestimes = true;
+      }
 
-
-      return ((authorName.includes(search) ||
-        authorHandle.includes(search) ||
-        content.includes(search)) &&
-        includes_dininghalls && matchestimes
+      return (
+        (authorName.includes(search) ||
+          authorHandle.includes(search) ||
+          content.includes(search)) &&
+        includes_dininghalls &&
+        matchestimes
       );
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requests, authorProfiles, searchTerm, filtersApplied]);
 
   // Checkbox item component for consistency
-  const CheckboxItem = ({ id, label, checked, onCheckedChange }: {
-    id: string,
-    label: string,
-    checked: boolean,
-    onCheckedChange: (value: boolean) => void
+  const CheckboxItem = ({
+    id,
+    label,
+    checked,
+    onCheckedChange,
+  }: {
+    id: string;
+    label: string;
+    checked: boolean;
+    onCheckedChange: (value: boolean) => void;
   }) => {
     return (
       <div className="flex items-center space-x-2 rounded-md p-1.5 hover:bg-gray-50 dark:hover:bg-secondary1-muted">
@@ -509,7 +538,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
     <div className="flex flex-col mt-5 w-full gap-y-10">
       <Head>
         <title>SwipeShare | Find and Share Meal Swipes</title>
-        <meta name="description" content="Connect with others to share meal swipes on campus" />
+        <meta
+          name="description"
+          content="Connect with others to share meal swipes on campus"
+        />
       </Head>
       {/* this div below is the both the search bar and the filter button */}
       <div className="flex flex-row gap-x-2 pl-14 pr-5 justify-center items-center w-full">
@@ -531,7 +563,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
                 className="flex items-center dark:border-accent1  gap-2 bg-muted border-accent1  relative hover:bg-accent1/10 transition-colors"
               >
                 <Funnel className="h-4 w-4 text-black dark:text-accent1" />
-                <span className="text-sm font-medium sr-only md:not-sr-only text-black dark:text-foreground!">Filter</span>
+                <span className="text-sm font-medium sr-only md:not-sr-only text-black dark:text-foreground!">
+                  Filter
+                </span>
                 {totalFiltersSelected > 0 && (
                   <Badge className="h-5 w-5 p-0 flex items-center justify-center bg-accent1 text-white text-xs rounded-full absolute -top-2 -right-2">
                     {totalFiltersSelected}
@@ -591,7 +625,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       <Separator className="my-1" />
 
                       <div className="flex flex-col space-y-2">
-                        <Label htmlFor="timing" className="text-sm font-medium text-gray-700 dark:text-foreground!">
+                        <Label
+                          htmlFor="timing"
+                          className="text-sm font-medium text-gray-700 dark:text-foreground!"
+                        >
                           Meal Times
                         </Label>
                         <div className="grid grid-cols-1 gap-y-2">
@@ -599,31 +636,41 @@ export default function HomePage({ user, profile }: HomePageProps) {
                             id="breakfast"
                             label="Breakfast (7a-10:45a)"
                             checked={selectedTimes.includes("breakfast")}
-                            onCheckedChange={(value) => modifySelectedTimes("breakfast", value)}
+                            onCheckedChange={(value) =>
+                              modifySelectedTimes("breakfast", value)
+                            }
                           />
                           <CheckboxItem
                             id="lunch"
                             label="Lunch (11a-3p)"
                             checked={selectedTimes.includes("lunch")}
-                            onCheckedChange={(value) => modifySelectedTimes("lunch", value)}
+                            onCheckedChange={(value) =>
+                              modifySelectedTimes("lunch", value)
+                            }
                           />
                           <CheckboxItem
                             id="lite-lunch"
                             label="Lite Lunch (3p-5p)"
                             checked={selectedTimes.includes("lite-lunch")}
-                            onCheckedChange={(value) => modifySelectedTimes("lite-lunch", value)}
+                            onCheckedChange={(value) =>
+                              modifySelectedTimes("lite-lunch", value)
+                            }
                           />
                           <CheckboxItem
                             id="dinner"
                             label="Dinner (5p-8p)"
                             checked={selectedTimes.includes("dinner")}
-                            onCheckedChange={(value) => modifySelectedTimes("dinner", value)}
+                            onCheckedChange={(value) =>
+                              modifySelectedTimes("dinner", value)
+                            }
                           />
                           <CheckboxItem
                             id="late-night"
                             label="Late Dinner (8p-12a)"
                             checked={selectedTimes.includes("late-night")}
-                            onCheckedChange={(value) => modifySelectedTimes("late-night", value)}
+                            onCheckedChange={(value) =>
+                              modifySelectedTimes("late-night", value)
+                            }
                           />
                         </div>
                       </div>
@@ -681,14 +728,18 @@ export default function HomePage({ user, profile }: HomePageProps) {
                   </p>
                 ) : filteredDonations.length === 0 ? (
                   searchTerm.trim() ? (
-                    <p className="text-center py-4">No matching donations found</p>
+                    <p className="text-center py-4">
+                      No matching donations found
+                    </p>
                   ) : (
                     <p className="text-center py-4">No donations available</p>
                   )
                 ) : (
                   filteredDonations.map((donation) => {
                     const authorProfile = authorProfiles[donation.author_id];
-                    const halls = Array.isArray(donation.dining_halls) ? donation.dining_halls : [];
+                    const halls = Array.isArray(donation.dining_halls)
+                      ? donation.dining_halls
+                      : [];
                     return (
                       <PostCard
                         key={donation.id}
@@ -737,7 +788,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
               ) : (
                 filteredRequests.map((request) => {
                   const authorProfile = authorProfiles[request.author_id];
-                  const halls = Array.isArray(request.dining_halls) ? request.dining_halls : [];
+                  const halls = Array.isArray(request.dining_halls)
+                    ? request.dining_halls
+                    : [];
                   return (
                     <PostCard
                       key={request.id}
@@ -752,9 +805,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       handleMessageClick={() =>
                         handleMessageClick(request.author_id)
                       }
-                      handleRequestClick={() =>
-                        handleDonateClick(request.id)
-                      }
+                      handleRequestClick={() => handleDonateClick(request.id)}
                     />
                   );
                 })
@@ -775,7 +826,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
 }
 
 interface PostCardProps {
-  authorProfile: z.infer<typeof Profile>
+  authorProfile: z.infer<typeof Profile>;
   postid: string;
   time_since_post: string;
   dining_halls: string[];
@@ -795,7 +846,7 @@ export function PostCard({
   imgsrc,
   caption,
   handleMessageClick,
-  handleRequestClick
+  handleRequestClick,
 }: PostCardProps) {
   // State for fullscreen image
 
@@ -866,11 +917,12 @@ export function PostCard({
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" className="p-0 !hover:bg-transparent dark:hover:bg-transparent">
+                <Button
+                  variant="ghost"
+                  className="p-0 !hover:bg-transparent dark:hover:bg-transparent"
+                >
                   <CardDescription className="text-accent2 underline transition-colors hover:text-accent1 ">
-
                     View all Time Slots
-
                   </CardDescription>
                 </Button>
               </DialogTrigger>
@@ -881,10 +933,8 @@ export function PostCard({
                 <div className="w-full">
                   <DataTable columns={columns} data={avail} />
                 </div>
-
               </DialogContent>
             </Dialog>
-
           </div>
           <div className="flex-2 flex flex-col gap-y-6 mx-16 mt-[-30px]">
             {imgsrc ? (

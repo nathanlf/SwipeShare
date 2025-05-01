@@ -75,7 +75,7 @@ export default function UserPostsPage({
     };
 
     fetchInterestedProfiles();
-  }, [currentDonations]);
+  }, [currentDonations, supabase]);
 
   const queryType = isDonation ? currentDonations : currentRequests;
   const queryTypeKey = isDonation ? "donations" : "requests";
@@ -193,7 +193,7 @@ export default function UserPostsPage({
                         is_request={true}
                         caption={request.content}
                         imgsrc={request.attachment_url || undefined}
-                        handleMessageClick={() => { }}
+                        handleMessageClick={() => {}}
                         showx={true}
                         handledelete={() => deleteDonationPost(request.id)}
                       />
