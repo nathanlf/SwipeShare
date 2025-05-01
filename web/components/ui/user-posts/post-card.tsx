@@ -34,7 +34,7 @@ type props = {
   showx: boolean;
   interestedUsers?: { userId: string; name: string }[];
   handledelete?: () => Promise<void>;
-  handleMessageClick: () => void; // Changed to a function with no parameters that returns void
+  handleMessageClick: (userId: string) => void;
 };
 export function PostCard({
   authorProfile,
@@ -80,20 +80,26 @@ export function PostCard({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="bg-blue-100 hover:bg-blue-300 !hover:shadow-lg p-0 text-xs"
+                  className="bg-accent1-muted hover:bg-accent1 !hover:shadow-lg p-0 text-xs"
                 >
-                  <Users className="text-blue-600 w-4 h-4" />
+                  <Users className="text-accent2 w-4 h-4" />
                 </Button>
               </PopoverTrigger>
 
               {interestedUsers.length > 0 ?
-                <PopoverContent className="w-56 p-3">
-                  <p className="text-sm font-semibold mb-2 text-accent1">Interested Users</p>
-                  <ul className="space-y-1">
+                <PopoverContent className="w-60 p-4">
+                  <p className="text-md font-semibold mb-2 text-secondary1">Message Interested Users</p>
+                  <ul className="space-y-3">
                     {interestedUsers.map(user => (
-                      <li key={user.userId} className="text-muted-foreground text-sm">
-                        {user.name}
+
+                      <li key={user.userId} className="!text-left">
+                        <Button variant="ghost" className="text-muted-foreground !justify-normal w-full text-left hover:bg-accent1/10  dark:hover:bg-accent1-muted text-sm bg-muted p-1 px-2 rounded-sm hover:underline font-semibold transition-all dark:text-foreground"
+                          onClick={() => { handleMessageClick(user.userId) }}
+                        >
+                          {user.name}
+                        </Button>
                       </li>
+
                     ))}
                   </ul>
                 </PopoverContent>
