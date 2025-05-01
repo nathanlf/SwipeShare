@@ -87,11 +87,11 @@ export function PostCard({
               </PopoverTrigger>
 
               {interestedUsers.length > 0 ?
-                <PopoverContent className="w-56 p-3">
-                  <p className="text-sm font-semibold mb-2 text-accent1">Interested Users</p>
-                  <ul className="space-y-1">
+                <PopoverContent className="w-56 p-4">
+                  <p className="text-md font-semibold mb-2 text-secondary1">Interested Users</p>
+                  <ul className="space-y-3">
                     {interestedUsers.map(user => (
-                      <li key={user.userId} className="text-muted-foreground text-sm">
+                      <li key={user.userId} className="text-muted-foreground hover:bg-accent1/10  dark:hover:bg-accent1-muted text-sm bg-muted p-1 px-2 rounded-sm hover:underline transition-all dark:text-foreground">
                         {user.name}
                       </li>
                     ))}
@@ -133,7 +133,7 @@ export function PostCard({
                       }} >Delete</Button>
                   </DialogFooter>
                   <DialogFooter>
-                    <Button variant="secondary" onClick={() => { setIsOpen(false) }}>Cancel</Button>
+                    <Button variant="outline" onClick={() => { setIsOpen(false) }}>Cancel</Button>
                   </DialogFooter>
                 </div>
 
@@ -178,7 +178,7 @@ export function PostCard({
             <Button
               variant="ghost"
               onClick={() => router.push(`/availability/${authorProfile.id}`)}
-              className="text-accent2 underline transition-colors hover:text-accent justify-center items-center cursor-pointer h-5"
+              className="text-accent2 underline transition-colors hover:text-accent dark:hover:bg-transparent justify-center items-center cursor-pointer h-5"
             >
               View all Time Slots
             </Button>

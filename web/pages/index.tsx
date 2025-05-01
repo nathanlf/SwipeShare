@@ -861,7 +861,7 @@ export function PostCard({
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" className="p-0 !hover:none">
+                <Button variant="ghost" className="p-0 !hover:bg-transparent dark:hover:bg-transparent">
                   <CardDescription className="text-accent2 underline transition-colors hover:text-accent1 ">
 
                     View all Time Slots
