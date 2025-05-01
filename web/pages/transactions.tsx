@@ -179,7 +179,7 @@ export default function UserPostsPage({
                 <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                   <div className="h-full gap-10 grid grid-cols-1">
                     {currentRequests.length === 0 && (
-                      <p className="flex w-full h-full text-center items-center justify-center text-black dark:text-accent">
+                      <p className="flex w-full h-full text-center items-center justify-center text-black dark:text-accent1">
                         You do not have any currently posted swipe requests.
                       </p>
                     )}
@@ -193,7 +193,7 @@ export default function UserPostsPage({
                         is_request={true}
                         caption={request.content}
                         imgsrc={request.attachment_url || undefined}
-                        handleMessageClick={() => {}}
+                        handleMessageClick={() => { }}
                         showx={true}
                         handledelete={() => deleteDonationPost(request.id)}
                       />

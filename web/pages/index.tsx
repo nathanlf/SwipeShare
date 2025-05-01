@@ -488,16 +488,16 @@ export default function HomePage({ user, profile }: HomePageProps) {
     onCheckedChange: (value: boolean) => void
   }) => {
     return (
-      <div className="flex items-center space-x-2 rounded-md p-1.5 hover:bg-gray-50">
+      <div className="flex items-center space-x-2 rounded-md p-1.5 hover:bg-gray-50 dark:hover:bg-secondary1-muted">
         <Checkbox
           id={id}
-          className="data-[state=checked]:bg-accent1 data-[state=checked]:border-accent1 border-gray-300"
+          className="data-[state=checked]:bg-accent1 dark:data-[state=checked]:bg-accent1 data-[state=checked]:border-accent1 border-gray-300"
           checked={checked}
           onCheckedChange={onCheckedChange}
         />
         <label
           htmlFor={id}
-          className="text-sm font-medium text-gray-700 cursor-pointer"
+          className="text-sm font-medium text-gray-700  dark:text-foreground"
         >
           {label}
         </label>
@@ -528,10 +528,10 @@ export default function HomePage({ user, profile }: HomePageProps) {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="flex items-center gap-2 bg-muted border-accent1 relative hover:bg-accent1/10 transition-colors"
+                className="flex items-center dark:border-accent1  gap-2 bg-muted border-accent1  relative hover:bg-accent1/10 transition-colors"
               >
-                <Funnel className="h-4 w-4 text-black" />
-                <span className="text-sm font-medium sr-only md:not-sr-only text-black">Filter</span>
+                <Funnel className="h-4 w-4 text-black dark:text-accent1" />
+                <span className="text-sm font-medium sr-only md:not-sr-only text-black dark:text-foreground!">Filter</span>
                 {totalFiltersSelected > 0 && (
                   <Badge className="h-5 w-5 p-0 flex items-center justify-center bg-accent1 text-white text-xs rounded-full absolute -top-2 -right-2">
                     {totalFiltersSelected}
@@ -544,9 +544,9 @@ export default function HomePage({ user, profile }: HomePageProps) {
               className="w-full h-1/2 p-0 bg-white border border-grey-200 rounded-lg shadow-lg"
               align="end"
             >
-              <Card className="border-0 shadow-none">
+              <Card className="border-0 shadow-none ">
                 <CardHeader className="flex flex-col items-center justify-between">
-                  <CardTitle className="text-md font-semibold text-gray-800">
+                  <CardTitle className="text-md font-semibold text-gray-800 dark:text-foreground!">
                     Filter Options
                   </CardTitle>
                 </CardHeader>
@@ -559,7 +559,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       <div className="flex flex-col gap-y-2">
                         <Label
                           htmlFor="dining_hall"
-                          className="text-sm font-medium text-gray-700"
+                          className="text-sm font-medium text-gray-700 dark:text-foreground!"
                         >
                           Dining Halls
                         </Label>
@@ -591,7 +591,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                       <Separator className="my-1" />
 
                       <div className="flex flex-col space-y-2">
-                        <Label htmlFor="timing" className="text-sm font-medium text-gray-700">
+                        <Label htmlFor="timing" className="text-sm font-medium text-gray-700 dark:text-foreground!">
                           Meal Times
                         </Label>
                         <div className="grid grid-cols-1 gap-y-2">
@@ -637,7 +637,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-2 text-xs text-gray-500 hover:bg-gray-100"
+                    className="h-8 px-2  text-gray-500 hover:bg-gray-100"
                     onClick={clearFilters}
                   >
                     Clear all
