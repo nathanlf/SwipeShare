@@ -17,8 +17,11 @@ SwipeShare is a community-driven platform where college students can request or 
 
 ## Features
 
-*Describe the features of your app here.*
-
-## ...
-
-Feel free to add other sections as you see fit!
+# Chat Feature
+Real-time messaging that connects meal swipe givers and receivers instantly. Coordinate meetup locations, times, and transfer details efficiently with our secure chat system. Get notifications when messages arrive so you never miss an opportunity to give or receive a meal swipe.
+# Posting Requests Feature
+A streamlined marketplace for posting and browsing meal swipe requests or donations. Specify swipe quantity, preferred dining halls, and pricing in seconds. Browse separate feeds for requests and donations, and connect with interested users with one click. Posts automatically update as swipes are claimed.
+# Schedule Dining Hall Visits Feature
+Share your dining hall availability calendar for seamless coordination. Specify when you'll be available to swipe someone in, and browse schedules that match your campus routine. Our system prioritizes posts that align with your schedule, making meetups convenient for everyone.
+# Availability Sharing Feature
+Display your online status and planned meal times to coordinate swipe exchanges efficiently. See when potential partners were last active on the platform and view their upcoming dining plans. This simple status system helps you connect at the right time without sharing location details.
