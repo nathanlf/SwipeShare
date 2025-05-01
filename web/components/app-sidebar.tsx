@@ -2,12 +2,12 @@
 import {
   Home,
   MessageSquare,
-  Clock,
   Settings,
   Soup,
   LogOut,
   UserRound,
   CalendarFold,
+  Newspaper,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,7 +31,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
 
 export function AppSidebar() {
   const queryClient = useQueryClient();
@@ -59,9 +58,9 @@ export function AppSidebar() {
       icon: MessageSquare,
     },
     {
-      title: "Transactions",
+      title: "My posts",
       url: "/transactions",
-      icon: Clock,
+      icon: Newspaper,
     },
     {
       title: "My Availability",
@@ -76,12 +75,12 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar className="border-r-0 max-w-[260px]">
+    <Sidebar className="border-r-0 max-w-[260px] dark:bg-black">
       <SidebarContent className="pt-4">
         <div className="px-4 py-2 mb-4">
           <div className="flex flex-row gap-2">
             <Soup className="text-primary1 w-6 h-6" />
-            <h1 className="font-semibold text-xl text-primary1">SwipeShare</h1>
+            <h1 className="font-semibold text-xl text-primary1"><Link href="/">SwipeShare</Link></h1>
           </div>
         </div>
         <SidebarGroup>
@@ -89,7 +88,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="hover:bg-gray-100">
+                  <SidebarMenuButton asChild className="hover:bg-gray-100 dark:hover:bg-gray-700">
                     <Link
                       href={item.url}
                       className="flex items-center gap-3 text-gray-700 dark:text-primary1"

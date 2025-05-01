@@ -45,6 +45,7 @@ import { useRouter } from "next/router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import Head from "next/head";
 
 export type Timeslot = {
   starttime: string;
@@ -505,7 +506,11 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   return (
-    <div className="flex flex-col mt-5 w-full gap-y-10 ">
+    <div className="flex flex-col mt-5 w-full gap-y-10">
+      <Head>
+        <title>SwipeShare | Find and Share Meal Swipes</title>
+        <meta name="description" content="Connect with others to share meal swipes on campus" />
+      </Head>
       {/* this div below is the both the search bar and the filter button */}
       <div className="flex flex-row gap-x-2 pl-14 pr-5 justify-center items-center w-full">
         {/* this div below is the input at the top*/}
@@ -823,13 +828,13 @@ export function PostCard({
 
   return (
     <>
-      <Card className="rounded-sm px-4 gap-3 mb-8 ">
+      <Card className="rounded-sm px-4 gap-3 mb-8">
         <CardHeader>
-          <CardTitle className="text-xl font-sans font-bold">
+          <CardTitle className="text-xl font-sans font-boldw-fit">
             {is_request ? "Swipe Requested" : "Swipe Available"}
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-row gap-x-6">
+        <CardContent className="flex flex-row gap-x-6 ">
           <div className="space-y-4 flex-3">
             <div className="flex flex-col gap-y-2">
               <div className="flex flex-row gap-x-3 items-start">
@@ -850,7 +855,7 @@ export function PostCard({
               </CardDescription>
             </div>
             {caption ? (
-              <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
+              <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm wrap break-all">
                 {caption}
               </p>
             ) : null}
@@ -881,7 +886,7 @@ export function PostCard({
             </Dialog>
 
           </div>
-          <div className="flex-2 flex flex-col gap-y-6 mx-16">
+          <div className="flex-2 flex flex-col gap-y-6 mx-16 mt-[-30px]">
             {imgsrc ? (
               <button
                 onClick={() => setFullscreenImage(imgsrc)}
@@ -892,7 +897,7 @@ export function PostCard({
                   height={100}
                   src={imgsrc}
                   alt="image"
-                  className="object-cover mx-auto self-center w-full h-[120px]"
+                  className="object-cover mx-auto self-center w-1/2 border-2 border-black"
                 />
               </button>
             ) : (

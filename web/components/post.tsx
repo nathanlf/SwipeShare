@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, ImageIcon, Plus, Loader2, Calendar } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,17 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { getProfile } from "@/utils/supabase/queries/profile";
+
+// Import post caching functions
+import {
+  addDonationToCacheFn,
+  addRequestToCacheFn,
+  deleteDonationFromCacheFn,
+  deleteRequestFromCacheFn,
+} from "@/utils/supabase/cache/post-cache";
 
 interface CreatePostProps {
   user: User;
@@ -34,6 +45,16 @@ export default function CreatePostButton({ user }: CreatePostProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const supabase = createSupabaseComponentClient();
+  const queryClient = useQueryClient();
+
+  // Fetch current user profile for use in cache updates
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user.id],
+    queryFn: async () => {
+      return await getProfile(supabase, user.id);
+    },
+    enabled: !!user.id,
+  });
 
   const availableDiningHalls = ["Chase", "Lenoir"];
 
@@ -75,20 +96,67 @@ export default function CreatePostButton({ user }: CreatePostProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!postType || diningHalls.length === 0) {
+      return;
+    }
+
     setIsSubmitting(true);
 
+    // Create a temporary ID for optimistic updates
+    const tempId = uuidv4();
+    
+    // Store original values in case we need to roll back
+    const pendingDescription = description;
+    const pendingDiningHalls = [...diningHalls];
+    const pendingFile = selectedFile;
+
     try {
-      // Format content with dining halls included
+      // Create optimistic post object
+      const optimisticPost = {
+        id: tempId,
+        content: description,
+        author_id: user.id,
+        created_at: new Date().toISOString(),
+        attachment_url: null as string | null, // Explicitly type this to avoid the type error
+        dining_halls: diningHalls,
+        interested_users: []
+      };
+
+      // Add optimistic post to cache
+      if (postType === "donation") {
+        addDonationToCacheFn(queryClient, profile ? [profile] : undefined)(optimisticPost);
+      } else {
+        addRequestToCacheFn(queryClient, profile ? [profile] : undefined)(optimisticPost);
+      }
+
+      // Reset form immediately for better UX
+      setDescription("");
+      setDiningHalls([]);
+      setSelectedFile(null);
+
+      // Format content with dining halls included for server
       const content = JSON.stringify({
-        text: description,
-        diningHalls: diningHalls,
+        text: pendingDescription,
+        diningHalls: pendingDiningHalls,
       });
 
       let attachmentUrl: string | null = null;
 
       // Upload image if selected
-      if (selectedFile) {
-        attachmentUrl = await uploadImage(selectedFile);
+      if (pendingFile) {
+        attachmentUrl = await uploadImage(pendingFile);
+        
+        // Update the optimistic post with the attachment URL
+        const updatedPost = {
+          ...optimisticPost,
+          attachment_url: attachmentUrl
+        };
+        
+        if (postType === "donation") {
+          addDonationToCacheFn(queryClient, profile ? [profile] : undefined)(updatedPost);
+        } else {
+          addRequestToCacheFn(queryClient, profile ? [profile] : undefined)(updatedPost);
+        }
       }
 
       // Create post based on type using the appropriate function
@@ -98,21 +166,35 @@ export default function CreatePostButton({ user }: CreatePostProps) {
         await createDonation(supabase, content, user.id, attachmentUrl);
       }
 
+      // Invalidate queries to refetch the updated data from server
+      queryClient.invalidateQueries({ queryKey: ["donations"] });
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+
       // Success handling
       toast.success("Post Created", {
         description: `Your ${postType} has been successfully posted`,
       });
 
-      // Reset form and close dialog
-      setDescription("");
-      setDiningHalls([]);
-      setSelectedFile(null);
+      // Reset postType and close dialog
       setPostType(null);
       setIsDialogOpen(false);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error creating post:", error);
+      
+      // Remove the optimistic update from cache on error
+      if (postType === "donation") {
+        deleteDonationFromCacheFn(queryClient)(tempId);
+      } else {
+        deleteRequestFromCacheFn(queryClient)(tempId);
+      }
+      
+      // Restore the form values
+      setDescription(pendingDescription);
+      setDiningHalls(pendingDiningHalls);
+      setSelectedFile(pendingFile);
+      
       toast.error("Error", {
         description: `Failed to create post: ${error?.message || "Unknown error"}`,
       });
@@ -126,6 +208,21 @@ export default function CreatePostButton({ user }: CreatePostProps) {
       setSelectedFile(e.target.files[0]);
     }
   };
+
+  // Cleanup when dialog closes
+  useEffect(() => {
+    if (!isDialogOpen) {
+      // Wait for exit animation
+      const timer = setTimeout(() => {
+        setPostType(null);
+        setDescription("");
+        setDiningHalls([]);
+        setSelectedFile(null);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isDialogOpen]);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -234,7 +331,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full border border-gray-300 rounded-md text-slate-700"
+                className="w-full border border-gray-300 rounded-md text-slate-700 break-all"
                 placeholder="Add more details about your post..."
                 rows={3}
                 disabled={isSubmitting}

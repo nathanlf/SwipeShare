@@ -26,6 +26,7 @@ const buttonVariants = cva(
         secondary1:
           "bg-secondary1 text-popover-foreground shadow-xs hover:bg-secondary1-muted",
         accent1: "bg-accent1 hover:bg-accent1",
+        ghost1: "bg-inherit"
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
