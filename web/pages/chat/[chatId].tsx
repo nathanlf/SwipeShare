@@ -30,6 +30,7 @@ import { getProfile } from "@/utils/supabase/queries/profile";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
 import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
+import Head from "next/head";
 interface DirectMessagePageProps {
   authUser: User;
 }
@@ -329,6 +330,10 @@ export default function DirectMessagePage({
 
   return (
     <div className="bg-[#DCDEE5] min-h-screen w-full flex items-center justify-center flex-col">
+      <Head>
+        <title>Chat</title>
+        <meta name="description" content="Chat with others to coordinate swipe sharing" />
+      </Head>
       <DirectMessageHeader
         name={otherUser.name || "Loading..."}
         online={isUserOnline(otherUser.id)}

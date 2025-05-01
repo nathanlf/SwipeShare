@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useOnlineUsersContext } from "@/hooks/OnlineUsersProvider";
 import { getLastMessage } from "@/utils/supabase/queries/message";
 import { Message } from "@/utils/supabase/models/message";
+import Head from "next/head";
 
 type ConversationPageProps = {
   user: User;
@@ -71,6 +72,10 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
 
   return (
     <div className="flex justify-center items-center w-full h-full flex-col mt-4">
+      <Head>
+        <title>Conversations</title>
+        <meta name="description" content="Navigate chats with other users" />
+      </Head>
       <div className="flex flex-row justify-around sm:justify-between w-full sm:w-4/5 mb-1">
         <p className="text-black font-bold w-4/5 text-xl sm:text-2xl ml-4">
           Conversations
