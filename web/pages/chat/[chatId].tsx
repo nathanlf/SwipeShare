@@ -337,6 +337,7 @@ export default function DirectMessagePage({
       <DirectMessageHeader
         name={otherUser.name || "Loading..."}
         online={isUserOnline(otherUser.id)}
+        avatarUrl={otherUser.avatar_url}
       />
       <Card className="bg-[#EFEAF6] dark:bg-black h-[75vh] w-full sm:w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
         <div

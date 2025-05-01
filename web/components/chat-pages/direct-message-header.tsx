@@ -4,16 +4,17 @@ import { Card, CardContent } from "../ui/card";
 type DirectMessageHeaderProps = {
     name: string,
     online: boolean,
+    avatarUrl: string | null,
 }
 
-export default function DirectMessageHeader({name, online}: DirectMessageHeaderProps){
+export default function DirectMessageHeader({name, online, avatarUrl}: DirectMessageHeaderProps){
     return(
         <Card className="rounded-b-none w-full sm:w-5/6 mt-6 h-20 flex justify-center">
             <CardContent className="py-2">
                 <div className="flex flex-row justify-start items-center">
                     <Avatar className="ml-1">
-                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={avatarUrl || name[0]} alt="@shadcn" />
+                        <AvatarFallback>{name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col ml-4">
                         <p className="font-bold text-lg">{name}</p>
