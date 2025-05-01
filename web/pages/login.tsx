@@ -13,6 +13,7 @@ import { createSupabaseComponentClient } from "@/utils/supabase/clients/componen
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
+import Head from "next/head";
 
 export default function Login() {
   const router = useRouter();
@@ -46,6 +47,10 @@ export default function Login() {
 
   return (
     <div className="flex min-h-[calc(100svh)] flex-col text-primary-foreground items-center justify-center gap-6 bg-primary1 p-6 md:p-10">
+      <Head>
+        <title>Login</title>
+        <meta name="description" content="Login by entering email and password" />
+      </Head>
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">

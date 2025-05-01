@@ -26,6 +26,7 @@ import { DateTime } from "luxon";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card";
 import { HoverCardContent } from "@radix-ui/react-hover-card";
+import Head from "next/head";
 
 type AvailabilityProps = {
   initialProfile: z.infer<typeof Profile>;
@@ -86,6 +87,10 @@ export default function AvailabilityPage({
 
   return (
     <div className="w-full h-full flex justify-center items-center overflow-y-auto">
+      <Head>
+        <title>Availability</title>
+        <meta name="description" content="Define and edit available time slots to transfer swipes" />
+      </Head>
       <Card className="h-[80vh] w-7/10 border-primary1 border-1">
         <CardHeader>
           <div className="flex flex-row justify-between">

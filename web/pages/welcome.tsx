@@ -11,6 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useRouter } from "next/router";
 import { toast } from "sonner";
+import Head from "next/head";
 
 export default function WelcomePage() {
   const queryClient = useQueryClient();
@@ -75,6 +76,10 @@ export default function WelcomePage() {
 
   return (
     <div className="flex min-h-[calc(100svh)] flex-col text-primary-foreground  items-center  gap-6 bg-primary1 p-6 md:p-20 font-roboto">
+      <Head>
+        <title>Welcome</title>
+        <meta name="description" content="Welcome to Swipe Share!" />
+      </Head>
       <div className="flex flex-row gap-x-2">
         <Croissant size={40} className="text-accent1" />
         <Salad size={40} className="text-accent1" />

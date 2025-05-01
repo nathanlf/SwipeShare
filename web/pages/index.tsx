@@ -45,6 +45,7 @@ import { useRouter } from "next/router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import Head from "next/head";
 
 export type Timeslot = {
   starttime: string;
@@ -505,7 +506,11 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   return (
-    <div className="flex flex-col mt-5 w-full gap-y-10 ">
+    <div className="flex flex-col mt-5 w-full gap-y-10">
+      <Head>
+        <title>SwipeShare | Find and Share Meal Swipes</title>
+        <meta name="description" content="Connect with others to share meal swipes on campus" />
+      </Head>
       {/* this div below is the both the search bar and the filter button */}
       <div className="flex flex-row gap-x-2 pl-14 pr-5 justify-center items-center w-full">
         {/* this div below is the input at the top*/}
