@@ -1,6 +1,6 @@
 import { columns, Timeslot } from "@/pages";
 import { Profile } from "@/utils/supabase/models/profile";
-import { CalendarDays, MapPin, MessagesSquare, Trash2, Users} from "lucide-react";
+import { CalendarDays, MapPin, MessagesSquare, Trash2, Users } from "lucide-react";
 import { z } from "zod";
 import {
   Card,
@@ -146,7 +146,7 @@ export function PostCard({
                       }} >Delete</Button>
                   </DialogFooter>
                   <DialogFooter>
-                    <Button variant="secondary" onClick={() => { setIsOpen(false) }}>Cancel</Button>
+                    <Button variant="outline" onClick={() => { setIsOpen(false) }}>Cancel</Button>
                   </DialogFooter>
                 </div>
 
@@ -191,7 +191,7 @@ export function PostCard({
             <Button
               variant="ghost"
               onClick={() => router.push(`/availability/${authorProfile.id}`)}
-              className="text-accent2 underline transition-colors hover:text-accent justify-center items-center cursor-pointer h-5"
+              className="text-accent2 underline transition-colors hover:text-accent dark:hover:bg-transparent justify-center items-center cursor-pointer h-5"
             >
               View all Time Slots
             </Button>

@@ -28,8 +28,8 @@ export function DataTable<TData, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row, index) => {
               const color = Number.isInteger(index / 2)
-                ? "bg-[#3bbf904d] !rounded-md border-none hover:bg-[#3bbf9040]"
-                : "bg-[#3bbf9026] !rounded-md border-none hover:bg-[#3bbf901a]";
+                ? "bg-[#3bbf904d] dark:bg-[#40cf9d6e] !rounded-md border-none hover:bg-[#3bbf9040]"
+                : "bg-[#3bbf9026] dark:bg-[#3bbf904d] !rounded-md border-none hover:bg-[#3bbf901a]";
               return (
                 <TableRow
                   className={color}
