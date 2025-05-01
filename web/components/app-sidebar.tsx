@@ -2,12 +2,12 @@
 import {
   Home,
   MessageSquare,
-  Clock,
   Settings,
   Soup,
   LogOut,
   UserRound,
   CalendarFold,
+  Newspaper,
 } from "lucide-react";
 import {
   Sidebar,
@@ -58,9 +58,9 @@ export function AppSidebar() {
       icon: MessageSquare,
     },
     {
-      title: "Transactions",
+      title: "My posts",
       url: "/transactions",
-      icon: Clock,
+      icon: Newspaper,
     },
     {
       title: "My Availability",
