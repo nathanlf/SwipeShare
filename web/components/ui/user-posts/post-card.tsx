@@ -219,7 +219,7 @@ export function PostCard({
             <Button
               variant="ghost"
               onClick={() => router.push(`/availability/${authorProfile.id}`)}
-              className="text-accent2 underline transition-colors hover:text-accent justify-center items-center cursor-pointer h-5"
+              className="text-accent2 underline transition-colors hover:text-accent dark:hover:bg-transparent justify-center items-center cursor-pointer h-5"
             >
               View all Time Slots
             </Button>

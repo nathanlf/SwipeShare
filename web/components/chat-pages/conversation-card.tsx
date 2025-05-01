@@ -48,7 +48,7 @@ export default function ConversationCard({
             <CardContent className="py-2">
                 <div className="flex flex-row justify-start items-center">
                     <Avatar className="ml-1">
-                        <AvatarImage src={avatarUrl || "https://github.com/shadcn.png"} alt={name} />
+                        <AvatarImage src={avatarUrl || name[0]} alt={name} />
                         <AvatarFallback>{name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-row w-full justify-between">

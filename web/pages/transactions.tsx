@@ -119,9 +119,8 @@ export default function UserPostsPage({
         <h1 className="text-primary1 text-4xl font-semibold mt-10 text-center">
           Your Posts
         </h1>
-        <p className="text-gray-500 text-sm text-center max-w-lg mx-auto mb-6">
-          Track and manage all requests and donations that you currently have
-          posted.
+        <p className="text-gray-500 dark:text-foreground text-sm text-center max-w-lg mx-auto mb-6">
+          Track and manage all of your active donations and requets.
         </p>
 
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -130,7 +129,7 @@ export default function UserPostsPage({
             onValueChange={(value) =>
               value === "donations" ? setIsDonation(true) : setIsDonation(false)
             }
-            className="flex flex-col h-full"
+            className="flex flex-col h-full "
           >
             <TabsList className="grid w-4/5 max-w-md mx-auto grid-cols-2">
               <TabsTrigger value="donations" className="hover:cursor-pointer">

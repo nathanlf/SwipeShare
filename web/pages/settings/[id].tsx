@@ -186,7 +186,7 @@ export default function SettingsPage({ user }: SettingsPageProps) {
                     </div>
                 </CardContent>
             </Card>
-            <Card className="h-[65vh] w-7/10 bg-white">
+            <Card className="h-[65vh] w-7/10 bg-white dark:bg-[#18181b]">
                 <CardHeader className="px-10">
                     <div className="flex flex-row justify-between">
                         <CardTitle className="text-4xl font-light">
