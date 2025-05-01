@@ -34,24 +34,24 @@ export type Timeslot = {
 export const columns = (
   onDelete: (timeslot: Timeslot) => void
 ): ColumnDef<Timeslot>[] => [
-    {
-      accessorKey: "starttime",
-      cell: ({ row }) => {
-        const { starttime, endtime } = row.original;
-        return (
-          <div
-            className="text-left font-bold rounded-4xl text-sm flex justify-between items-center cursor-pointer hover:bg-accent p-2 group"
-            onClick={() => onDelete(row.original)}
-          >
-            <span>
-              {starttime} - {endtime}
-            </span>
-            <Trash2 className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500" />
-          </div>
-        );
-      },
+  {
+    accessorKey: "starttime",
+    cell: ({ row }) => {
+      const { starttime, endtime } = row.original;
+      return (
+        <div
+          className="text-left font-bold rounded-4xl text-sm flex justify-between items-center cursor-pointer hover:bg-accent p-2 group"
+          onClick={() => onDelete(row.original)}
+        >
+          <span>
+            {starttime} - {endtime}
+          </span>
+          <Trash2 className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500" />
+        </div>
+      );
     },
-  ];
+  },
+];
 
 const fifteenMinuteSteps = Array.from({ length: 4 * 4 }, (_, i) => {
   const h = Math.floor(i / 4) + 8;
@@ -214,8 +214,6 @@ export default function TimeInput({ profile }: TimeInputProps) {
     return merged;
   }
 
-
-
   function convertTimeToMinutes(timeStr: string): number | null {
     const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})([ap])$/i);
     if (!match) return null;
@@ -246,7 +244,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
         )
     );
     setTimeslots(newTimeslots);
-    updateAvailability(supabase, newTimeslots);  // <-- update db immediately
+    updateAvailability(supabase, newTimeslots); // <-- update db immediately
     toast("Timeslot deleted.");
   };
 
@@ -254,7 +252,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
 
   return (
     <div className="flex flex-col gap-y-10">
-      <div className="flex flex-row items-center gap-x-16 mx-20 px-6 my-10 py-4 rounded-md text-center justify-center">
+      <div className="flex flex-row items-center gap-x-16 mx-20 px-6 mt-10 rounded-md text-center justify-center">
         <div className="flex flex-row gap-x-4 items-center">
           <p className="text-sm text-muted-foreground">From</p>
           <Popover open={openFrom} onOpenChange={setOpenFrom}>

@@ -363,7 +363,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
       let includes_dininghalls = false;
       if (selectedDiningHalls.length == 0) { includes_dininghalls = true; }
       for (const hall of selectedDiningHalls) {
-        if (dininghalls.includes(hall.toLowerCase())) {
+        if (dininghalls.includes(hall)) {
           includes_dininghalls = true;
           break;
         }
@@ -505,7 +505,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
   };
 
   return (
-    <div className="flex flex-col mt-5 w-full gap-y-10">
+    <div className="flex flex-col mt-5 w-full gap-y-10 ">
       {/* this div below is the both the search bar and the filter button */}
       <div className="flex flex-row gap-x-2 pl-14 pr-5 justify-center items-center w-full">
         {/* this div below is the input at the top*/}
@@ -655,7 +655,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
         className="w-4/6 mx-auto mt-[-20px]"
         onValueChange={setActiveTab}
       >
-        <TabsList className="flex w-full mb-2">
+        <TabsList className="flex w-full mb-2 ">
           <TabsTrigger value="donations" className="hover:cursor-pointer">
             Donations
           </TabsTrigger>
@@ -784,10 +784,8 @@ interface PostCardProps {
 
 export function PostCard({
   authorProfile,
-  postid,
   time_since_post,
   dining_halls,
-  times,
   is_request,
   imgsrc,
   caption,
@@ -795,7 +793,6 @@ export function PostCard({
   handleRequestClick
 }: PostCardProps) {
   // State for fullscreen image
-  const supabase = createSupabaseComponentClient();
 
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
@@ -826,14 +823,14 @@ export function PostCard({
 
   return (
     <>
-      <Card className="rounded-sm px-4 gap-3 mb-8">
+      <Card className="rounded-sm px-4 gap-3 mb-8 ">
         <CardHeader>
           <CardTitle className="text-xl font-sans font-bold">
             {is_request ? "Swipe Requested" : "Swipe Available"}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-row gap-x-6">
-          <div className="space-y-4 flex-3z">
+          <div className="space-y-4 flex-3">
             <div className="flex flex-col gap-y-2">
               <div className="flex flex-row gap-x-3 items-start">
                 <CardDescription className="flex flex-row gap-x-1 pt-0.5">
@@ -864,13 +861,17 @@ export function PostCard({
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <CardDescription className="text-accent2 underline transition-colors hover:text-accent1">
-                  View all Time Slots
-                </CardDescription>
+                <Button variant="ghost" className="p-0 !hover:none">
+                  <CardDescription className="text-accent2 underline transition-colors hover:text-accent1 ">
+
+                    View all Time Slots
+
+                  </CardDescription>
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>{name}'s availability</DialogTitle>
+                  <DialogTitle>{name}&apos;s availability</DialogTitle>
                 </DialogHeader>
                 <div className="w-full">
                   <DataTable columns={columns} data={avail} />
@@ -907,7 +908,7 @@ export function PostCard({
             </Button>
             <Button
               variant="outline"
-              className="rounded-sm text-slate-300 hover:cursor-pointer"
+              className="rounded-sm text-slate-500 hover:cursor-pointer"
               onClick={handleMessageClick}
             >
               <MessagesSquare size={30} />
