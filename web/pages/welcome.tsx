@@ -74,6 +74,8 @@ export default function WelcomePage() {
     } else setIsFlexible(null);
   };
 
+  if (!data || "redirect" in data) return null;
+
   return (
     <div className="flex min-h-[calc(100svh)] flex-col text-primary-foreground  items-center  gap-6 bg-primary1 p-6 md:p-20 font-roboto">
       <Head>
@@ -155,7 +157,9 @@ export default function WelcomePage() {
             className="border text-primary-foreground border-primary-foreground "
             size="lg"
             onClick={() => {
-              gotohome(data.id);
+              if (data) {
+                gotohome(data.id);
+              }
             }}
           >
             Start Sharing!
