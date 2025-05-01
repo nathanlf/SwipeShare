@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { setHandleDB } from "@/utils/supabase/queries/profile";
 import { ImageUp, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Head from "next/head";
 
 //get the base backend functionality set up to display the users current choices
 type SettingsPageProps = { user: User; profile: z.infer<typeof Profile> };
@@ -137,6 +138,10 @@ export default function SettingsPage({ user }: SettingsPageProps) {
 
     return (
         <div className="w-full h-full flex flex-col gap-y-6 justify-center items-center overflow-y-auto">
+            <Head>
+                <title>Settings</title>
+                <meta name="description" content="Update preferences and profile settings" />
+            </Head>
             <Card className="w-7/10 py-5">
                 <CardContent>
                     <div className="flex flex-row items-center justify-between">

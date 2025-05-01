@@ -18,6 +18,7 @@ import {
 } from "@/utils/supabase/queries/request";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
+import Head from "next/head";
 
 type UserPostsPageProps = {
   initialProfile: z.infer<typeof Profile>;
@@ -94,6 +95,10 @@ export default function UserPostsPage({
 
   return (
     <div className="flex flex-col items-center w-full h-screen">
+      <Head>
+        <title>Transactions</title>
+        <meta name="description" content="View and manage posts" />
+      </Head>
       <div className="flex flex-col h-full w-full">
         <h1 className="text-black text-4xl font-semibold mt-10 text-center">
           Your Posts
