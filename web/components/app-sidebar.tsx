@@ -58,7 +58,7 @@ export function AppSidebar() {
       icon: MessageSquare,
     },
     {
-      title: "My posts",
+      title: "My Posts",
       url: "/transactions",
       icon: Newspaper,
     },
@@ -80,7 +80,9 @@ export function AppSidebar() {
         <div className="px-4 py-2 mb-4">
           <div className="flex flex-row gap-2">
             <Soup className="text-primary1 w-6 h-6" />
-            <h1 className="font-semibold text-xl text-primary1"><Link href="/">SwipeShare</Link></h1>
+            <h1 className="font-semibold text-xl text-primary1">
+              <Link href="/">SwipeShare</Link>
+            </h1>
           </div>
         </div>
         <SidebarGroup>
@@ -88,7 +90,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <SidebarMenuButton
+                    asChild
+                    className="hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
                     <Link
                       href={item.url}
                       className="flex items-center gap-3 text-gray-700 dark:text-primary1"
@@ -110,9 +115,16 @@ export function AppSidebar() {
               {/* Dark mode / light mode toggle. */}
               {/* Dropdown menu for the user, if it exists. */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="cursor-pointer aria-la" name="profile-options" id="profile-options">
+                <DropdownMenuTrigger
+                  className="cursor-pointer aria-la"
+                  name="profile-options"
+                  id="profile-options"
+                >
                   <Avatar className="mt-1">
-                    <AvatarImage src={data.avatar_url || undefined} alt="image" />
+                    <AvatarImage
+                      src={data.avatar_url || undefined}
+                      alt="image"
+                    />
                     <AvatarFallback className="w-8 h-8 rounded-full bg-secondary1 flex items-center justify-center text-white">
                       <UserRound />
                     </AvatarFallback>

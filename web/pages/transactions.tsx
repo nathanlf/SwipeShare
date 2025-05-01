@@ -97,7 +97,11 @@ export default function UserPostsPage({
   const handleMessageClick = async (interested_user_id: string) => {
     try {
       if (initialProfile.id !== interested_user_id) {
-        const chat = await getOrCreateChatByUsers(supabase, initialProfile.id, interested_user_id);
+        const chat = await getOrCreateChatByUsers(
+          supabase,
+          initialProfile.id,
+          interested_user_id
+        );
         router.push(`/chat/${chat.id}`);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,7 +116,7 @@ export default function UserPostsPage({
         <meta name="description" content="View and manage posts" />
       </Head>
       <div className="flex flex-col h-full w-full">
-        <h1 className="text-black text-4xl font-semibold mt-10 text-center">
+        <h1 className="text-primary1 text-4xl font-semibold mt-10 text-center">
           Your Posts
         </h1>
         <p className="text-gray-500 text-sm text-center max-w-lg mx-auto mb-6">
@@ -145,12 +149,11 @@ export default function UserPostsPage({
                 <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                   <div className="h-full gap-10 grid grid-cols-1">
                     {currentDonations.length === 0 && (
-                      <p className="flex w-full h-full text-center items-center justify-center text-black">
+                      <p className="flex w-full h-full text-center items-center justify-center text-black dark:text-accent">
                         You do not have any currently posted swipe donations.
                       </p>
                     )}
                     {currentDonations.map((donation) => (
-                      // eslint-disable-next-line react/jsx-key
                       <PostCard
                         key={donation.id}
                         authorProfile={initialProfile}
@@ -164,8 +167,6 @@ export default function UserPostsPage({
                         handleMessageClick={handleMessageClick}
                         handledelete={() => deleteDonationPost(donation.id)}
                         interestedUsers={interestedUserMap[donation.id] || []}
-
-
                       />
                     ))}
                   </div>
@@ -179,7 +180,7 @@ export default function UserPostsPage({
                 <div className="flex-1 overflow-y-auto pb-4 mx-auto p-5">
                   <div className="h-full gap-10 grid grid-cols-1">
                     {currentRequests.length === 0 && (
-                      <p className="flex w-full h-full text-center items-center justify-center text-black">
+                      <p className="flex w-full h-full text-center items-center justify-center text-black dark:text-accent">
                         You do not have any currently posted swipe requests.
                       </p>
                     )}
@@ -193,10 +194,9 @@ export default function UserPostsPage({
                         is_request={true}
                         caption={request.content}
                         imgsrc={request.attachment_url || undefined}
-                        handleMessageClick={() => { }}
+                        handleMessageClick={() => {}}
                         showx={true}
                         handledelete={() => deleteDonationPost(request.id)}
-
                       />
                     ))}
                   </div>
@@ -206,9 +206,7 @@ export default function UserPostsPage({
           </Tabs>
         </div>
 
-        <div className="p-6 mt-auto w-full flex justify-center">
-
-        </div>
+        <div className="p-6 mt-auto w-full flex justify-center"></div>
       </div>
     </div>
   );

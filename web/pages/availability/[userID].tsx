@@ -42,8 +42,6 @@ export default function AvailabilityPage({
   const supabase = createSupabaseComponentClient();
 
   useEffect(() => {
-    document.title = "Availability Page";
-
     const FIVE_SECONDS = 5_000;
     const timedExecution = setInterval(() => {
       setNow(nowEasternMs);
@@ -89,7 +87,10 @@ export default function AvailabilityPage({
     <div className="w-full h-full flex justify-center items-center overflow-y-auto">
       <Head>
         <title>Availability</title>
-        <meta name="description" content="Define and edit available time slots to transfer swipes" />
+        <meta
+          name="description"
+          content="Define and edit available time slots to transfer swipes"
+        />
       </Head>
       <Card className="h-[80vh] w-7/10 border-primary1 border-1">
         <CardHeader>
