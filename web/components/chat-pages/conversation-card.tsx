@@ -44,7 +44,7 @@ export default function ConversationCard({
         : "";
 
     return (
-        <Card className="rounded-none w-full h-20 flex justify-center hover:bg-slate-100 hover:translate-y-[-3px] transition-transform duration-100 ease-in-out cursor-pointer">
+        <Card className="rounded-none w-full h-20 flex justify-center hover:bg-slate-100 dark:hover:bg-gray-800 hover:translate-y-[-3px] transition-transform duration-100 ease-in-out cursor-pointer">
             <CardContent className="py-2">
                 <div className="flex flex-row justify-start items-center">
                     <Avatar className="ml-1">

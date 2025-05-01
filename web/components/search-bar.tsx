@@ -18,7 +18,7 @@ export default function SearchBar({
         value={value}
         onChange={onChange}
         placeholder={placeholder || "Search..."}
-        className="w-full h-8 font-semibold bg-gray-50 text-black"
+        className="w-full h-8 font-semibold bg-gray-50 text-black dark:text-slate-100"
       />
     </div>
   );

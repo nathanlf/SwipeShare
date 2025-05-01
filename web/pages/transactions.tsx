@@ -18,15 +18,7 @@ import {
 } from "@/utils/supabase/queries/request";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Button } from "@/components/ui/button";
-import { Trash2, X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogClose, DialogFooter
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import Head from "next/head";
 import router from "next/router";
 import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 
@@ -43,7 +35,6 @@ export default function UserPostsPage({
   const supabase = createSupabaseComponentClient();
 
   const [isDonation, setIsDonation] = useState(true);
-  const [deleting, setDeleting] = useState(false);
   const [currentDonations, setCurrentDonations] =
     useState<PostType[]>(initialDonations);
   const [currentRequests, setCurrentRequests] =
@@ -56,7 +47,6 @@ export default function UserPostsPage({
     await (isDonation ? deleteDonation : deleteRequest)(supabase, post_id);
     await refetch();
   };
-  const [interestedProfilesMap, setInterestedProfilesMap] = useState<Record<string, z.infer<typeof Profile>>>({});
   const [interestedUserMap, setInterestedUserMap] = useState<
     Record<string, { userId: string; name: string }[]>
   >({});
@@ -117,6 +107,10 @@ export default function UserPostsPage({
   };
   return (
     <div className="flex flex-col items-center w-full h-screen">
+      <Head>
+        <title>Transactions</title>
+        <meta name="description" content="View and manage posts" />
+      </Head>
       <div className="flex flex-col h-full w-full">
         <h1 className="text-black text-4xl font-semibold mt-10 text-center">
           Your Posts

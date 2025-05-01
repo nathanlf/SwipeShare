@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { createSupabaseComponentClient } from "@/utils/supabase/clients/component";
 import { useQueryClient } from "@tanstack/react-query";
 import { Soup, AtSign } from "lucide-react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -38,6 +39,10 @@ export default function Signup() {
 
   return (
     <div className="flex min-h-[calc(100svh)] flex-col text-primary-foreground items-center justify-center gap-6 bg-primary1 p-6 md:p-10">
+      <Head>
+        <title>Signup</title>
+        <meta name="description" content="Create an account by entering email and password" />
+      </Head>
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
