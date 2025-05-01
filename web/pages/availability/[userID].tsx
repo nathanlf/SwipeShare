@@ -41,6 +41,8 @@ export default function AvailabilityPage({
   const supabase = createSupabaseComponentClient();
 
   useEffect(() => {
+    document.title = "Availability Page";
+
     const FIVE_SECONDS = 5_000;
     const timedExecution = setInterval(() => {
       setNow(nowEasternMs);
@@ -153,6 +155,7 @@ export default function AvailabilityPage({
                 <Switch
                   checked={notManual}
                   onCheckedChange={setNotManual}
+                  aria-label="Sync Status"
                   className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent1 dark:hover:[&>span]:bg-accent1 [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
                 />
                 <Label className="text-base">

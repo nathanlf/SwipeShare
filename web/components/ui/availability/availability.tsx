@@ -256,7 +256,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
         <div className="flex flex-row gap-x-4 items-center">
           <p className="text-sm text-muted-foreground">From</p>
           <Popover open={openFrom} onOpenChange={setOpenFrom}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger aria-label="Time From Button" asChild>
               <Button
                 variant="outline"
                 role="combobox"
@@ -312,7 +312,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
           <p className="text-sm text-muted-foreground">To</p>
 
           <Popover open={openTo} onOpenChange={setOpenTo}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger aria-label="Time To Button" asChild>
               <Button
                 variant="outline"
                 role="combobox"
