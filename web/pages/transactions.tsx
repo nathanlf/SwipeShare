@@ -19,6 +19,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import Head from "next/head";
+import router from "next/router";
+import { getOrCreateChatByUsers } from "@/utils/supabase/queries/chat";
 
 type UserPostsPageProps = {
   initialProfile: z.infer<typeof Profile>;
@@ -92,7 +94,17 @@ export default function UserPostsPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freshPost]);
 
-
+  const handleMessageClick = async (interested_user_id: string) => {
+    try {
+      if (initialProfile.id !== interested_user_id) {
+        const chat = await getOrCreateChatByUsers(supabase, initialProfile.id, interested_user_id);
+        router.push(`/chat/${chat.id}`);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error creating or getting chat: ", error.message);
+    }
+  };
   return (
     <div className="flex flex-col items-center w-full h-screen">
       <Head>
@@ -149,7 +161,7 @@ export default function UserPostsPage({
                         caption={donation.content}
                         imgsrc={donation.attachment_url || undefined}
                         showx={true}
-                        handleMessageClick={() => { }}
+                        handleMessageClick={handleMessageClick}
                         handledelete={() => deleteDonationPost(donation.id)}
                         interestedUsers={interestedUserMap[donation.id] || []}
 

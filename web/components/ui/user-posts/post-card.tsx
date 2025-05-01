@@ -34,7 +34,7 @@ type props = {
   showx: boolean;
   interestedUsers?: { userId: string; name: string }[];
   handledelete?: () => Promise<void>;
-  handleMessageClick: () => void; // Changed to a function with no parameters that returns void
+  handleMessageClick: (userId: string) => void;
 };
 export function PostCard({
   authorProfile,
@@ -72,7 +72,7 @@ export function PostCard({
           {is_request ? "Swipe Requested" : "Swipe Available"}
 
         </CardTitle>
-        <div className="absolute top-2 right-2 flex flex-row gap-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute top-2 right-2 flex flex-row gap-x-2  group-hover:opacity-100 transition-opacity duration-200">
 
           {interestedUsers && (
             <Popover>
@@ -87,15 +87,28 @@ export function PostCard({
               </PopoverTrigger>
 
               {interestedUsers.length > 0 ?
-                <PopoverContent className="w-56 p-3">
-                  <p className="text-sm font-semibold mb-2 text-accent1">Interested Users</p>
-                  <ul className="space-y-1">
-                    {interestedUsers.map(user => (
-                      <li key={user.userId} className="text-muted-foreground text-sm">
-                        {user.name}
-                      </li>
-                    ))}
-                  </ul>
+                <PopoverContent className="w-60 p-0 border-none bg-transparent">
+                  <Card className="rounded-sm">
+                    <CardHeader>
+                      <CardTitle className="text-secondary1">Message Interested Users</CardTitle>
+                      <CardDescription>Reach out to users who have requested to exchange a swipe with you!</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-3">
+                        {interestedUsers.map(user => (
+
+                          <li key={user.userId} className="!text-left">
+                            <Button variant="ghost" className="text-muted-foreground !justify-normal w-full text-left hover:bg-accent1-muted  dark:hover:bg-accent1-muted text-sm bg-accent1/10 p-1 px-2 rounded-sm hover:underline font-semibold transition-all dark:text-foreground"
+                              onClick={() => { handleMessageClick(user.userId) }}
+                            >
+                              {user.name}
+                            </Button>
+                          </li>
+
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
                 </PopoverContent>
                 : <PopoverContent className="w-56 p-3">
                   <p className="text-sm font-semibold mb-2 text-accent1">No Interested Users</p></PopoverContent>}
