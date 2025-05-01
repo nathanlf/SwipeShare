@@ -328,12 +328,12 @@ export default function DirectMessagePage({
   const allMessages = messages?.pages.flatMap((page) => page).reverse() || [];
 
   return (
-    <div className="bg-[#DCDEE5] min-h-screen w-full flex items-center justify-center flex-col">
+    <div className="min-h-screen w-full flex items-center justify-center flex-col">
       <DirectMessageHeader
         name={otherUser.name || "Loading..."}
         online={isUserOnline(otherUser.id)}
       />
-      <Card className="bg-[#EFEAF6] h-[75vh] w-full sm:w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
+      <Card className="bg-[#EFEAF6] dark:bg-black h-[75vh] w-full sm:w-5/6 rounded-t-none mb-6 flex flex-col justify-between">
         <div
           className="flex-grow overflow-y-auto"
           ref={scrollContainerRef}
@@ -394,7 +394,7 @@ export default function DirectMessagePage({
         </div>
         <div className="justify-center flex">
           <form
-            className="relative rounded-lg border bg-white focus-within:ring-1 focus-within:ring-ring p-0 w-11/12"
+            className="relative rounded-lg border bg-white dark:bg-[#18181b] focus-within:ring-1 focus-within:ring-ring p-0 w-11/12"
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage();
@@ -416,7 +416,7 @@ export default function DirectMessagePage({
                   handleSendMessage();
                 }
               }}
-              className="min-h-12 resize-none rounded-lg bg-white border-0 p-3 shadow-none focus-visible:ring-0 w-full"
+              className="min-h-12 resize-none rounded-lg bg-white dark:bg-[#18181b] border-0 p-3 shadow-none focus-visible:ring-0 w-full"
             />
             <div className="flex items-center p-3 pt-0">
               <Button
@@ -424,7 +424,7 @@ export default function DirectMessagePage({
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <ImageIcon className="size-4" />
+                <ImageIcon className="size-4 dark:text-white" />
                 <span className="sr-only">Attach file</span>
               </Button>
               <Button

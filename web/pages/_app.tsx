@@ -38,7 +38,7 @@ export default function App({ Component, pageProps }: AppProps) {
               <AppSidebar />
               <main className="flex-1 bg-[#DCDEE5] dark:bg-[#4a3253] relative">
                 <div className="absolute top-4 left-4 z-50 transition-all duration-200">
-                  <SidebarTrigger className="w-10 h-10 p-2 bg-white/80 backdrop-blur-sm rounded-md shadow-sm" />
+                  <SidebarTrigger className="w-10 h-10 p-2 bg-white/80 dark:bg-[#18181b] backdrop-blur-sm rounded-md shadow-sm" />
                 </div>
                 <Component {...pageProps} />
               </main>
