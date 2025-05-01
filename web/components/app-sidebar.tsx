@@ -157,7 +157,7 @@ export function AppSidebar() {
             </div>
           )}
 
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-white">
             {data ? data.handle : "swipey"}
           </div>
         </div>

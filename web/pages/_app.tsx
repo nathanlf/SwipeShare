@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useRouter } from "next/router";
 import { OnlineUsersProvider } from "@/hooks/OnlineUsersProvider";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/next";
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -46,6 +47,7 @@ export default function App({ Component, pageProps }: AppProps) {
             </div>
           </SidebarProvider>
         </OnlineUsersProvider>
+        <Analytics />
       </QueryClientProvider>
     </ThemeProvider>
   );

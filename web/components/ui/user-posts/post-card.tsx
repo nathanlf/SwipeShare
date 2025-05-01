@@ -248,7 +248,7 @@ export function PostCard({
           <Button
             variant="outline"
             className="rounded-sm text-slate-300 hover:cursor-pointer"
-            onClick={handleMessageClick}
+            onClick={() => handleMessageClick}
             disabled={true}
           >
             <MessagesSquare size={30} />
