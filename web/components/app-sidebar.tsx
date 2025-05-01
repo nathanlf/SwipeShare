@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
 
 export function AppSidebar() {
   const queryClient = useQueryClient();
@@ -131,12 +132,14 @@ export function AppSidebar() {
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" aria-expanded="true">
-                  <DropdownMenuItem
-                    onClick={() => router.push(`/settings/${data.id}`)}
-                    className="cursor-pointer"
-                  >
-                    <UserRound /> My Profile
-                  </DropdownMenuItem>
+                  <Button variant="ghost1" className="bg-transparent hover:bg-transparent p-0">
+                    <DropdownMenuItem
+                      onClick={() => router.push(`/settings/${data.id}`)}
+                      className="cursor-pointer"
+                    >
+                      <UserRound /> My Profile
+                    </DropdownMenuItem>
+                  </Button>
                   <DropdownMenuItem
                     onClick={async () => {
                       await supabase.auth.signOut();
