@@ -1,6 +1,6 @@
 import { columns, Timeslot } from "@/pages";
 import { Profile } from "@/utils/supabase/models/profile";
-import { CalendarDays, MapPin, MessagesSquare, Trash2, Users, X } from "lucide-react";
+import { CalendarDays, MapPin, MessagesSquare, Trash2, Users} from "lucide-react";
 import { z } from "zod";
 import {
   Card,
@@ -165,7 +165,7 @@ export function PostCard({
             </CardDescription>
           </div>
           {caption ? (
-            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm">
+            <p className="bg-[#dbdee64d] text-sm text-popover-foreground p-2 pb-4 rounded-sm break-all">
               {caption}
             </p>
           ) : null}

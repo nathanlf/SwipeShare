@@ -16,7 +16,7 @@ export default function Message({ type, children, name }: MessageProps) {
   const messageClasses =
     type === MessageType.Sent
       ? "bg-[#A07fb4] text-white"
-      : "bg-gray-100 text-gray-800";
+      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white";
   const fallback = name[0].toUpperCase();
 
   return (

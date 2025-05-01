@@ -77,7 +77,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
         <meta name="description" content="Navigate chats with other users" />
       </Head>
       <div className="flex flex-row justify-around sm:justify-between w-full sm:w-4/5 mb-1">
-        <p className="text-black font-bold w-4/5 text-xl sm:text-2xl ml-4">
+        <p className="text-black font-bold w-4/5 text-xl sm:text-2xl ml-4 dark:text-white">
           Conversations
         </p>
         <SearchBar
@@ -86,7 +86,7 @@ export default function ConversationsPage({ user }: ConversationPageProps) {
           placeholder="Search by name..."
         />
       </div>
-      <Card className="min-h-5/6 w-full sm:w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
+      <Card className="min-h-5/6 w-full sm:w-4/5 overflow-y-auto flex flex-col gap-0 bg-[#EFEAF6] dark:bg-[#303033] p-0 rounded-2xl mb-4 max-h-[calc(100vh-120px)]">
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
             Loading conversations...

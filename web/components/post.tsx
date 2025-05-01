@@ -234,7 +234,7 @@ export default function CreatePostButton({ user }: CreatePostProps) {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full border border-gray-300 rounded-md text-slate-700"
+                className="w-full border border-gray-300 rounded-md text-slate-700 break-all"
                 placeholder="Add more details about your post..."
                 rows={3}
                 disabled={isSubmitting}

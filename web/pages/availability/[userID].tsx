@@ -42,6 +42,8 @@ export default function AvailabilityPage({
   const supabase = createSupabaseComponentClient();
 
   useEffect(() => {
+    document.title = "Availability Page";
+
     const FIVE_SECONDS = 5_000;
     const timedExecution = setInterval(() => {
       setNow(nowEasternMs);
@@ -89,7 +91,7 @@ export default function AvailabilityPage({
         <title>Availability</title>
         <meta name="description" content="Define and edit available time slots to transfer swipes" />
       </Head>
-      <Card className="h-[80vh] w-7/10 bg-white">
+      <Card className="h-[80vh] w-7/10 border-primary1 border-1">
         <CardHeader>
           <div className="flex flex-row justify-between">
             <CardTitle className="text-4xl font-light">
@@ -99,7 +101,7 @@ export default function AvailabilityPage({
                   Available to Gift
                 </span>
               ) : (
-                <span className="text-text text-4xl text-[#484349]">
+                <span className="text-text text-4xl text-[#484349] dark:text-white">
                   Unavailable
                 </span>
               )}
@@ -108,7 +110,7 @@ export default function AvailabilityPage({
             {!notManual && (
               <Popover>
                 <PopoverTrigger>
-                  <Button className="bg-secondary1 cursor-pointer">
+                  <Button className="bg-secondary1 cursor-pointer dark:text-white">
                     <Plus />
                     Alter Availability
                   </Button>
@@ -131,7 +133,7 @@ export default function AvailabilityPage({
                       onClick={() => {
                         setAvailable(false);
                       }}
-                      className="rounded-4xl w-2/3 bg-[#484349] cursor-pointer font-semibold"
+                      className="rounded-4xl w-2/3 bg-[#484349] cursor-pointer font-semibold dark:text-[#CCCCCC]"
                     >
                       Unavailable
                     </Button>
@@ -158,7 +160,8 @@ export default function AvailabilityPage({
                 <Switch
                   checked={notManual}
                   onCheckedChange={setNotManual}
-                  className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent1 [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
+                  aria-label="Sync Status"
+                  className="h-7 w-12 cursor-pointer hover:[&>span]:bg-accent1 dark:hover:[&>span]:bg-accent1 [&>span]:size-6 [&>span]:translate-x-[calc(100%-4px)]"
                 />
                 <Label className="text-base">
                   Sync status with your schedule.

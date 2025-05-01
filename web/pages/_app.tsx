@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { useRouter } from "next/router";
 import { OnlineUsersProvider } from "@/hooks/OnlineUsersProvider";
+import { ThemeProvider } from "next-themes";
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -23,22 +24,29 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* Wrap the app with OnlineUsersProvider */}
-      <OnlineUsersProvider>
-        <SidebarProvider className="">
-          <div className="flex h-screen w-full overflow-hidden">
-            <AppSidebar />
-            <main className="flex-1 bg-[#DCDEE5] relative">
-              <div className="absolute top-4 left-4 z-50 transition-all duration-200">
-                <SidebarTrigger className="w-10 h-10 p-2 bg-white/80 backdrop-blur-sm rounded-md shadow-sm" />
-              </div>
-              <Component {...pageProps} />
-            </main>
-            <Toaster />
-          </div>
-        </SidebarProvider>
-      </OnlineUsersProvider>
-    </QueryClientProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        {/* Wrap the app with OnlineUsersProvider */}
+        <OnlineUsersProvider>
+          <SidebarProvider className="">
+            <div className="flex h-screen w-full overflow-hidden">
+              <AppSidebar />
+              <main className="flex-1 bg-[#DCDEE5] dark:bg-[#201f20] relative">
+                <div className="absolute top-4 left-4 z-50 transition-all duration-200">
+                  <SidebarTrigger className="w-10 h-10 p-2 bg-white/80 dark:bg-[#18181b] backdrop-blur-sm rounded-md shadow-sm" />
+                </div>
+                <Component {...pageProps} />
+              </main>
+              <Toaster />
+            </div>
+          </SidebarProvider>
+        </OnlineUsersProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
