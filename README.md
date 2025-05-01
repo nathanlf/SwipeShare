@@ -9,9 +9,11 @@
 ![Tailwind](https://img.shields.io/badge/-Tailwind-05122A?style=flat&logo=tailwindcss)
 ![Supabase](https://img.shields.io/badge/-Supabase-05122A?style=flat&logo=supabase)
 
-*Add some screenshots or graphics here that show your app being used!*
+<img width="1310" alt="image" src="https://github.com/user-attachments/assets/e4247e54-0a45-4fc6-8fbd-779e5530394e" />
+<img width="1311" alt="image" src="https://github.com/user-attachments/assets/037b4d60-0fd3-43c4-93ef-884534e43edb" />
+<img width="1309" alt="image" src="https://github.com/user-attachments/assets/bcb46d49-ce35-4d6f-bebe-8c419d93eb0b" />
 
-*Include a short description of your app here.*
+SwipeShare is a community-driven platform where college students can request or donate unused meal swipes for campus dining halls. Our mission is to reduce food waste and ensure no student goes hungry.
 
 ## Features
 
