@@ -84,7 +84,7 @@ export default function AvailabilityPage({
 
   return (
     <div className="w-full h-full flex justify-center items-center overflow-y-auto">
-      <Card className="h-[80vh] w-7/10 border-accent1 border-1">
+      <Card className="h-[80vh] w-7/10 border-primary1 border-1">
         <CardHeader>
           <div className="flex flex-row justify-between">
             <CardTitle className="text-4xl font-light">
