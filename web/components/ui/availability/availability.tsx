@@ -40,7 +40,7 @@ export const columns = (
       const { starttime, endtime } = row.original;
       return (
         <div
-          className="text-left font-bold rounded-4xl text-sm flex justify-between items-center cursor-pointer hover:bg-accent p-2 group"
+          className="text-left font-bold rounded-4xl text-sm flex justify-between items-center cursor-pointer p-2 group"
           onClick={() => onDelete(row.original)}
         >
           <span>
@@ -289,7 +289,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
                           );
                           setOpenFrom(false);
                         }}
-                        className="text-black"
+                        className="text-black dark:text-white"
                       >
                         {entry.label}
                         <Check
@@ -345,7 +345,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
                           );
                           setOpenTo(false);
                         }}
-                        className="text-black"
+                        className="text-black dark:text-white"
                       >
                         {entry.label}
                         <Check
@@ -367,7 +367,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
             onClick={() => {
               setButtonClicked(true);
             }}
-            className="bg-secondary1 cursor-pointer"
+            className="bg-secondary1 cursor-pointer dark:text-white font-semibold"
           >
             Add
           </Button>
@@ -376,7 +376,7 @@ export default function TimeInput({ profile }: TimeInputProps) {
 
       <div className="flex flex-col gap-y-8">
         <div className="flex flex-col justify-between">
-          <Label className="text-[#484349] text-2xl font-bold underline justify-center">
+          <Label className="text-[#484349] dark:text-accent text-2xl font-bold underline justify-center mt-4">
             Your Available Timeslots
           </Label>
           <Label className="text-gray text-muted-foreground text-xs justify-center">
