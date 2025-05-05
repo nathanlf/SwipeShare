@@ -120,7 +120,7 @@ export default function UserPostsPage({
           Your Posts
         </h1>
         <p className="text-gray-500 dark:text-foreground text-sm text-center max-w-lg mx-auto mb-6">
-          Track and manage all of your active donations and requets.
+          Track and manage all of your active donations and requests
         </p>
 
         <div className="flex-1 flex flex-col overflow-hidden">

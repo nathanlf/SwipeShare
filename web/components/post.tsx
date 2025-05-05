@@ -30,6 +30,8 @@ import {
   addRequestToCacheFn,
   deleteDonationFromCacheFn,
   deleteRequestFromCacheFn,
+  updateDonationInCacheFn,
+  updateRequestInCacheFn,
 } from "@/utils/supabase/cache/post-cache";
 
 interface CreatePostProps {
@@ -153,9 +155,9 @@ export default function CreatePostButton({ user }: CreatePostProps) {
         };
         
         if (postType === "donation") {
-          addDonationToCacheFn(queryClient, profile ? [profile] : undefined)(updatedPost);
+          updateDonationInCacheFn(queryClient, profile ? [profile] : undefined)(updatedPost);
         } else {
-          addRequestToCacheFn(queryClient, profile ? [profile] : undefined)(updatedPost);
+          updateRequestInCacheFn(queryClient, profile ? [profile] : undefined)(updatedPost);
         }
       }
 

@@ -550,7 +550,7 @@ export default function HomePage({ user, profile }: HomePageProps) {
           <Input
             type="text"
             placeholder="Search by name or keywords..."
-            className="!bg-transparent focus-visible:rounded-md shadow-none rounded-none py-0 !border-none text-black"
+            className="!bg-transparent focus-visible:rounded-md shadow-none rounded-none py-0 !border-none text-black dark:text-white"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
